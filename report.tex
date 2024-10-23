@@ -1,0 +1,525 @@
+\documentclass[a4paper]{article}
+\usepackage{import}
+%\usepackage[english,vietnam]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage[utf8]{inputenc}
+%\usepackage[francais]{babel}
+\usepackage{a4wide,amssymb,epsfig,latexsym,array,hhline,fancyhdr}
+\usepackage[normalem]{ulem}
+%\usepackage{soul}
+\usepackage{listings}
+\usepackage{colortbl}
+\usepackage[makeroom]{cancel}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{multicol,longtable,amscd}
+\usepackage{diagbox}%Make diagonal lines in tables
+\usepackage{booktabs}
+\usepackage{alltt}
+\usepackage[framemethod=tikz]{mdframed}% For highlighting paragraph backgrounds
+\usepackage{caption,subcaption}
+
+\usepackage{lastpage}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage{graphicx}							% Standard graphics package
+\usepackage{array}
+\usepackage{tabularx, caption}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{epsfig}
+\usepackage{minted}
+\usepackage{xcolor} % to access the named colour LightGray
+\definecolor{LightGray}{gray}{0.9}
+\usemintedstyle{emacs}
+\usepackage{tikz}
+\usetikzlibrary{graphs,graphs.standard}
+\usetikzlibrary{arrows,snakes,backgrounds}
+\usepackage[unicode]{hyperref}
+\hypersetup{
+    urlcolor=blue,
+    linkcolor=black,
+    citecolor=black,
+    colorlinks=true,
+    pdfpagemode=FullScreen,
+    pdftitle={The Travelling Salesman Problem},
+} 
+%\usepackage{pstcol} 								% PSTricks with the standard color package
+%\usepackage{background}
+%\backgroundsetup{contents=\includegraphics{Images/hcmut.png}, scale=0.5, opacity=0.25, angle = 0}
+\usepackage[normalem]{ulem}
+
+\def\thesislayout{	% A4: 210 × 297
+	\geometry{
+		a4paper,
+		total={160mm,240mm},  % fix over page
+		left=30mm,
+		top=30mm,
+	}
+}
+\thesislayout
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{40pt}
+\pagestyle{fancy}
+\fancyhead{} % clear all header fields
+\fancyhead[L]{
+ \begin{tabular}{rl}
+    \begin{picture}(25,15)(0,0)
+    \put(0,-8){\includegraphics[width=8mm, height=8mm]{Images/hcmut.png}}
+    %\put(0,-8){\epsfig{width=10mm,figure=hcmut.eps}}
+   \end{picture}&
+	%\includegraphics[width=8mm, height=8mm]{hcmut.png} & %
+	\begin{tabular}{l}
+		\textbf{\textcolor{blue}{\bf \ttfamily Ho Chi Minh City University of Technology}}\\
+		\textbf{\textcolor{blue}{\bf \ttfamily Faculty of Computer Science and Engineering}}
+	\end{tabular} 	
+ \end{tabular}
+}
+\fancyhead[R]{
+	\begin{tabular}{l}
+		\tiny \bf \\
+		\tiny \bf 
+	\end{tabular}  }
+\fancyfoot{} % clear all footer fields
+\fancyfoot[L]{\scriptsize \ttfamily Truong Gia Ky Nam - 2352787}
+\fancyfoot[R]{\scriptsize \ttfamily Page {\thepage}/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+
+%%%
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{3}
+\makeatletter
+\newcounter {subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection .\@alph\c@subsubsubsection}
+\newcommand\subsubsubsection{\@startsection{subsubsubsection}{4}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+\newcommand*\l@subsubsubsection{\@dottedtocline{3}{10.0em}{4.1em}}
+\newcommand*{\subsubsubsectionmark}[1]{}
+\makeatother
+
+\sloppy
+\captionsetup[figure]{labelfont={small,bf},textfont={small,it},belowskip=-1pt,aboveskip=-9pt}
+%space remove between caption, figure, and text
+\captionsetup[table]{labelfont={small,bf},textfont={small,it},belowskip=-1pt,aboveskip=7pt}
+%space remove between caption, table, and text
+
+%\floatplacement{figure}{H}%forced here float placement automatically for figures
+%\floatplacement{table}{H}%forced here float placement automatically for table
+%the following settings (11 lines) are to remove white space before or after the figures and tables
+%\setcounter{topnumber}{2}
+%\setcounter{bottomnumber}{2}
+%\setcounter{totalnumber}{4}
+%\renewcommand{\topfraction}{0.85}
+%\renewcommand{\bottomfraction}{0.85}
+%\renewcommand{\textfraction}{0.15}
+%\renewcommand{\floatpagefraction}{0.8}
+%\renewcommand{\textfraction}{0.1}
+\setlength{\floatsep}{5pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{5pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+
+\thesislayout
+
+
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\textbf{\Large VIETNAM NATIONAL UNIVERSITY HO CHI MINH CITY} \\
+
+\vspace{7pt}
+\textbf{\Large HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY} \\
+
+\vspace{7pt}
+\textbf{\Large FACULTY OF COMPUTER SCIENCE AND ENGINEERING}
+\end{center}
+
+\vspace{1cm}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=3cm]{Images/hcmut.png}
+\end{center}
+\end{figure}
+
+\vspace{1cm}
+
+
+\begin{center}
+\begin{tabular}{ccc}
+	\multicolumn{3}{l}{\textbf{{\Large \textcolor{blue}{MATHEMATICAL MODELING (CO2011)}}}}\\
+	~~\\
+	\arrayrulecolor{blue}\hline
+	\\
+	\multicolumn{3}{l}{\textbf{{\Large \textcolor{blue}{Assignment} }}}\\
+	\\
+	
+	\multicolumn{3}{c}{\textbf{{\Huge \textcolor{blue}{“Cutting Stock Problem”}}}}\\
+	\\
+    
+	\arrayrulecolor{blue}\hline \\ \\
+
+    \multicolumn{1}{r}{\textbf{\Large Instructors:}} & \multicolumn{2}{l}{\Large Nguyen Van Minh Man, \textit{Mahidol University}} \\ \\
+    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Le Hong Trang, \textit{CSE-HCMUT}} \\ \\
+
+    \\ \\
+
+    \multicolumn{1}{r}{\Large \textbf{Students:}} & \multicolumn{2}{l}{\Large Truong Gia Ky Nam - 2352787 (Group CC05 - Team 0y)} \\ \\
+
+    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Nguyen Huu Phuc - 2352938 (Group CC05 - Team 0y)} \\ \\
+
+    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Tran Bao Phuc Long - 2352703 (Group CC05 - Team 0y)} \\ \\
+
+    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Nguyen Thanh Hieu - 2352331 (Group CC05 - Team 0y)} \\ \\
+
+    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Chau Anh Nhat - 2352856 (Group CC05 - Team 0y)} \\ \\
+
+\end{tabular}
+\end{center}
+
+\vspace{2cm}
+
+\begin{center}
+{\textbf{\Large Ho Chi Minh City, November 2024}}
+\end{center}
+\end{titlepage}
+
+\thispagestyle{empty}
+\setcounter{page}{-1}
+\newpage
+\begin{abstract}
+    \noindent     
+    The Cut Stock Problem (CSP) is a well-known optimization challenge in Operations Research and Industrial Engineering. It involves determining the most efficient way to cut smaller required lengths (orders) from a standard larger length (stock), with the goal of minimizing waste. This problem is prevalent in industries such as paper, steel, and textiles, where materials are manufactured in standard sizes and must be cut to meet specific customer demands. The complexity of CSP increases with the diversity of order sizes and the need to satisfy all demands exactly. Various approaches, including dynamic programming, column generation, and heuristic methods, have been proposed to address the problem. This report investigates the application of the Branch and Bound algorithm, a combinatorial optimization technique, to solve the CSP. The Branch and Bound method systematically explores the solution space by branching and applying bounding strategies to eliminate suboptimal solutions, thereby reducing the search space. The report also provides a detailed implementation of the algorithm and its performance analysis based on research findings.
+\end{abstract}
+\newpage
+
+\setcounter{page}{0}
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+%\thispagestyle{empty}
+\section{Introduction}
+This report aims to provide a comprehensive explaination of The Traveling Salemen Problem along with the Branch and Bound algorithm. By delving into the Branch and Bound algorithm and implement it using the C++ language, this report seek to highlights its effectiveness in solving one of the most challenging problems in optmization. 
+\section{The Traveling Salemen Problem}
+\subsection{Overview}
+The Travelling Salesman Problem, also known as The Travelling Salesperson Problem (TSP), asks the following question: \textit{``Given a list of cities and the distances between each pair of cities, what is the shortest possible route that visits each city exactly once and returns to the origin city?"} or in other words, the problem is: \textit{``Given a complete graph with weight edges, what is the Hamiltonian cycle of minimum cost?}. It is an NP-hard problem in combinatorial optimization, important in theoretical computer science and operations research.
+\subsection{Traveling Saleman Problem implementation}
+Although TSP is a problem in computer science, it has a wide range of applications in various fields:
+\begin{itemize}
+    \item \textbf{Logistics and Supply Chain Managment}: TSP can determine the most efficient routes for delivery transportation, reducing travel time and fuel consumption,which can help the companies to save lots of money.
+    \item \textbf{Manufacturing}: In manaufacturing processes involving CNC machines, TSP helps in determining the optimal path for tools, reducing the time and cost of production.
+    \item \textbf{Transportation}: TSP can help public transport such as buses or trains to minimize travel time and improve service efficiency.
+    \item \textbf{Telecommunications}: TSP is used in the design of efficient telecommunication networks, ensuring that the data transmission routes are optimized to reduce latency and cost.
+\end{itemize}
+By solving the TSP, we can address real-world challenges more effectively, leading to substantial economic, operational, and environmental benefits.
+\subsection{Traveling Saleman Problem solving methods}
+Throught out the history, many methods have been made to find the optimal solution for TSP:
+\begin{itemize}
+    \item \textbf{Brute-Force Search}: This is the straight-forward solution by computing all possible permutations of the cities until the shortest path is found.
+    \item \textbf{Nearest Neighbor Algorithms}: Start from the origin city, repeatedly visit the nearest unvisited city until all cities are visited.
+    \item \textbf{Held-Karp Algorithm}: This approach using dynamic programming to solve TSP. It is more efficient than brute force but still exponential.  
+    \item \textbf{Christofides's Algorithm}: This algorithm involves constructing a minimum spanning tree, finding a minimum matching, and combining these to form a tour. 
+    \item \textbf{Genetic Algorithms}:These use principles of natural selection and genetics to evolve a population of solutions over several generations, aiming to improve the quality of solutions.
+\end{itemize}
+And there are others algorithm and heuristics which can be used to solve TSP. Each method has its advantages and disadvantages, depending on the problem size, required solution quality, and computational resources. In my report, I will focusing on solving TSP using the \textbf{Branch and Bound} algorithm, a well used algorithm for optmization problems.   
+\section{Branch and Bound Algorithm}
+\subsection{Overview}
+Branch and bound is a method used in computer science to solve optimization problems. Branch and bound algorithms involves dividing the problem space into smaller sub-problems and applying constraints or bounds to eliminate certain sub-problems. This process continue until the optimal solution is found.
+\subsection{Applications of Branch and Bound}
+Beside solving TSP, Branch and Bound algorithm has many applications. It includes:
+\begin{itemize}
+    \item \textbf{Solving Knapsack Problem}: Branch and Bound is used to solve the Knapsack Problem, which involves finding the optimized combination of items to pack into a knapsack of limited capacity.
+    \item \textbf{Resource Allocation}: Branch and Bound is used to solve resource allocation problems, like scheduling work on machines or assigning work to workers. 
+    \item \textbf{Network Optimization}: Branch and bound is used to solve network optimization problems, it helps in finding the optimized path or flow through a network.
+    \item \textbf{Game Playing}: Branch and bound is used in some of the game-playing algorithms, like chess or tic-tac or 16 puzzle problem, to explore the various possible moves and find the optimized strategies.
+\end{itemize}
+\subsection{Advantages and Disadvantages}
+There are advantages when using this algorithms:
+\begin{itemize}
+    \item By pruning the search space using bounds, it can avoid exploring irrelevant sub-problems and find the optimal solution more quickly when compare to other algorithms.
+    \item There is a guarantees that the optimal solution will be found, as long as the bounds are computed correctly. This makes it a reliable algorithm for solving optimization problems.
+    \item Branch and bound can be applied to a wide range of optimization problems, including linear programming, integer programming, and combinatorial optimization problems.
+    \item  Branch and bound can be used to solve large-scale optimization problems, as it can be parallelized and distributed across multiple processors.
+\end{itemize}
+However, there are some drawbacks when using Branch and Bound algorithms
+\begin{itemize}
+    \item Branch and bound can be a complex algorithm to implement, as it requires careful design of the bounds and branching strategy.
+    \item The performance of branch and bound is highly dependent on the quality of the bounds used. If the bounds are too loose, the algorithm may explore too many irrelevant sub-problems, leading to poor performance.
+\end{itemize}
+Although there are still some drawbacks of Branch and Bound algorithm, but with carefully designation, these drawbacks can be removed.
+\section{Detailed Explanation of the Algorithm}
+To see the full source code, take a look at these files: \textit{tsm.cpp} and \textit{tsm.h}
+\subsection{Finding two minimum weight edges}
+The \textit{findTwoMin} function is designed to identify the two smallest weights of edges that terminate at every vertex in the graph. These 2 values are crucial for calculating the bound for different vertex in the current consider path.
+\subsubsection{Function Signature}
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Finding two minimum edges function having an end at every vertex 
+void findTwoMin(int G[20][20], int numCities, int firstMin[20], int secondMin[20]);
+\end{minted}
+This function take in parameters:
+\begin{itemize}
+    \item \textbf{int G[20][20]}: The adjacency matrix of the graph.
+    \item \textbf{int numCities}: The number of vertices on the graph. 
+    \item \textbf{int firstMin[20]}: An array to store the minimum edge weight for each vertex. In the array \textit{firstMin[i]} will store the smallest edge weight connected to node `i'. 
+    \item \textbf{int secondMin[20]}: An array to store the second minimum edge weight for each vertex. In the array, \textit{secondMin[i]} will store the second smallest edge weight connected to node `i'.
+\end{itemize}
+\subsubsection{Function Logic}
+First, initialize all of the first and second minimum weight of each vertex to be very large to ensure that all weights are smaller.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+for(int i = 0; i < numCities; i++){
+    firstMin[i] = 100000;
+    secondMin[i] = 100000;
+
+    /*The other parts */
+}
+\end{minted}
+Next, loop through all possible connected edges ending at vertex `j' and update the `first' with smallest edge weight.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Find the first minimum value
+for(int j = 0; j < numCities; j++){
+    if(i == j) continue;
+    if(firstMin[i] >= G[i][j]) firstMin[i] = G[i][j];
+}
+\end{minted}
+After finding the minimum value, loop through all edges again, update the `second' variable with the smallest edge weight which is greater or equal than the `first' variable.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Find the second minimum value
+for(int j = 0; j < numCities; j++){
+    if(i == j) continue;
+    if(secondMin[i] >= G[i][j] && G[i][j] >= firstMin[i]) secondMin[i] = G[i][j];
+}
+\end{minted}
+\subsection{Exploration function}
+The \textit{branchAndBoundTSP} function implements the Brand and Bound algorithm to solve TSP. This function explores all possible paths from the from the current node, recursively building a search tree to find the optimal path with minimum cost.
+\subsubsection{Function Signature}
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+void branchAndBoundTSP(int G[20][20], int numCities, int (&currentPath)[21], int &currentBound, int currentCost
+, int level, bool (&visited)[20], int &finalCost, int (&finalPath)[21], int firstMin[20], int secondMin[20]);
+\end{minted}
+The function take in parameters:
+\begin{itemize}
+    \item \textbf{int G[20][20]}: The adjacency matrix of the graph.
+    \item \textbf{int numCities}: The number of vertices on the graph.
+    \item \textbf{int (\&currentPath[21])}: An array with size 21 representing the current path being explored.
+    \item \textbf{int \&currentBound}: The current lower bound of the cost for the path being explored.
+    \item \textbf{int currentCost}: The current weight of the path being explored.
+    \item \textbf{int level}: The current level in the search tree. 
+    \item \textbf{bool (\&visited)[20]}: A boolean array indicating whether a vertex has been visited or not.
+    \item \textbf{int \&finalCost}: The minimum cost found so far for finding the optimal path
+    \item \textbf{int (\&finalPath)[21]}: An array reprenting the path with the minimum cost found so far.
+    \item \textbf{int firstMin[20]}: An array storing the minimum weight edges for each vertex.
+    \item \textbf{int secondMin[20]}: An array storing the second minimum weight edges for each vertex.
+\end{itemize}
+\subsubsection{Function Logic}
+First, iterate through all vertices to explore all possible routes.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Iterate for all vertices to build the tree recursively
+for (int i = 0; i < numCities; i++)
+\end{minted}
+At each considered vertex, check if that vertex can be visited or not. Specifically, check if the next vertex `i' is not visited and there is an edge between the last vertex of the current path and the next vertex `i'.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Consider the next vertex 
+//if it is not visited 
+//and it connects to the last vertex within the current path
+if (G[currentPath[level - 1]][i] != 0 && visited[i] == false)
+\end{minted}
+Store the current bound in temporary variable for backtracking to explore other routes.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Using a temporary to store the current bound for backtracking
+int temp = currentBound;
+\end{minted}
+As the connected edge is found, add the weight of that edge to the current path's cost.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Add the weight of the consider edges to the current path's cost
+currentCost += G[currentPath[level - 1]][i];
+\end{minted}
+Also, reduce the current bound based on the two minimum weight edges for the current and next vertices. 
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Different computation for level 1 from others
+if(level == 1){
+    currentBound -= (firstMin[currentPath[level - 1]] + firstMin[i])/2;
+} else {
+    currentBound -= (secondMin[currentPath[level - 1]] + firstMin[i])/2;
+}
+\end{minted}
+There is a different in calculation between level 1 and the others level. At the initial level of the search tree, the current bound subtract the average of the smallest edge costs connected to the starting node and the next node `i'. But in the others level, as the minimum weight has been used in the previous level, now the the current bound have to subtract the average of the second smallest edge of the current node and the smallest edge of the next node. \\ \\
+Now the actual lower bound is the sum of the current bound and the current cost. Check that bound is less than the minimum cost found so far or not.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Check if the actual lower bound smaller than the minimum cost, explore the node further
+if (currentBound + currentCost < finalCost)
+\end{minted}    
+If so, update the current path and mark the vertex as visited, then recursively call the function to explore this node further
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Add the current node to the current path
+currentPath[level] = i;
+visited[i] = true;
+
+//Continue to explore recursively
+branchAndBoundTSP(G, numCities, currentPath, currentBound, currentCost, level + 1, visited, finalCost, finalPath);
+\end{minted}
+If the exploration can not proceed further, reset the current cost and bound and update the visited array to backtrack and explore other possible paths.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Else prune the node by resetting all change to current cost and current bound
+//Or if the exploration success, backtracking to explore other solutions  
+currentCost -= G[currentPath[level - 1]][i];
+currentBound = temp;
+
+//Reset the visited array
+for (int i = 0; i < numCities + 1; i++)
+{
+    visited[i] = false;
+}
+
+for (int j = 0; j <= level - 1; j++)
+{
+    visited[currentPath[j]] = true;
+}
+\end{minted}
+When all vertices have been visited, the function checks if the current explore path is less than the minimum cost found so far. If so, updates the final path and continue to explore other possible routes.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Base case: When the search tree has reached the level N
+//which mean the algorithm has covered all nodes
+if (level == numCities)
+{
+    //Check if there is a path from last vertex in the current path to the start vertex
+    if (G[currentPath[level - 1]][currentPath[0]] != 0)
+    {
+        //The total weight of the current path
+        int currentResult = currentCost + G[currentPath[level - 1]][currentPath[0]];
+
+        //Update the final cost and final path
+        //if the current path is more optimal
+        if (currentResult < finalCost)
+        {
+            //Make the current path is the final path
+            for (int i = 0; i < numCities; i++)
+            {
+                finalPath[i] = currentPath[i];
+            }
+            finalPath[numCities] = currentPath[0];
+            finalCost = currentResult;
+        }
+    }
+}
+\end{minted}
+\subsection{Traveling function}
+The \textit{Traveling} function is designed to call the \textit{branchAndBoundTSP} function to return the optimal solution for the TSP. 
+\subsubsection{Function Signature}
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+string Traveling(int G[20][20], int numCities, char startVertex);
+\end{minted}
+This function take in parameters:
+\begin{itemize}
+    \item \textbf{int G[20][20]}: The adjacency matrix of the graph.
+    \item \textbf{int numCities}: The number of vertices on the graph.
+    \item \textbf{char startVertex}: The character representing the starting city
+\end{itemize}
+\subsubsection{Function Logic}
+At first, check if the input graph only have 1 vertex or not. If so, the optimal path only have that vertex.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Check for special case
+if (numCities == 1){
+    string ans;
+    ans += startVertex;
+    return ans;
+}
+\end{minted}
+First, initialize necessary variables and array
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Initialization
+int currentPath[21] = {-1};
+bool visited[20] = {false};
+int finalPath[21] = {-1};
+int finalCost = 100000;
+int currentBound = 0;
+string ans;
+\end{minted}
+Where:
+\begin{itemize}
+    \item The \textbf{`currentPath'} array stores the current path being explored. At first initialize it with all -1.
+    \item The \textbf{`visited'} array keeps track which cities have been visited. At first, none of the cities are visited so initialize it with false value.
+    \item The \textbf{`finalPath'} array stores the optimal path. At first initialize it with all -1.
+    \item The \textbf{`finalCost'} to store the cost of the optimal path, at the beginning let it be infinity
+    \item The \textbf{`currentBound'} to store the lower bound of the cost for the current node. At first initialize it with 0.
+    \item The string \textbf{`ans'} to return the optimal path in string format.
+\end{itemize}
+Next, find the minimum weight edges and second minimum weight edges of each vertex using the \textit{findTwoMin} function.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Fill in the minimum and second minimum weight edge for each vertex
+int firstMin[20] = {-1};
+int secondMin[20] = {-1};
+findTwoMin(G,numCities,firstMin,secondMin);
+\end{minted}
+Next, calculate the lower bound for any possible tour in the graph
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Calculate the bound for any tour by formula:
+//1/2 * (sum of first minimum and second minimum of all vertices)
+for (int i = 0; i < numCities; i++)
+{
+    currentBound += (firstMin[i] + secondMin[i]);
+}
+
+//Rounding off the bound
+if (currentBound % 2 == 0)
+{
+    currentBound = currentBound / 2;
+}
+else
+{
+    currentBound = currentBound / 2 + 1;
+}
+\end{minted}
+At the beginning, marked the starting vertex as visited and included it to the current path array
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Store the starting vertex to the beginning of the current path
+visited[int(startVertex - 'A')] = true;
+currentPath[0] = int(startVertex - 'A');
+\end{minted}
+After initialize all of the necessary elements, call to the \textit{branchAndBoundTSP} with the current weight of the current path is 0 and start to explore the search space tree from root node.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//Call to branchAndBound with current path cost is 0 and explore the tree from level 1. 
+branchAndBoundTSP(G, numCities, currentPath, currentBound, 0, 1, visited, finalCost, finalPath);
+\end{minted}
+After the algorithm has explore all paths and construct the optimal final path , return the final path in string type.
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
+//After the optimal solution is found
+//Return it in the string form
+for (int i = 0; i <= numCities; i++)
+{
+    ans += char(finalPath[i] + 'A');
+    if (i == numCities) break;
+    ans += " ";
+}
+return ans;
+\end{minted}
+
+\section{Conclusion}
+This report has explore the Branch and Bound algorithm to solve The Traveling Saleman Problem. Although this is not the most efficient algorithm to solve the problem as in some worst-case scenario, Branch and Bound algorithm time complexity will be the same as Brute Force technique. However, in most cases, the algorithm will perform better than Brute Force technique.
+
+\begin{thebibliography}{80}
+
+\bibitem{TSP}
+Introduction to TSP
+``\textbf{link: https://en.wikipedia.org/wiki/Travelling\_salesman\_problem}'',
+\textit{Travelling salesman problem}.
+
+\bibitem{B&B}
+Branch and Bound introduction
+``\textbf{link: https://www.geeksforgeeks.org/branch-and-bound-algorithm/}'', \textit{Branch and Bound Algorithm}
+
+
+\end{thebibliography}
+\end{document}
+
