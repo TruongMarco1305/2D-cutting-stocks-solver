@@ -1,0 +1,11 @@
+24/10/2024
+GIT TUTORIAL FOR BEGINNER
+Clone từ repo về máy
+Tạo nhánh từ nhánh hiện tại: -b
+Sau –b là tên nhánh
+convention tên nhánh:
++ feat: tạo mới (minute)
++ fix: fix bug
++ refactor: format code
++ chore: chỉnh comment, những thứ k liên quan
+-----
