@@ -2,10 +2,11 @@ Author: Nguyen Huu Phuc - 2352938
 
 A NEAR-OPTIMAL SOLUTION TO A TWO-DIMENSIONAL CUTTING STOCK PROBLEM
 
-The paper by Claire Kenyon and Eric Rémila presents a near-optimal algorithm for solving a two-dimensional cutting stock problem, 
-specifically the "strip-packing" problem. This problem entails packing multiple rectangular pieces into a larger fixed-width strip 
-while minimizing the height required. Recognizing this as an NP-hard problem, the authors provide an asymptotic fully polynomial 
-approximation scheme (AFPTAS), achieving results within a factor of (1+ϵ) of the optimal solution.
+In tackling the two-dimensional cutting stock problem, Claire Kenyon and Eric Rémila introduce a near-optimal algorithm tailored specifically 
+for the "strip-packing" problem. This problem involves packing multiple rectangular items into a larger strip with a fixed width, with 
+the goal of minimizing the total height of the arrangement. Given the NP-hard nature of this optimization challenge, Kenyon and Rémila 
+present an asymptotic fully polynomial approximation scheme (AFPTAS). Their algorithm guarantees solutions within a factor of (1+ϵ) of 
+the optimal, providing a powerful, efficient approach to this classic problem in combinatorial optimization.
 
 Algorithm Overview
 1. Decomposition and Approximation: The algorithm first categorizes rectangles into "narrow" and "wide" based on width, simplifying 
@@ -31,7 +32,7 @@ cutting or packing problems.
 3. Dependency on Small Width Constraints: For best performance, the algorithm assumes that small rectangles are grouped or approximated, 
 potentially affecting the precision of solutions for diverse or irregularly shaped inputs.
 
-Best Use Cases
+Optimal application contexts
 1. High Volume and Regular Shapes: It performs best with large quantities of rectangles with dimensions close to each other, making the 
 LP approximation effective.
 2. Guillotine Cut Requirement: It is ideal for manufacturing processes requiring straight-line cuts, like wood and metal cutting.
@@ -45,3 +46,7 @@ for handling narrow and wide rectangles separately, the algorithm achieves an as
 margin from optimality. Its compatibility with guillotine cuts makes it particularly relevant for manufacturing applications where 
 straightforward, edge-to-edge cutting processes are required. Despite its complexity, the algorithm’s polynomial-time performance and 
 versatility underscore its practical value in real-world scenarios that demand efficient material utilization and minimal waste.
+
+Reference
+C. Kenyon and E. Rémila, “A near-optimal solution to a two-dimensional cutting stock problem,” Mathematics of Operations Research, 
+vol. 25, no. 4, pp. 645–656, 2000.
