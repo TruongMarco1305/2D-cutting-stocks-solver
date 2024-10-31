@@ -1,9 +1,0 @@
-//After the optimal solution is found
-//Return it in the string form
-for (int i = 0; i <= numCities; i++)
-{
-    ans += char(finalPath[i] + 'A');
-    if (i == numCities) break;
-    ans += " ";
-}
-return ans;
