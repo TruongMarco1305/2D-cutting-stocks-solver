@@ -1,1 +1,47 @@
-Author: Truong Gia Ky Nam - 2352787 & Nguyen Huu Phuc - 2352938
+Author: Nguyen Huu Phuc - 2352938
+
+A NEAR-OPTIMAL SOLUTION TO A TWO-DIMENSIONAL CUTTING STOCK PROBLEM
+
+The paper by Claire Kenyon and Eric Rémila presents a near-optimal algorithm for solving a two-dimensional cutting stock problem, 
+specifically the "strip-packing" problem. This problem entails packing multiple rectangular pieces into a larger fixed-width strip 
+while minimizing the height required. Recognizing this as an NP-hard problem, the authors provide an asymptotic fully polynomial 
+approximation scheme (AFPTAS), achieving results within a factor of (1+ϵ) of the optimal solution.
+
+Algorithm Overview
+1. Decomposition and Approximation: The algorithm first categorizes rectangles into "narrow" and "wide" based on width, simplifying 
+the problem by handling these groups separately.
+2. Linear Programming (LP) Relaxation: The approach utilizes a linear programming relaxation to approximate packing wide rectangles, 
+leveraging fractional packing techniques from Karmarkar and Karp’s work on bin-packing.
+3. Packing and Rounding: Once an approximate solution for wide rectangles is found, the algorithm rounds fractional solutions to produce 
+a nearly optimal integral solution. Narrow rectangles are then packed into remaining spaces in a structured, layer-by-layer manner.
+4. Guillotine Cuts: The algorithm allows the use of "guillotine cuts" to facilitate implementation in manufacturing contexts where 
+edge-to-edge cuts are preferred.
+
+Advantages
+1. Efficiency: The algorithm runs in polynomial time relative to the number of rectangles and the inverse of the approximation factor, 
+making it scalable for large inputs.
+2. Near-Optimality: Achieves solutions close to optimal with a bounded error margin.
+3. Versatility: The approach is compatible with guillotine cuts, a valuable feature in real-world manufacturing.
+
+Disadvantages
+1. Complexity in Implementation: Due to the multi-step approach involving linear programming and decomposition, implementation can be 
+complex.
+2. Restrictions on Rotation: The algorithm does not accommodate rotations of rectangles, which may limit its application in certain 
+cutting or packing problems.
+3. Dependency on Small Width Constraints: For best performance, the algorithm assumes that small rectangles are grouped or approximated, 
+potentially affecting the precision of solutions for diverse or irregularly shaped inputs.
+
+Best Use Cases
+1. High Volume and Regular Shapes: It performs best with large quantities of rectangles with dimensions close to each other, making the 
+LP approximation effective.
+2. Guillotine Cut Requirement: It is ideal for manufacturing processes requiring straight-line cuts, like wood and metal cutting.
+3. Strict Approximation Tolerance: The algorithm is suitable for scenarios where a near-optimal solution suffices, rather than an exact 
+fit, allowing for faster processing times.
+
+Conclusion
+In conclusion, the algorithm presented by Kenyon and Rémila offers a robust, near-optimal solution to the two-dimensional strip-packing 
+problem, an essential variant of the cutting stock problem. By leveraging linear programming techniques alongside a structured approach 
+for handling narrow and wide rectangles separately, the algorithm achieves an asymptotically efficient approximation with a bounded 
+margin from optimality. Its compatibility with guillotine cuts makes it particularly relevant for manufacturing applications where 
+straightforward, edge-to-edge cutting processes are required. Despite its complexity, the algorithm’s polynomial-time performance and 
+versatility underscore its practical value in real-world scenarios that demand efficient material utilization and minimal waste.
