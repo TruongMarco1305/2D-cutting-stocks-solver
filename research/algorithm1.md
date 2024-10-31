@@ -13,7 +13,7 @@ A heuristic approach in optimization is a rule-based method that aims to find a 
 ### **Advantages of the Greedy Heuristic Approach**
 
 1. **Simplicity and Ease of Implementation**: Greedy algorithms are straightforward to design and implement, often requiring minimal code compared to more complex optimization methods.
-2. **Low Computational Cost**: These algorithms usually have a lower computational overhead compared to exact algorithms, making them more scalable for problems with large input sizes.
+2. **Low Computational Cost**: These algorithms usually have a lower computational overhead compared to exact algorithms, making them effective for small to medium-sized instances or real-time decision-making.
 3. **Adaptability**: Greedy strategies can be adapted and customized to various specific use cases by altering selection criteria or adding constraints (e.g., minimizing waste, maximizing production).
 4. **Reasonable Quality Solutions**: Although not guaranteed to be optimal, greedy heuristics often yield good or acceptable solutions that are sufficient for practical applications.
 5. **Usefulness in Problem Approximation**: Greedy heuristics can be a good starting point for finding an initial solution that can be refined further with more sophisticated techniques.
@@ -23,6 +23,13 @@ A heuristic approach in optimization is a rule-based method that aims to find a 
 1. **Lack of Global Optimality**: Greedy algorithms focus on local optimal choices at each step, which can lead to suboptimal global solutions. They do not guarantee the best possible outcome.
 2. **Potential for Inconsistency**: Heuristic solutions can vary depending on initial conditions, randomization, or specific implementation details, which may lead to inconsistent results in some scenarios.
 3. **Limited Flexibility**: Greedy algorithms are generally tailored to specific criteria for optimization and may not handle multiple objectives well without significant modifications.
+
+### **Application context**
+Greedy heuristics perform best under the following conditions:
+1. **Greedy-Choice Property**: The problem must allow for locally optimal choices to lead to a global optimal solution, ensuring that selecting the best immediate option at each step results in the best overall outcome.
+2. **Defined Selection Criterion**: The algorithm should have a clear and simple rule for making decisions at each step (e.g., choosing the next item with the highest value-to-weight ratio).
+3. **Simple, Clear Objectives**: Problems with straightforward, quantifiable goals, such as maximizing profit or minimizing cost, are more suitable for greedy approaches.
+4. **Homogeneous Input Structure**: Problems where the input elements contribute similarly or have minimal variability make greedy solutions more effective and comparable to more complex algorithms.
 
 ### **Conclusion**
 
