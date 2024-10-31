@@ -9,6 +9,11 @@ class Policy2210xxx(Policy):
         list_prods = observation["products"]
         best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
         list_prods = sorted(list_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
+        sum = 0
+        for prod in list_prods:
+            if prod["quantity"] > 0:
+                sum += prod["quantity"]
+        print(sum)
         for prod in list_prods:
             if prod["quantity"] > 0:
                 prod_size = prod["size"]
