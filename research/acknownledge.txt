@@ -1,1 +1,75 @@
-Author: Chau Anh Nhat - 2352856
+Author: Nguyen Thanh Hieu - 2352331
+The 2-dimensional cutting stock problem (2D CSP) is a classic optimization problem where the goal is to cut a large piece of material (e.g., metal, wood, or fabric) into smaller rectangular pieces to meet specific requirements while minimizing waste. It is commonly encountered in manufacturing and production industries where efficient material usage is essential for cost savings.
+
+Problem Definition
+Input Material: You start with a large rectangular sheet of a certain width and height, which serves as the stock from which smaller pieces are cut.
+
+Demanded Pieces: There’s a set of smaller rectangles, each with specific width and height, that must be cut from the stock. These pieces represent the demand and can vary in quantity and size. Each piece type has:
+
+A specific size (width and height).
+A required quantity.
+Goal: The objective is to cut the demanded pieces from the stock in a way that minimizes waste (unused material), or equivalently, maximizes the use of the stock sheet. Often, this includes:
+
+Minimizing the total number of stock sheets required.
+Minimizing the unused area on each stock sheet if a fixed number of sheets are used.
+Types of Constraints
+Several constraints typically govern the solution:
+
+- Stock Size Constraint: The cuts must fit within the dimensions of the stock sheet.
+- Demand Constraint: Each demanded piece must be produced in the required quantity.
+- Non-Overlap Constraint: The pieces cannot overlap on the stock sheet; each piece must occupy a unique position.
+- Cutting Pattern Constraint: Often, only certain types of cuts are allowed 
+  Types of Cutting Patterns
+  + Guillotine Cuts: Each cut must go from one edge of the material to the other, simplifying the cutting process. Guillotine cutting is often preferred because it's easier to automate and more practical in large-scale manufacturing.
+
+  + Non-Guillotine Cuts: Cuts don’t have to span the entire length or width, which can lead to more efficient use of material but is usually harder to implement due to increased cutting complexity.
+
+Approaches to Solving 2D CSP
+2D CSP is computationally difficult, so different algorithms and methods are used to find efficient solutions:
+
+1. Heuristics
+Heuristic methods use simple rules and decision-making strategies to create layouts quickly, often based on criteria like minimizing gaps or filling the stock sheet in specific directions. Common examples include:
+
+First Fit: Each piece is placed in the first available space where it fits.
+Best Fit: Each piece is placed in the tightest space possible to minimize leftover areas around each piece.
+
+These methods are fast and produce usable layouts for real-world problems, although they may not always yield the best possible solution in terms of material efficiency.
+
+2. Near-Optimal Methods
+Near-optimal methods aim to find good-quality solutions that are close to optimal, balancing efficiency with practicality. They use more sophisticated techniques like metaheuristic algorithms to iteratively improve layouts. Common methods include:
+
+Genetic Algorithms: Generate a "population" of cutting patterns that evolve through selection and crossover to improve layout efficiency.
+Simulated Annealing: Gradually optimizes a layout by testing small adjustments and selecting improved arrangements.
+
+These methods are effective for complex CSPs where perfect optimization is impractical, providing flexible and high-quality solutions without excessive computational cost.
+
+3. Global Methods
+Global methods strive to find the absolute best (optimal) solution by exhaustively evaluating possible configurations. They often use mathematical formulations, like integer programming (IP), combined with techniques such as:
+
+Integer Programming (IP): Models the problem with binary variables and constraints, ensuring each piece is accounted for in the most efficient arrangement.
+Column Generation: Dynamically generates cutting patterns to improve material utilization and selects the best set of patterns.
+
+Global methods ensure minimal waste but are computationally intensive and are best suited for high-value materials or stable demand scenarios where the effort of obtaining the optimal layout is justified.
+
+Example Problem
+Consider a stock sheet of size 10 x 10 units. You need to cut the following pieces:
+
+Three pieces of size 4 x 2
+Two pieces of size 3 x 3
+Four pieces of size 2 x 2
+Solution Steps
+- Define Patterns: Determine potential patterns for arranging the pieces on the stock sheet. Patterns should be as efficient as possible (e.g., filling rows or columns).
+
+- Select Patterns: Using an algorithm (e.g., Best Fit), place pieces in each selected pattern until the demand is met or no further patterns can be efficiently placed.
+
+- Minimize Waste: After meeting all demands, calculate the leftover area to assess efficiency.
+
+############(Insert Screenshot_139.webp included in same folder).
+
+Applications of 2D CSP
+The 2D cutting stock problem is widely applicable in industries like:
+
+Manufacturing: Cutting metals, glass, and fabric to reduce scrap.
+Woodworking: Cutting plywood or lumber to maximize usage.
+Logistics: Packing boxes into containers to maximize space.
+The complexity of 2D CSP makes it challenging but essential for operations that depend on material efficiency, cost reduction and process optimization.
