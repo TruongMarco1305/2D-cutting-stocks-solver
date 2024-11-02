@@ -1,3 +1,4 @@
+Author: Nguyen Thanh Hieu - 2352331
 The 2-dimensional cutting stock problem (2D CSP) is a classic optimization problem where the goal is to cut a large piece of material (e.g., metal, wood, or fabric) into smaller rectangular pieces to meet specific requirements while minimizing waste. It is commonly encountered in manufacturing and production industries where efficient material usage is essential for cost savings.
 
 Problem Definition
@@ -33,7 +34,7 @@ Ten pieces of size 5x5 inches
 Difficulties in Solving this Example
 - Piece Size and Shape Diversity:
   + The pieces have different dimensions, some long and narrow, others square or almost square. This variety complicates the arrangement, as pieces cannot       easily “tessellate” or fit together like a puzzle without leaving gaps.
-  + Large pieces, such as 20x10, reduce flexibility in the arrangement, limiting the space left for smaller pieces.
+  + Large pieces, such as 15x10, reduce flexibility in the arrangement, limiting the space left for smaller pieces.
 
 - Constraint of Available Material Dimensions:
   + Since the stock sheet is a fixed size (80x50 inches), there's a risk of not fitting all pieces if the layout isn’t planned carefully.
