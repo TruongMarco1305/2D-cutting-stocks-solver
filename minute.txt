@@ -1,13 +1,29 @@
-24/10/2024
-GIT TUTORIAL FOR BEGINNER
-Clone từ repo về máy
-Tạo nhánh từ nhánh hiện tại: -b
-Sau –b là tên nhánh
-convention tên nhánh:
-+ feat: tạo mới (minute)
-+ fix: fix bug
-+ refactor: format code
-+ chore: chỉnh comment, những thứ k liên quan
-Chuyển từ changes lên staged changes để commit 
-change to english later
+Date: October 24, 2024
+Time: 9:00 PM - 10:30 PM
+Location: Online Meeting
+Attendees: Full attendance
+
+Agenda Overview
+
+	1.	Introduction to Git and Version Control
+	2.	Setting Up Git
+	3.	Basic Git Commands and Workflow
+	4.	Branching and Merging
+	5.	Collaborative Features in Git (Pull Requests and Conflict Resolution)
+	6.	Q&A Session
 -----
+
+Date: November 10, 2024
+Time: 9:00 PM - 11:00 PM
+Location: Online Meeting
+Attendees: Full attendance
+
+Agenda Overview
+
+	1.	Overview of 2D Cutting Stock Problem (2DCSP)
+	2.	Introduction to ILP Modeling and Simplex Method
+	3.	Discussion on Column Generation Approach
+	4.	RMP (Restricted Master Problem) and Dual Variable Explanation
+	5.	Subproblem Formulation in 2DCSP
+	6.	Example Run in Python
+	7.	Overview of the Gymnastics Library for Optimization
