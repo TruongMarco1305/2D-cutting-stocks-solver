@@ -1,21 +1,28 @@
-The 2-dimensional cutting stock problem (2D CSP) is a classic optimization problem where the goal is to cut a large piece of material (e.g., metal, wood, or fabric) into smaller rectangular pieces to meet specific requirements while minimizing waste. It is commonly encountered in manufacturing and production industries where efficient material usage is essential for cost savings.
+The 2-dimensional cutting stock problem (2D CSP)  is a type of optimization problem where the goal is to cut smaller rectangular items from larger rectangular sheets of material in a way that minimizes waste or the number of sheets used. It is commonly encountered in manufacturing and production industries where efficient material usage is essential for cost savings.
 
-Problem Definition
+Categorizing the Problem
+The 2-dimensional cutting stock problem can be differentiate into many kinds of problem based on these factors:
+-Types of Cutting Patterns
+  + Guillotine Cuts: Each cut must go from one edge of the material to the other, simplifying the cutting process. Guillotine cutting is often preferred because it's easier to automate and more practical in large-scale manufacturing.
+  + Non-Guillotine Cuts: Cuts don’t have to span the entire length or width, which can lead to more efficient use of material but is usually harder to implement due to increased cutting complexity.
+-Types of Stocks: The problem will provides the number of stocks to work with, ranging from one single stock to infinite.
+-Orientation Constraints: The stock pieces can be freely rotated in any directions or must remain in a specific orientation depends on the stock's properties
+-Shape of Stock: The stock can be rectangle, which will be easy to solve and cut or it can have arbitrary shapes which requires a more complex approach to solve
+-Goal of the Problem: Based on the final goal of the problem, we can create many variation of this problem. We mainly deal with these 4 types:
+ + 2-dimensional strip packing problem: Given a single bin B with fixed width W and infinite height, this problem's demand is to fit a packing of products that use minimal height.
+ + 2-dimensional knapsack problem: Given a value V to each item in our stock S, each item's value can be different, the goal is to fit the most items of S in a single bin B that have the highest sum of value.
+ + 2-dimensional bin stacking problem: We have an infinite amount of identical bin B that have height H and width W along with a finite amount of item called set I. This problem wants us to divide set I into minimum subsets such that each subset can be put inside a bin B, this can be rewritten as this problem wants us to use the least number of bin B to put all of set I's items inside.
+ + 2-dimensional orthogonal packing problem: This problem simply asks if there is a pattern to pack a given set of items I into a single bin B or a set of bin B. 
+
+Main Problem Definition
 Input Material: You start with a large rectangular sheet of a certain width and height, which serves as the stock from which smaller pieces are cut.
 
 Demanded Pieces: There’s a set of smaller rectangles, each with specific width and height, that must be cut from the stock. These pieces represent the demand and can vary in quantity and size. Each piece type has:
-
-A specific size (width and height).
-A required quantity.
+- A specific size (width and height).
+- A required quantity.
 Goal: The objective is to cut the demanded pieces from the stock in a way that minimizes waste (unused material), or equivalently, maximizes the use of the stock sheet. Often, this includes:
-Minimizing the total number of stock sheets required.
-Minimizing the unused area on each stock sheet if a fixed number of sheets are used.
-
-The 2-dimensional cutting stock problem can be differentiated based on the final goal of the problem, which can create huge variety of this problem. We mainly deal with these 4 types:
-- 2-dimensional strip packing problem: Given a single bin B with fixed width W and infinite height, this problem's demand is to fit a packing of products that use minimal height.
-- 2-dimensional knapsack problem: Given a value V to each item in our stock S, each item's value can be different, the goal is to fit the most items of S in a single bin B that have the highest sum of value.
-- 2-dimensional bin stacking problem: We have an infinite amount of identical bin B that have height H and width W along with a finite amount of item called set I. This problem wants us to divide set I into minimum subsets such that each subset can be put inside a bin B, this can be rewritten as this problem wants us to use the least number of bin B to put all of set I's items inside.
-- 2-dimensional orthogonal packing problem: This problem simply asks if there is a pattern to pack a given set of items I into a single bin B or a set of bin B. 
+- Minimizing the total number of stock sheets required.
+- Minimizing the unused area on each stock sheet if a fixed number of sheets are used.
 
 Types of Constraints
 Several constraints typically govern the solution:
@@ -23,25 +30,13 @@ Several constraints typically govern the solution:
 - Demand Constraint: Each demanded piece must be produced in the required quantity.
 - Non-Overlap Constraint: The pieces cannot overlap on the stock sheet; each piece must occupy a unique position.
 - Cutting Pattern Constraint: Often, only certain types of cuts are allowed 
-  Types of Cutting Patterns
-  + Guillotine Cuts: Each cut must go from one edge of the material to the other, simplifying the cutting process. Guillotine cutting is often preferred because it's easier to automate and more practical in large-scale manufacturing.
-  + Non-Guillotine Cuts: Cuts don’t have to span the entire length or width, which can lead to more efficient use of material but is usually harder to implement due to increased cutting complexity.
 
-Example Problem
-Imagine a factory is cutting a large metal sheet that is 80 inches by 50 inches. The factory needs to produce a range of parts with specific sizes to minimize waste while meeting various order requirements. The parts required are:
-
-Six pieces of size 15x10 inches
-Five pieces of size 10x10 inches
-Four pieces of size 12x15 inches
-Eight pieces of size 6x8 inches
-Ten pieces of size 5x5 inches
-
-Difficulties in Solving this Example
+Difficulties in Solving 2D CSP
 - Piece Size and Shape Diversity:
   + The pieces have different dimensions, some long and narrow, others square or almost square. This variety complicates the arrangement, as pieces cannot easily “tessellate” or fit together like a puzzle without leaving gaps.
-  + Large pieces, such as 15x10, reduce flexibility in the arrangement, limiting the space left for smaller pieces.
+  + Large pieces reduce flexibility in the arrangement, limiting the space left for smaller pieces.
 - Constraint of Available Material Dimensions:
-  + Since the stock sheet is a fixed size (80x50 inches), there's a risk of not fitting all pieces if the layout isn’t planned carefully.
+  + Since the stock sheet is a fixed size, there's a risk of not fitting all pieces if the layout isn’t planned carefully.
   + In some configurations, certain pieces might not fit, forcing the need to use additional sheets or re-cut smaller pieces from remaining sections, leading to inefficiency and higher costs.
 
 Real-World Difficulties in Solving 2D CSP
@@ -52,7 +47,6 @@ Real-World Difficulties in Solving 2D CSP
 - Time constraints: Low time budget might prevent global optimization methods, so near-optimal or heuristic approaches are often required, risking suboptimal results.
                                                                                                     
 General Solutions: 
-- Mathematical Optimization Methods: Linear Programming(LP), Mixed-Integer Linear Programming (MILP) and Column Generation
-- Heuristics Methods: Greedy algorithms or First Fit and Best Fit strategies
-- Metaheuristics Methods: Genetics algorithms, simulated annealing and tabu search
+- Exact Finding Methods: Linear Programming(LP), Mixed-Integer Linear Programming (MILP) and Column Generation
+- Heuristics and Metaheuristics Methods: Greedy algorithms, First Fit and Best Fit strategies, Genetics algorithms, simulated annealing and tabu search
 - Hybrid Approaches: Combining heuristics and optimization and decomposition techniques
