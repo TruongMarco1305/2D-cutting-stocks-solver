@@ -40,51 +40,51 @@ class Policy2210xxx(Policy):
     #     return {"stock_idx": best_stock_idx, "size": best_prod_size, "position": best_position}
 
     # Student code here
-    def get_action(self, observation, info):
-        list_prods = observation["products"]
-        list_stocks = observation["stocks"]
-        list_prods = sorted(list_prods, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
-        list_stocks = sorted(list_stocks, key=lambda p: p["size"][0] * p["size"][1])
+    # def get_action(self, observation, info):
+    #     list_prods = observation["products"]
+    #     list_stocks = observation["stocks"]
+    #     list_prods = sorted(list_prods, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
+    #     list_stocks = sorted(list_stocks, key=lambda p: p["size"][0] * p["size"][1])
         
-        item_to_bin = {tuple(item.values()): assign_bin_class(item, bin_classes) for item in extended_item_classes}
+    #     item_to_bin = {tuple(item.values()): assign_bin_class(item, bin_classes) for item in extended_item_classes}
 
-        # Step 4: Iteratively insert items into bins
-        bins = []
-        for item in list_prods:
-            while item["quantity"] > 0:
-                # Initialize a new strip in a partially used or new bin
-                bin_class = item_to_bin[tuple(item.values())]
-                if not bin_class:
-                    raise ValueError(f"No bin can accommodate item class: {item}")
+    #     # Step 4: Iteratively insert items into bins
+    #     bins = []
+    #     for item in list_prods:
+    #         while item["quantity"] > 0:
+    #             # Initialize a new strip in a partially used or new bin
+    #             bin_class = item_to_bin[tuple(item.values())]
+    #             if not bin_class:
+    #                 raise ValueError(f"No bin can accommodate item class: {item}")
 
-                bin_used = None
-                for b in bins:
-                    if b["class"] == bin_class and sum(s["height"] for s in b["strips"]) + item["length"] <= bin_class["length"]:
-                        bin_used = b
-                        break
+    #             bin_used = None
+    #             for b in bins:
+    #                 if b["class"] == bin_class and sum(s["height"] for s in b["strips"]) + item["length"] <= bin_class["length"]:
+    #                     bin_used = b
+    #                     break
 
-                if not bin_used:
-                    bin_used = {"class": bin_class, "strips": []}
-                    bins.append(bin_used)
+    #             if not bin_used:
+    #                 bin_used = {"class": bin_class, "strips": []}
+    #                 bins.append(bin_used)
 
-                # Insert items into the strip
-                strip = {"width": item["width"], "items": []}
-                remaining_width = bin_class["width"]
-                while remaining_width >= item["width"] and item["demand"] > 0:
-                    strip["items"].append(item)
-                    remaining_width -= item["width"]
-                    item["demand"] -= 1
+    #             # Insert items into the strip
+    #             strip = {"width": item["width"], "items": []}
+    #             remaining_width = bin_class["width"]
+    #             while remaining_width >= item["width"] and item["demand"] > 0:
+    #                 strip["items"].append(item)
+    #                 remaining_width -= item["width"]
+    #                 item["demand"] -= 1
 
-                bin_used["strips"].append(strip)
+    #             bin_used["strips"].append(strip)
 
-                # Fill remaining space with smaller-width items using a greedy approach
-                for other_item in extended_item_classes:
-                    if other_item["width"] < strip["width"] and other_item["demand"] > 0:
-                        while remaining_width >= other_item["width"] and other_item["demand"] > 0:
-                            strip["items"].append(other_item)
-                            remaining_width -= other_item["width"]
-                            other_item["demand"] -= 1
-        return bins
+    #             # Fill remaining space with smaller-width items using a greedy approach
+    #             for other_item in extended_item_classes:
+    #                 if other_item["width"] < strip["width"] and other_item["demand"] > 0:
+    #                     while remaining_width >= other_item["width"] and other_item["demand"] > 0:
+    #                         strip["items"].append(other_item)
+    #                         remaining_width -= other_item["width"]
+    #                         other_item["demand"] -= 1
+    #     return bins
         # return bins
 
           
@@ -96,9 +96,9 @@ class Policy2210xxx(Policy):
         for bin_class in sorted(bin_classes, key=lambda x: x["area"]):
             if bin_class["width"] >= item["width"] and bin_class["length"] >= item["length"]:
                 return bin_class
-    return None  # No suitable bin found
+        return None  # No suitable bin found
 
-    # def get_action(self, observation, info):
+    def get_action(self, observation, info):
     #     """
     #     Generate an initial feasible solution for MS2DCSP without rotation.
 
@@ -110,66 +110,67 @@ class Policy2210xxx(Policy):
     #     Returns:
     #         list: Updated stocks showing the cutting plan.
     #     """
-    #     products = observation["products"]
-    #     stocks = observation["stocks"]
+        products = observation["products"]
+        stocks = observation["stocks"]
 
-    #     # Step 1: Sort products by non-increasing widths, breaking ties with non-increasing heights
-    #     products = sorted(products, key=lambda p: (-p["size"][0], -p["size"][1]))
+        # Step 1: Sort products by non-increasing widths, breaking ties with non-increasing heights
+        products = sorted(products, key=lambda p: (-p["size"][0], -p["size"][1]))
 
-    #     placements = []  # Store placement details
+        placements = []  # Store placement details
 
-    #     # Step 2: Iteratively insert products into stocks
-    #     for product_idx, product in enumerate(products):
-    #         product_width, product_height, product_quantity = product["size"][0], product["size"][1], product["quantity"]
-    #         while product_quantity > 0:
-    #             # Try to find a stock where the product can be placed
-    #             placed = False
-    #             for stock_idx, stock in enumerate(stocks):
-    #                 stock_height, stock_width = stock.shape
-    #                 for i in range(stock_height - product_height + 1):
-    #                     for j in range(stock_width - product_width + 1):
-    #                         if self.can_place_product(stock, product_width, product_height, i, j):
-    #                             # Place the product and record placement details
-    #                             placement = self.place_product(
-    #                                 stock=stock,
-    #                                 stock_idx=stock_idx,  # Pass `stock_idx` as an integer
-    #                                 product_index=product_idx,
-    #                                 product_width=product_width,
-    #                                 product_height=product_height,
-    #                                 start_row=i,
-    #                                 start_col=j,
-    #                             )                                
-    #                             placements.append(placement)
-    #                             product_quantity -= 1
-    #                             placed = True
-    #                             break
-    #                     if placed:
-    #                         break
-    #                 if placed:
-    #                     break
+        # Step 2: Iteratively insert products into stocks
+        for product_idx, product in enumerate(products):
+            product_width, product_height, product_quantity = product["size"][0], product["size"][1], product["quantity"]
+            while product_quantity > 0:
+                # Try to find a stock where the product can be placed
+                placed = False
+                for stock_idx, stock in enumerate(stocks):
+                    stock_height, stock_width = stock.shape
+                    for i in range(stock_height - product_height + 1):
+                        for j in range(stock_width - product_width + 1):
+                            if self.can_place_product(stock, product_width, product_height, i, j):
+                                # Place the product and record placement details
+                                placement = self.place_product(
+                                    stock=stock,
+                                    stock_idx=stock_idx,  # Pass `stock_idx` as an integer
+                                    product_index=product_idx,
+                                    product_width=product_width,
+                                    product_height=product_height,
+                                    start_row=i,
+                                    start_col=j,
+                                )                                
+                                placements.append(placement)
+                                product_quantity -= 1
+                                product["quantity"] -= 1
+                                placed = True
+                                break
+                        if placed:
+                            break
+                    if placed:
+                        break
 
-    #             # If no stock can fit the product
-    #             if not placed:
-    #                 print(f"Warning: Cannot fit product {product} in any stock.")
-    #                 break
+                # If no stock can fit the product
+                if not placed:
+                    print(f"Warning: Cannot fit product {product} in any stock.")
+                    break
 
-    #     return placements
+        return placement
 
-    # def can_place_product(self, stock, product_width, product_height, start_row, start_col):
-    #     for i in range(start_row, start_row + product_height):
-    #         for j in range(start_col, start_col + product_width):
-    #             if stock[i, j] != -1:  # Position must be empty
-    #                 return False
-    #     return True
+    def can_place_product(self, stock, product_width, product_height, start_row, start_col):
+        for i in range(start_row, start_row + product_height):
+            for j in range(start_col, start_col + product_width):
+                if stock[i, j] != -1:  # Position must be empty
+                    return False
+        return True
 
-    # def place_product(self, stock, stock_idx, product_index, product_width, product_height, start_row, start_col):
-    #     for i in range(start_row, start_row + product_height):
-    #         for j in range(start_col, start_col + product_width):
-    #             stock[i, j] = product_index
+    def place_product(self, stock, stock_idx, product_index, product_width, product_height, start_row, start_col):
+        for i in range(start_row, start_row + product_height):
+            for j in range(start_col, start_col + product_width):
+                stock[i, j] = product_index
 
-    #     return {
-    #         "stock_idx": stock_idx,
-    #         "size": (product_width, product_height),
-    #         "position": (start_col, start_row),
-    #     }
+        return {
+            "stock_idx": stock_idx,
+            "size": (product_width, product_height),
+            "position": (start_col, start_row),
+        }
     # You can add more functions if needed
