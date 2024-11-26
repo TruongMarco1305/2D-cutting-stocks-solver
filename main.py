@@ -46,7 +46,12 @@ if __name__ == "__main__":
     observation, info = env.reset(seed=42, options={"num_products": 1, "num_stocks": 1})
     print("Products: ", observation["products"])
     policy2210xxx = Policy2210xxx()
-    for _ in range(200):
+    list_products = observation["products"]
+    sumA = 0
+    for prod in list_products:
+        sumA += prod["quantity"]
+    print("Sum: ", sumA)
+    for _ in range(300):
         action = policy2210xxx.get_action(observation, info)
         observation, reward, terminated, truncated, info = env.step(action)
         print(action)
