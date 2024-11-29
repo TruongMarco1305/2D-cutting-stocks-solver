@@ -1,0 +1,13 @@
+test_case,policy,total_reward,average_filled_ratio
+case_1_fully_empty,Greedy,1,0.03
+case_1_fully_empty,Random,1,0.03
+case_2_partial_filled,Greedy,1,0.03
+case_2_partial_filled,Random,1,0.03
+case_3_non_rectangular,Greedy,1,0.02
+case_3_non_rectangular,Random,1,0.02
+case_4_large_products,Greedy,1,0.12
+case_4_large_products,Random,1,0.12
+case_5_sparse_products,Greedy,1,0.01
+case_5_sparse_products,Random,1,0.01
+case_6_mixed_random,Greedy,1,0.08
+case_6_mixed_random,Random,1,0.08
