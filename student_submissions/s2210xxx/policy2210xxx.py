@@ -1,12 +1,12 @@
 from policy import Policy
 import numpy as np
 import time
-
+import copy
 
 class Policy2210xxx(Policy):
     def __init__(self):
         self.stock_buckets = {}
-        self.bucket_size = 20  # Define the size range for each bucket
+        self.bucket_size = 10  # Define the size range for each bucket
         self.patterns = []
         self.isComputing = True
         self.optimal_result = []
@@ -30,8 +30,8 @@ class Policy2210xxx(Policy):
                                 'size': size,
                                 'position': position,
                             })
-            for res in self.optimal_result:
-                print(res)
+            # for res in self.optimal_result:
+            #     print(res)
             self.result_counter += 1
             return {
                 "stock_idx": self.optimal_result[self.result_counter]["stock_idx"],
@@ -47,8 +47,8 @@ class Policy2210xxx(Policy):
             }
 
     def solve_cutting_stock_problem(self, observation, info):
-        initial_stocks = observation["stocks"]
-        initial_prods = observation["products"]
+        initial_stocks = copy.deepcopy(observation["stocks"])
+        initial_prods = copy.deepcopy(observation["products"])
         prod_num = 0
         list_prods = []
         for prod in initial_prods:
@@ -145,8 +145,8 @@ class Policy2210xxx(Policy):
                             best_stock_idx = stock_idx
                             best_position = position
                             best_prod_size = prod_size
-                            placed = True
-                            break
+                            # placed = True
+                            # break
                 if best_position and best_stock_idx != -1:
                     prod["quantity"] -= 1
                     return {"prod_idx": prod_idx, "stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}

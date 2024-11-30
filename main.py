@@ -83,6 +83,7 @@ if __name__ == "__main__":
             print("Cutting Succesfully !")
             end_time = time.perf_counter()
             elapsed_time = end_time - start_time
+            print(info)
             print(f"Elapsed time: {elapsed_time} seconds")
             input("Press Enter to continue...")
             break
