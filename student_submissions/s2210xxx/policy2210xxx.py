@@ -1,189 +1,132 @@
 from policy import Policy
 import numpy as np
+import time
 
 
 class Policy2210xxx(Policy):
-    # def __init__(self):
-    #     # self.skyline = [(0, 0)]
-    #     pass
-
-    # def get_action(self, observation, info):
-    #     list_prods = observation["products"]
-    #     best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
-    #     print(hasattr(self, 'list_prods'))
-    #     if not hasattr(self, 'list_prods'):
-    #         list_prods = sorted(list_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
-    #     # list_prods = sorted(list_prods, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
-    #     if not hasattr(self, 'sorted_stocks'):
-    #         sorted_stocks = sorted(enumerate(observation["stocks"]), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
-    #     for prod in list_prods:
-    #         if prod["quantity"] > 0:
-    #             prod_size = prod["size"]
-    #             min_waste_percentage = float('inf')
-    #             for stock_idx, stock in sorted_stocks:
-    #                 place = False
-    #                 stock_w, stock_h = self._get_stock_size_(stock)
-    #                 prod_w, prod_h = prod_size
-    #                 if stock_w < prod_w or stock_h < prod_h:
-    #                     continue
-    #                 for x in range(stock_w - prod_w + 1):
-    #                     for y in range(stock_h - prod_h + 1):
-    #                         if self._can_place_(stock, (x, y), prod_size):
-    #                             stock_area = stock_w * stock_h
-    #                             prod_area = prod_w * prod_h
-    #                             waste_percentage = (stock_area - prod_area) / stock_area
-    #                             if waste_percentage < min_waste_percentage:
-    #                                 min_waste_percentage = waste_percentage
-    #                                 best_stock_idx = stock_idx
-    #                                 best_position = (x, y)
-    #                                 best_prod_size = prod_size
-    #                             place = True
-    #                             break
-    #                     if place is True:
-    #                         break
-    #                 if place is True:
-    #                     break
-    #             if best_position is not None:
-    #                 break
-
-    #     return {"stock_idx": best_stock_idx, "size": best_prod_size, "position": best_position}
-    # def __init__(self):
-    #     self.skyline = {}
-
-    # def get_action(self, observation, info):
-    #     list_prods = observation["products"]
-    #     best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
-    #     list_prods = sorted(list_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
-    #     sorted_stocks = sorted(enumerate(observation["stocks"]), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
-        
-    #     for prod in list_prods:
-    #         if prod["quantity"] > 0:
-    #             prod_size = prod["size"]
-    #             min_waste_percentage = float('inf')
-    #             for stock_idx, stock in sorted_stocks:
-    #                 if stock_idx not in self.skyline:
-    #                     self.skyline[stock_idx] = [(0, 0)]
-    #                 position = self._find_position_skyline(stock_idx, stock, prod_size[0], prod_size[1])
-    #                 if position:
-    #                     stock_w, stock_h = self._get_stock_size_(stock)
-    #                     stock_area = stock_w * stock_h
-    #                     prod_area = prod_size[0] * prod_size[1]
-    #                     waste_percentage = (stock_area - prod_area) / stock_area
-    #                     if waste_percentage < min_waste_percentage:
-    #                         min_waste_percentage = waste_percentage
-    #                         best_stock_idx = stock_idx
-    #                         best_position = position
-    #                         best_prod_size = prod_size
-    #             if best_position and best_stock_idx != -1:
-    #                 self._place_product(best_stock_idx, observation["stocks"][best_stock_idx], best_prod_size[0], best_prod_size[1], best_position)
-    #                 prod["quantity"] -= 1
-    #                 return {"stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}
-    #     return {"stock_idx": -1, "size": [0, 0], "position": None}
-
-    # def _find_position_skyline(self, stock_idx, stock, product_width, product_height):
-    #     stock_width, stock_height = self._get_stock_size_(stock)
-    #     skyline = self.skyline[stock_idx]
-
-    #     best_position = None
-    #     best_height = float('inf')
-
-    #     for i in range(len(skyline)):
-    #         x, height = skyline[i]
-    #         if x + product_width > stock_width:
-    #             continue  # Skip positions where the product would exceed stock width
-
-    #         max_height = height
-    #         for j in range(1, product_width):
-    #             if i + j >= len(skyline):
-    #                 break
-    #             max_height = max(max_height, skyline[i + j][1])
-
-    #         if max_height + product_height <= stock_height:
-    #             if max_height < best_height:
-    #                 best_height = max_height
-    #                 best_position = (x, max_height)
-
-    #         # Check for space below the current skyline
-    #         if height + product_height <= stock_height:
-    #             if height < best_height:
-    #                 best_height = height
-    #                 best_position = (x, height)
-
-    #     return best_position
-
-    # def _place_product(self, stock_idx, stock, product_width, product_height, position):
-    #     if position is None:
-    #         return  # No valid position found, do nothing
-
-    #     x, y = position
-    #     stock_width, stock_height = self._get_stock_size_(stock)
-
-    #     # Ensure the product is placed within the stock dimensions
-    #     if x + product_width > stock_width or y + product_height > stock_height:
-    #         return
-
-    #     for i in range(product_height):
-    #         for j in range(product_width):
-    #             if y + i >= stock_width or x + j >= stock_height:
-    #                 continue
-    #                 temp = x
-    #                 x = y
-    #                 y = temp
-    #             stock[y + i][x + j] = 1  # Mark the stock as used
-
-    #     # Update the skyline
-    #     new_skyline = []
-    #     for i in range(len(self.skyline[stock_idx])):
-    #         if self.skyline[stock_idx][i][0] < x:
-    #             new_skyline.append(self.skyline[stock_idx][i])
-    #         elif self.skyline[stock_idx][i][0] >= x + product_width:
-    #             new_skyline.append((self.skyline[stock_idx][i][0], max(self.skyline[stock_idx][i][1], y + product_height)))
-    #         else:
-    #             if i == 0 or self.skyline[stock_idx][i - 1][0] < x:
-    #                 new_skyline.append((x, y + product_height))
-    #             if self.skyline[stock_idx][i][0] >= x + product_width:
-    #                 new_skyline.append((x + product_width, self.skyline[stock_idx][i][1]))
-
-    #     self.skyline[stock_idx] = new_skyline
-
-    # def _get_stock_size_(self, stock):
-    #     # Assuming stock is a 2D array where 1 represents used space and 0 represents free space
-    #     height = len(stock)
-    #     width = len(stock[0]) if height > 0 else 0
-    #     return width, height
-
-    # def _can_place_(self, stock, position, prod_size):
-    #     x, y = position
-    #     prod_width, prod_height = prod_size
-    #     stock_width, stock_height = self._get_stock_size_(stock)
-
-    #     if x + prod_width > stock_width or y + prod_height > stock_height:
-    #         return False
-
-    #     for i in range(prod_height):
-    #         for j in range(prod_width):
-    #             if stock[y + i][x + j] != 0:
-    #                 return False
-
-    #     return True
     def __init__(self):
         self.stock_buckets = {}
         self.bucket_size = 20  # Define the size range for each bucket
+        self.patterns = []
+        self.isComputing = True
+        self.optimal_result = []
+        self.result_counter = -1
 
     def get_action(self, observation, info):
-        list_prods = observation["products"]
+        if(self.isComputing):
+            self.solve_cutting_stock_problem(observation,info)
+            self.isComputing = False
+            for data in self.patterns:
+                stock_idx = data['stock_idx']
+                items = data['items']
+        
+                if items:  # Check if 'items' is non-empty
+                    for item_id, details in items.items():
+                        size = (details['width'], details['height'])
+                        positions = details['positions']
+                        for position in positions:
+                            self.optimal_result.append({
+                                'stock_idx': stock_idx,
+                                'size': size,
+                                'position': position,
+                            })
+            for res in self.optimal_result:
+                print(res)
+            self.result_counter += 1
+            return {
+                "stock_idx": self.optimal_result[self.result_counter]["stock_idx"],
+                "size": self.optimal_result[self.result_counter]["size"],
+                "position": self.optimal_result[self.result_counter]["position"]
+            }
+        else:
+            self.result_counter += 1
+            return {
+                "stock_idx": self.optimal_result[self.result_counter]["stock_idx"],
+                "size": self.optimal_result[self.result_counter]["size"],
+                "position": self.optimal_result[self.result_counter]["position"]
+            }
+
+    def solve_cutting_stock_problem(self, observation, info):
+        initial_stocks = observation["stocks"]
+        initial_prods = observation["products"]
+        prod_num = 0
+        list_prods = []
+        for prod in initial_prods:
+            prod_info = {"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
+            list_prods.append(prod_info)
+            prod_num += prod["quantity"]
+
+        list_stocks = []
+        for stock_i in initial_stocks:
+            stock_w, stock_h = self._get_stock_size_(stock_i)
+            quantity = 1
+            duplicated_stock_idx = -1
+            for stock_idx,stock in enumerate(list_stocks):
+                if stock_w == stock["width"] and stock_h == stock["height"]:
+                    duplicated_stock_idx = stock_idx
+                    quantity += 1
+            if duplicated_stock_idx != -1:
+                list_stocks[duplicated_stock_idx]["quantity"] = quantity
+            else:
+                stock_info = {"width": stock_w, "height": stock_h, "quantity": quantity}
+                list_stocks.append(stock_info)
+
+        # Pattern for all stocks
+        # pattern = {'stock_idx': number, 'items': map[]}[]
+        # map: (key-value) -> (prod_idx: {"quantity": number, "positions": number[][], "width": number, "height": number})
+        
+        # Initialize the pattern
+        for stock_idx in range (len(list_stocks)):
+            pattern_element = {'stock_idx': stock_idx, 'items': {}}
+            self.patterns.append(pattern_element)
+        # print(self.patterns)
+        # prod_idx, best_stock_idx, best_prod_size, best_position = self.initial_heuristic(observation)
+        # Sample input
+        # prod_idx = 0
+        # best_stock_idx = 0
+        # best_prod_size = np.array([10, 10])
+        # best_position = (0,0)
+        clone_stocks = initial_stocks
+        clone_prods = initial_prods
+        stock_indices = list(range(len(clone_stocks)))
+        for _ in range(prod_num):
+            heuristic_result = self.lazy_init_heuristic(clone_prods, clone_stocks, stock_indices)
+            prod_idx = heuristic_result["prod_idx"]
+            best_stock_idx = heuristic_result["stock_idx"]
+            # print(best_stock_idx)
+            best_position = heuristic_result["position"]
+            best_prod_size = heuristic_result["size"]
+            print("prod_idx: ", prod_idx, "best_stock_idx: ", best_stock_idx)
+            clone_stocks, clone_prods = self.fill_to_clone_stocks(clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size)
+            if prod_idx in self.patterns[best_stock_idx]["items"]:
+                self.patterns[best_stock_idx]["items"][prod_idx]["quantity"] += 1
+                self.patterns[best_stock_idx]["items"][prod_idx]["positions"].append(best_position)
+            else:
+                position_list = [best_position]
+                prod_w, prod_h = best_prod_size
+                self.patterns[best_stock_idx]["items"][prod_idx] = {"quantity": 1, "positions": position_list, "width": prod_w, "height": prod_h }
+
+    def fill_to_clone_stocks(self,clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size):
+        x, y = best_position
+        w, h = best_prod_size
+        for i in range(x, x + w):
+            for j in range(y, y + h):
+                clone_stocks[best_stock_idx][i][j] = prod_idx
+        return clone_stocks, clone_prods
+
+    def lazy_init_heuristic(self, clone_prods, clone_stocks, stock_indices):
         best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
         if not hasattr(self, 'sorted_prods'):
-            self.sorted_prods = sorted(list_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
+            self.sorted_prods = sorted(clone_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
             # self.sorted_prods = sorted(list_prods, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
         if not hasattr(self, 'sorted_stocks'):
-            self.sorted_stocks = sorted(enumerate(observation["stocks"]), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
-        list_prods = self.sorted_prods
+            self.sorted_stocks = sorted(enumerate(clone_stocks), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
+        clone_prods = self.sorted_prods
         sorted_stocks = self.sorted_stocks
         # Group stocks into buckets based on size ranges
-        self._group_stocks_into_buckets(observation["stocks"])
+        self._group_stocks_into_buckets(clone_stocks)
         
-        for prod in list_prods:
+        for prod_idx,prod in enumerate(clone_prods):
             if prod["quantity"] > 0:
                 prod_size = prod["size"]
                 min_waste_percentage = float('inf')
@@ -205,7 +148,8 @@ class Policy2210xxx(Policy):
                             placed = True
                             break
                 if best_position and best_stock_idx != -1:
-                    return {"stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}
+                    prod["quantity"] -= 1
+                    return {"prod_idx": prod_idx, "stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}
         return {"stock_idx": -1, "size": [0, 0], "position": None}
 
     def _group_stocks_into_buckets(self, stocks):
@@ -235,23 +179,105 @@ class Policy2210xxx(Policy):
                     return (x, y)
         return None
 
-    def _place_product(self, stock, product_width, product_height, position):
-        if position is None:
-            return  # No valid position found, do nothing
+    # def __init__(self):
+    #     self.stock_buckets = {}
+    #     self.bucket_size = 20  # Define the size range for each bucket
 
-        x, y = position
-        stock_width, stock_height = self._get_stock_size_(stock)
+    # def get_action(self, observation, info):
+    #     list_prods = observation["products"]
+    #     best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
+    #     if not hasattr(self, 'sorted_prods'):
+    #         self.sorted_prods = sorted(list_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
+    #         # self.sorted_prods = sorted(list_prods, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
+    #     if not hasattr(self, 'sorted_stocks'):
+    #         self.sorted_stocks = sorted(enumerate(observation["stocks"]), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
+    #     list_prods = self.sorted_prods
+    #     sorted_stocks = self.sorted_stocks
+    #     # Group stocks into buckets based on size ranges
+    #     self._group_stocks_into_buckets(observation["stocks"])
+        
+    #     for prod in list_prods:
+    #         if prod["quantity"] > 0:
+    #             prod_size = prod["size"]
+    #             min_waste_percentage = float('inf')
+    #             candidate_stocks = self._get_candidate_stocks(prod_size)
+                
+    #             for stock_idx, stock in candidate_stocks:
+    #                 placed = False
+    #                 position = self._find_position(stock, prod_size[0], prod_size[1])
+    #                 if position:
+    #                     stock_w, stock_h = self._get_stock_size_(stock)
+    #                     stock_area = stock_w * stock_h
+    #                     prod_area = prod_size[0] * prod_size[1]
+    #                     waste_percentage = (stock_area - prod_area) / stock_area
+    #                     if waste_percentage < min_waste_percentage:
+    #                         min_waste_percentage = waste_percentage
+    #                         best_stock_idx = stock_idx
+    #                         best_position = position
+    #                         best_prod_size = prod_size
+    #                         placed = True
+    #                         break
+    #             if best_position and best_stock_idx != -1:
+    #                 return {"stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}
+    #     return {"stock_idx": -1, "size": [0, 0], "position": None}
 
-        # Ensure the product is placed within the stock dimensions
-        # if x + product_width > stock_width or y + product_height > stock_height:
-        #     return
+    # def _group_stocks_into_buckets(self, stocks):
+    #     self.stock_buckets = {}
+    #     for idx, stock in enumerate(stocks):
+    #         stock_w, stock_h = self._get_stock_size_(stock)
+    #         bucket_key = (stock_w // self.bucket_size, stock_h // self.bucket_size)
+    #         if bucket_key not in self.stock_buckets:
+    #             self.stock_buckets[bucket_key] = []
+    #         self.stock_buckets[bucket_key].append((idx, stock))
 
-        for i in range(product_height):
-            for j in range(product_width):
-                stock[y + i][x + j] = 1  # Mark the stock as used
+    # def _get_candidate_stocks(self, prod_size):
+    #     prod_w, prod_h = prod_size
+    #     bucket_key = (prod_w // self.bucket_size, prod_h // self.bucket_size)
+    #     candidate_stocks = []
+    #     for key in self.stock_buckets:
+    #         if key[0] >= bucket_key[0] and key[1] >= bucket_key[1]:
+    #             candidate_stocks.extend(self.stock_buckets[key])
+    #     return candidate_stocks
+
+    # def _find_position(self, stock, product_width, product_height):
+    #     stock_width, stock_height = self._get_stock_size_(stock)
+
+    #     for x in range(stock_width - product_width + 1):
+    #         for y in range(stock_height - product_height + 1):
+    #             if self._can_place_(stock, (x, y), (product_width, product_height)):
+    #                 return (x, y)
+    #     return None
+
+    # def _place_product(self, stock, product_width, product_height, position):
+    #     if position is None:
+    #         return  # No valid position found, do nothing
+
+    #     x, y = position
+    #     stock_width, stock_height = self._get_stock_size_(stock)
+
+    #     # Ensure the product is placed within the stock dimensions
+    #     # if x + product_width > stock_width or y + product_height > stock_height:
+    #     #     return
+
+    #     for i in range(product_height):
+    #         for j in range(product_width):
+    #             stock[y + i][x + j] = 1  # Mark the stock as used
+
+    # def _place_product(self, stock, product_width, product_height, position):
+    #     if position is None:
+    #         return  # No valid position found, do nothing
+
+    #     x, y = position
+    #     stock_width, stock_height = self._get_stock_size_(stock)
+
+    #     # Ensure the product is placed within the stock dimensions
+    #     # if x + product_width > stock_width or y + product_height > stock_height:
+    #     #     return
+
+    #     for i in range(product_height):
+    #         for j in range(product_width):
+    #             stock[y + i][x + j] = 1  # Mark the stock as used
     
-
-
     # Student code here
     # def get_action(self, observation, info):
     #     list_prods = observation["products"]
