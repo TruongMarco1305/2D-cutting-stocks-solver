@@ -11,7 +11,7 @@ env = gym.make(
     "gym_cutting_stock/CuttingStock-v0",
     render_mode="human", 
 )
-NUM_EPISODES = 100
+NUM_EPISODES = 1
 
 if __name__ == "__main__":
     results = [] 
@@ -36,9 +36,9 @@ if __name__ == "__main__":
 
         # Test policies
         policies = {
-            "Greedy": GreedyPolicy(),
-            "Random": RandomPolicy(),
-            # "Custom": Policy2210xxx(),
+            # "Greedy": GreedyPolicy(),
+            # "Random": RandomPolicy(),
+            "Custom": Policy2210xxx(),
         }
 
         for policy_name, policy in policies.items():
@@ -46,28 +46,43 @@ if __name__ == "__main__":
             ep = 0
 
             while ep < NUM_EPISODES:
-                print(f"Start Episode {ep + 1}, Info: {info}")
+                observation, info = env.reset(
+                    options={
+                        "stocks": test_case["stocks"],
+                        "products": test_case["products"]
+                    }
+                )
+                print(f"\nStart Episode {ep + 1}")
+                print(f"Initial Info:")
+                print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
+                print(f"- Total stock area: {int(info['total_stock_area'])}")
+                print(f"- Used product area: {int(info['used_product_area'])}")
+
                 terminated, truncated = False, False
 
                 while not (terminated or truncated):
                     action = policy.get_action(observation, info)
                     observation, reward, terminated, truncated, info = env.step(action)
-                    print(f"Step Info: {info}")
+                    print(f"Step Info: Filled ratio = {info['filled_ratio']*100:.2f}%")
 
-                print(f"End Episode {ep + 1}, Final Info: {info}")
+                print(f"\nEnd Episode {ep + 1}")
+                print(f"Final Info:")
+                print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
+                print(f"- Total stock area: {int(info['total_stock_area'])}")
+                print(f"- Used product area: {int(info['used_product_area'])}")
+                
                 ep += 1
 
             results.append({
                 "test_case": case_name,
                 "policy": policy_name,
-                "total_reward": reward,  
-                "average_filled_ratio": info.get("filled_ratio", 0),  
+                "filled_ratio": info['filled_ratio'],
             })
 
     env.close()
 
     with open("policy_comparison_results.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["test_case", "policy", "total_reward", "average_filled_ratio"])
+        writer = csv.DictWriter(f, fieldnames=["test_case", "policy", "filled_ratio"])
         writer.writeheader()
         writer.writerows(results)
 
@@ -75,5 +90,5 @@ if __name__ == "__main__":
     for result in results:
         print(
             f"Test Case: {result['test_case']}, Policy: {result['policy']}, "
-            f"Total Reward: {result['total_reward']}, Average Filled Ratio: {result['average_filled_ratio']:.2f}"
+            f"Filled Ratio: {result['filled_ratio']*100:.2f}%"
         )

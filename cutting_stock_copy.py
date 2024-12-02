@@ -77,6 +77,7 @@ class CuttingStockEnv(gym.Env):
             }
         )
 
+        # Init empty stocks and products
         self._stocks = []
         self._products = []
 
@@ -95,47 +96,37 @@ class CuttingStockEnv(gym.Env):
 
     def _get_obs(self):
         return {"stocks": self._stocks, "products": self._products}
+
     def _get_info(self):
-        return {"filled_ratio": np.mean(self.cutted_stocks).item()}
+        return {
+            "filled_ratio": np.mean(self.cutted_stocks).item()
+        }
 
     def reset(self, seed=None, options=None):
+        # We need the following line to seed self.np_random
         super().reset(seed=seed)
-
-
+        self.cutted_stocks = np.full((self.num_stocks,), fill_value=0, dtype=int)
         self._stocks = []
-        if options and "stocks" in options:
-            for stock_info in options["stocks"]:
-                width = stock_info["width"]
-                length = stock_info["length"]
-                stock = np.full(shape=(self.max_w, self.max_h), fill_value=-2, dtype=int)
-                stock[:width, :length] = -1  
-                self._stocks.append(stock)
-        
 
-        while len(self._stocks) < self.num_stocks:
+        # Randomize stocks
+        for _ in range(self.num_stocks):
             width = np.random.randint(low=self.min_w, high=self.max_w + 1)
             height = np.random.randint(low=self.min_h, high=self.max_h + 1)
             stock = np.full(shape=(self.max_w, self.max_h), fill_value=-2, dtype=int)
-            stock[:width, :height] = -1
+            stock[:width, :height] = -1  # Empty cells are marked as -1
             self._stocks.append(stock)
-        
         self._stocks = tuple(self._stocks)
 
+        # Randomize products
         self._products = []
-        if options and "products" in options:
-            self._products = options["products"]
-        else:
-
-            num_type_products = np.random.randint(low=1, high=self.max_product_type)
-            for _ in range(num_type_products):
-                width = np.random.randint(low=1, high=self.min_w + 1)
-                height = np.random.randint(low=1, high=self.min_h + 1)
-                quantity = np.random.randint(low=1, high=self.max_product_per_type + 1)
-                product = {"size": np.array([width, height]), "quantity": quantity}
-                self._products.append(product)
-        
+        num_type_products = np.random.randint(low=1, high=self.max_product_type)
+        for _ in range(num_type_products):
+            width = np.random.randint(low=1, high=self.min_w + 1)
+            height = np.random.randint(low=1, high=self.min_h + 1)
+            quantity = np.random.randint(low=1, high=self.max_product_per_type + 1)
+            product = {"size": np.array([width, height]), "quantity": quantity}
+            self._products.append(product)
         self._products = tuple(self._products)
-        self.cutted_stocks = np.full((self.num_stocks,), fill_value=0, dtype=int)
 
         observation = self._get_obs()
         info = self._get_info()
