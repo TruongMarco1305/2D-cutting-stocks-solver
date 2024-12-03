@@ -1,7 +1,5 @@
-test_case,policy,total_reward,average_filled_ratio
-case_7_complex_unavailable_areas,Custom,1,0.22486389853710723
-case_8_partially_filled_complex,Custom,1,0.022406898834390402
-case_9_efficiency_test,Custom,1,0.3728885554176408
-case_10_minimal_waste,Custom,1,0.11251042018311964
-case_11_multiple_optimal_solutions,Custom,1,0.030212450173060693
-case_12_challenging_ratios,Custom,1,0.13572399886620096
+test_case,policy,filled_ratio
+case_5_exact_fit,Greedy,1.0
+case_5_exact_fit,Random,0.0
+case_6_fragmented_stocks,Greedy,0.09
+case_6_fragmented_stocks,Random,0.0

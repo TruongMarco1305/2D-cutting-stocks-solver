@@ -22,8 +22,8 @@ if __name__ == "__main__":
         print(f"\n{'='*50}")
         print(f"Running test case: {case_name}")
         print(f"Number of stocks in test case: {len(test_case['stocks'])}")
-        print(f"First stock dimensions: {test_case['stocks'][0]}")
-        print(f"Last stock dimensions: {test_case['stocks'][-1]}")
+        # print(f"First stock dimensions: {test_case['stocks'][0]}")
+        # print(f"Last stock dimensions: {test_case['stocks'][-1]}")
         print(f"Number of products: {len(test_case['products'])}")
         print(f"Products details: {test_case['products']}")
 
@@ -36,9 +36,9 @@ if __name__ == "__main__":
 
         # Test policies
         policies = {
-            # "Greedy": GreedyPolicy(),
-            # "Random": RandomPolicy(),
-            "Custom": Policy2210xxx(),
+            "Greedy": GreedyPolicy(),
+            "Random": RandomPolicy(),
+            # "Custom": Policy2210xxx(),
         }
 
         for policy_name, policy in policies.items():
@@ -55,8 +55,8 @@ if __name__ == "__main__":
                 print(f"\nStart Episode {ep + 1}")
                 print(f"Initial Info:")
                 print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
-                print(f"- Total stock area: {int(info['total_stock_area'])}")
-                print(f"- Used product area: {int(info['used_product_area'])}")
+                # print(f"- Total stock area: {int(info['total_stock_area'])}")
+                # print(f"- Used product area: {int(info['used_product_area'])}")
 
                 terminated, truncated = False, False
 
@@ -68,8 +68,8 @@ if __name__ == "__main__":
                 print(f"\nEnd Episode {ep + 1}")
                 print(f"Final Info:")
                 print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
-                print(f"- Total stock area: {int(info['total_stock_area'])}")
-                print(f"- Used product area: {int(info['used_product_area'])}")
+                # print(f"- Total stock area: {int(info['total_stock_area'])}")
+                # print(f"- Used product area: {int(info['used_product_area'])}")
                 
                 ep += 1
 
@@ -92,3 +92,99 @@ if __name__ == "__main__":
             f"Test Case: {result['test_case']}, Policy: {result['policy']}, "
             f"Filled Ratio: {result['filled_ratio']*100:.2f}%"
         )
+        
+        
+        
+        
+        
+        # import gym_cutting_stock
+# import gymnasium as gym
+# from policy import GreedyPolicy, RandomPolicy
+# from student_submissions.s2210xxx.policy2210xxx import Policy2210xxx
+# import csv
+
+# # Create the environment
+# env = gym.make(
+#     "gym_cutting_stock/CuttingStock-v0",
+#     render_mode="human",  # Comment this line to disable rendering
+# )
+# NUM_EPISODES = 2
+
+# if __name__ == "__main__":
+#     results = []
+
+#     # Test GreedyPolicy
+#     gd_policy = GreedyPolicy()
+#     print("\nTesting policy: Greedy")
+#     ep = 0
+#     observation, info = env.reset(seed=42)
+    
+#     while ep < NUM_EPISODES:
+#         print(f"\nStart Episode {ep + 1}")
+#         print(f"Initial Info:")
+#         print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
+        
+#         terminated, truncated = False, False
+#         while not (terminated or truncated):
+#             action = gd_policy.get_action(observation, info)
+#             observation, reward, terminated, truncated, info = env.step(action)
+#             print(f"Step Info: Filled ratio = {info['filled_ratio']*100:.2f}%")
+
+#         print(f"\nEnd Episode {ep + 1}")
+#         print(f"Final Info:")
+#         print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
+        
+#         # Lưu kết quả sau khi episode kết thúc
+#         if ep == NUM_EPISODES - 1:  # Lưu kết quả của episode cuối cùng
+#             results.append({
+#                 "policy": "Greedy",
+#                 "filled_ratio": info['filled_ratio'],
+#             })
+        
+#         observation, info = env.reset(seed=ep)
+#         ep += 1
+
+#     # Test RandomPolicy
+#     rd_policy = RandomPolicy()
+#     print("\nTesting policy: Random")
+#     ep = 0
+#     observation, info = env.reset(seed=42)
+    
+#     while ep < NUM_EPISODES:
+#         print(f"\nStart Episode {ep + 1}")
+#         print(f"Initial Info:")
+#         print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
+        
+#         terminated, truncated = False, False
+#         while not (terminated or truncated):
+#             action = rd_policy.get_action(observation, info)
+#             observation, reward, terminated, truncated, info = env.step(action)
+#             print(f"Step Info: Filled ratio = {info['filled_ratio']*100:.2f}%")
+
+#         print(f"\nEnd Episode {ep + 1}")
+#         print(f"Final Info:")
+#         print(f"- Filled ratio: {info['filled_ratio']*100:.1f}%")
+        
+#         # Lưu kết quả sau khi episode kết thúc
+#         if ep == NUM_EPISODES - 1:  # Lưu kết quả của episode cuối cùng
+#             results.append({
+#                 "policy": "Random",
+#                 "filled_ratio": info['filled_ratio'],
+#             })
+        
+#         observation, info = env.reset(seed=ep)
+#         ep += 1
+
+#     with open("policy_comparison_results.csv", "w", newline="") as f:
+#         writer = csv.DictWriter(f, fieldnames=["policy", "filled_ratio"])
+#         writer.writeheader()
+#         writer.writerows(results)
+
+#     print("\nSummary of Results:")
+#     for result in results:
+#         print(
+#             f"Policy: {result['policy']}, "
+#             f"Filled Ratio: {result['filled_ratio']*100:.2f}%"
+#         )
+
+# env.close()
