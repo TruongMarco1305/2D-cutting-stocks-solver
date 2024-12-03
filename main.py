@@ -70,7 +70,7 @@ if __name__ == "__main__":
         #         prod["quantity"] -= 1
         #         break
         # observations = observation
-        print("Action: ", action)
+        # print("Action: ", action)
         observation, reward, terminated, truncated, info = env.step(action)
         # observation = observations
         # all_zero = all(prod["quantity"] == 0 for prod in observation["products"])
@@ -92,3 +92,112 @@ if __name__ == "__main__":
             observation, info = env.reset()
 
 env.close()
+
+# from scipy.optimize import milp
+# from scipy.optimize import LinearConstraint
+# import numpy as np
+
+# c = np.array([1, -4]) 
+# A = np.array([
+#     [-10, 20],  
+#     [5, 10],
+#     [1,0]  
+# ])
+# b_u = np.array([22, 49, 5])
+# b_l = np.full_like(b_u, -np.inf, dtype=float)
+# constraints = LinearConstraint(A, b_l, b_u)
+# integrality = np.ones_like(c)
+# result = milp(c=c, constraints=constraints, integrality=integrality)
+
+# # Display results
+# if result.success:
+#     print(f"Optimal value: {-result.fun}, x1: {result.x[0]}, x2: {result.x[1]}")
+# else:
+#     print("Optimization failed.")
+
+# from scipy.optimize import linprog
+
+# # Coefficients of the objective function (negated for minimization) # -7x1 - 2x2
+# c = [-7, -2, 0, 0, 0]
+
+# # Coefficients for constraints (left-hand side)
+# A = [
+#     [-1, 2, 1, 0, 0],   # -x1 + 2x2 + x3 = 4 
+#     [5, 1, 0, 1, 0],   # 5x1 + x2 + x4 = 20
+#     [2, 2, 0, 0, -1]    # 2x1 + 2x2 + - x5 = 7
+# ]
+
+# # Right-hand side values for the constraints
+# b = [4, 20, 7]
+
+# # Bounds for each variable (x1, x2, x3, x4 >= 0)
+# x_bounds = [(0, None), (0, None), (0, None), (0, None), (0, None)]
+
+# # Solve the problem
+# result = linprog(c, A_ub=A, b_ub=b, bounds=x_bounds, method="highs")
+
+# # Output the results
+# if result.success:
+#     print("Optimal value:", result.fun)  # Convert back to maximization
+#     print("Optimal solution:", result.x)
+# else:
+#     print("No solution found.")
+
+# from scipy.optimize import linprog
+
+# # Coefficients of the objective function (negated for minimization) # -7x1 - 2x2
+# c = [-2,-3]
+
+# # Coefficients for constraints (left-hand side)
+# A = [
+#     [4, 12],   # -x1 + 2x2 + x3 = 4 
+#     [10,4],   # 5x1 + x2 + x4 = 20
+#     # 2x1 + 2x2 + - x5 = 7
+# ]
+
+# # Right-hand side values for the constraints
+# b = [33, 35]
+
+# # Bounds for each variable (x1, x2, x3, x4 >= 0)
+# x_bounds = [(0, None), (0, None)]
+
+# # Solve the problem
+# result = linprog(c, A_ub=A, b_ub=b, bounds=x_bounds, method="highs")
+
+# # Output the results
+# if result.success:
+#     print("Optimal value:", -result.fun)  # Convert back to maximization
+#     print("Optimal solution:", result.x)
+#     print("Dual variable: ", result.ineqlin['marginals'])
+# else:
+#     print("No solution found.")
+
+
+# ###################
+
+# # Coefficients of the objective function (negated for minimization) # -7x1 - 2x2
+# c = [33,35]
+
+# # Coefficients for constraints (left-hand side)
+# A = [
+#     [-4, -10],   # -x1 + 2x2 + x3 = 4 
+#     [-12,-4],   # 5x1 + x2 + x4 = 20
+#     # 2x1 + 2x2 + - x5 = 7
+# ]
+
+# # Right-hand side values for the constraints
+# b = [-2, -3]
+
+# # Bounds for each variable (x1, x2, x3, x4 >= 0)
+# x_bounds = [(0, None), (0, None)]
+
+# # Solve the problem
+# result = linprog(c, A_ub=A, b_ub=b, bounds=x_bounds, method="highs")
+
+# # Output the results
+# if result.success:
+#     print("Optimal value:", result.fun)  # Convert back to maximization
+#     print("Optimal solution:", result.x)
+#     print("Dual variable: ", result.ineqlin['marginals'])
+# else:
+#     print("No solution found.")
