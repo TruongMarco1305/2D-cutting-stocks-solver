@@ -10,11 +10,11 @@ class Policy2210xxx(Policy):
         self.bucket_size = 10  # Define the size range for each bucket
         self.initial_patterns = []
         self.isComputing = True
-        self.result_counter = -1
-        self.optimal_result = []
+        self.drawing_counter = -1
+        self.drawing_data = []
         self.indices_prods = []
-        self.indices_stocks = []
-
+        self.list_stocks = []
+        self.list_products = []
     
     def get_action(self, observation, info):
         # print("Initial first stock: ",self._get_stock_size_(observation["stocks"][0]))
@@ -25,63 +25,59 @@ class Policy2210xxx(Policy):
             self.isComputing = False
             for data in self.initial_patterns:
                 stock_idx = data['stock_idx']
+
+                # stock_type = data['stock_type']
+                # stock_idx = self.list_stocks[stock_type]['stock_index'][0]
+                # self.list_stocks[stock_type]['stock_index'].pop(0)
+                
                 items = data['items']
-                if items:  # Check if 'items' is non-empty
+                if items:
                     for item_id, details in items.items():
                         size = (details['width'], details['height'])
                         positions = details['positions']
                         for position in positions:
-                            self.optimal_result.append({
+                            self.drawing_data.append({
                                 'stock_idx': stock_idx,
                                 'size': size,
                                 'position': position,
                             })
-            self.result_counter += 1
-            # print({
-            #     "stock_idx": self.optimal_result[self.result_counter]["stock_idx"],
-            #     "size": self.optimal_result[self.result_counter]["size"],
-            #     "position": self.optimal_result[self.result_counter]["position"]
-            # })
+            self.drawing_counter += 1
             return {
-                "stock_idx": self.optimal_result[self.result_counter]["stock_idx"],
-                "size": self.optimal_result[self.result_counter]["size"],
-                "position": self.optimal_result[self.result_counter]["position"]
+                "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
+                "size": self.drawing_data[self.drawing_counter]["size"],
+                "position": self.drawing_data[self.drawing_counter]["position"]
             }
         else:
-            self.result_counter += 1
-            # print({
-            #     "stock_idx": self.optimal_result[self.result_counter]["stock_idx"],
-            #     "size": self.optimal_result[self.result_counter]["size"],
-            #     "position": self.optimal_result[self.result_counter]["position"]
-            # })
+            self.drawing_counter += 1
             return {
-                "stock_idx": self.optimal_result[self.result_counter]["stock_idx"],
-                "size": self.optimal_result[self.result_counter]["size"],
-                "position": self.optimal_result[self.result_counter]["position"]
+                "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
+                "size": self.drawing_data[self.drawing_counter]["size"],
+                "position": self.drawing_data[self.drawing_counter]["position"]
             }
 
     def solve_cutting_stock_problem(self, observation, info):
         initial_stocks = copy.deepcopy(observation["stocks"])
         initial_prods = copy.deepcopy(observation["products"])
         prod_num = 0
-        list_prods = []
         for prod in initial_prods:
             prod_info = {"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
-            list_prods.append(prod_info)
+            self.list_products.append(prod_info)
             prod_num += prod["quantity"]
 
-        list_stocks = []
-        for stock_i in initial_stocks:
+        for stock_i_idx,stock_i in enumerate(initial_stocks):
             stock_w, stock_h = self._get_stock_size_(stock_i)
             duplicated_stock_idx = -1
-            for stock_idx,stock in enumerate(list_stocks):
+            for stock_idx,stock in enumerate(self.list_stocks):
                 if stock_w == stock["width"] and stock_h == stock["height"]:
                     duplicated_stock_idx = stock_idx
+                    break
             if duplicated_stock_idx != -1:
-                list_stocks[duplicated_stock_idx]["quantity"] += 1
+                self.list_stocks[duplicated_stock_idx]["quantity"] += 1
+                self.list_stocks[duplicated_stock_idx]["stock_index"].append(stock_i_idx)
             else:
-                stock_info = {"width": stock_w, "height": stock_h, "quantity": 1}
-                list_stocks.append(stock_info)
+                stock_info = {"width": stock_w, "height": stock_h, "quantity": 1, "stock_index": [stock_i_idx]}
+                self.list_stocks.append(stock_info)
+
         # Pattern for all stocks
         # pattern = {'stock_idx': number, 'items': map[]}[]
         # map: (key-value) -> (prod_idx: {"quantity": number, "positions": number[][], "width": number, "height": number})
@@ -90,7 +86,7 @@ class Policy2210xxx(Policy):
         for stock_idx, stock in enumerate(initial_stocks):
             stock_w, stock_h = self._get_stock_size_(stock)
             stock_type = -1
-            for s_idx,s in enumerate(list_stocks):
+            for s_idx,s in enumerate(self.list_stocks):
                 if s["width"] == stock_w and s["height"] == stock_h:
                     stock_type = s_idx
                     break
@@ -99,10 +95,10 @@ class Policy2210xxx(Policy):
 
         clone_stocks = initial_stocks
         clone_prods = initial_prods
-        if len(self.indices_prods) == 0 and len(self.indices_stocks) == 0:
-            self.indices_prods, self.indices_stocks = list(range(len(clone_prods))), list(range(len(clone_stocks)))
+        if len(self.indices_prods) == 0:
+            self.indices_prods = list(range(len(clone_prods)))
         for _ in range(prod_num):
-            heuristic_result = self.lazy_init_heuristic(clone_prods, clone_stocks, self.indices_prods, self.indices_stocks)
+            heuristic_result = self.lazy_init_heuristic(clone_prods, clone_stocks, self.indices_prods)
             prod_idx = heuristic_result["prod_idx"]
             best_stock_idx = heuristic_result["stock_idx"]
             best_position = heuristic_result["position"]
@@ -123,13 +119,13 @@ class Policy2210xxx(Policy):
         x = np.array([])
 
         D = np.array([])
-        for prod in list_prods:
+        for prod in self.list_products:
             D=np.append(D,prod["quantity"])
         D = D.flatten()
         # print('D: ',D)
 
         S = np.array([])
-        for stock in list_stocks:
+        for stock in self.list_stocks:
             S=np.append(S,stock["quantity"])
         S = S.flatten()
         # print('S: ',S)
@@ -150,14 +146,14 @@ class Policy2210xxx(Policy):
         c = c.flatten()
         # print('c: ', c)
      
-        A = np.zeros(shape=(len(list_prods),len(unique_patterns))) # 11 row - 28 col
+        A = np.zeros(shape=(len(self.list_products),len(unique_patterns))) # 11 row - 28 col
         for pattern_idx, pattern in enumerate(unique_patterns):
             for prod_idx, value in pattern['items'].items():
                 # print(prod_index, ' ', value['quantity'])
                 A[prod_idx][pattern_idx] = value['quantity']
         # print('A: ', A)
 
-        B = np.zeros(shape=(len(list_stocks),len(unique_patterns))) # 97 row - 28 col
+        B = np.zeros(shape=(len(self.list_stocks),len(unique_patterns))) # 97 row - 28 col
         for pattern_idx, pattern in enumerate(unique_patterns):
             B[pattern["stock_type"]][pattern_idx] = 1
         # print('B: ', B)
@@ -191,12 +187,12 @@ class Policy2210xxx(Policy):
                 clone_stocks[best_stock_idx][i][j] = prod_idx
         return clone_stocks, clone_prods
 
-    def lazy_init_heuristic(self, clone_prods, clone_stocks, indices_prods, indices_stocks):
+    def lazy_init_heuristic(self, clone_prods, clone_stocks, indices_prods):
         best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
         if not hasattr(self, 'sorted_prods'):
             self.sorted_prods = sorted(clone_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
             self.indices_prods = sorted(self.indices_prods, key=lambda i: clone_prods[i]["size"][0] * clone_prods[i]["size"][1], reverse=True)
-            # self.sorted_prods = sorted(list_prods, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
+            # self.sorted_prods = sorted(self.list_products, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
         if not hasattr(self, 'sorted_stocks'):
             self.sorted_stocks = sorted(enumerate(clone_stocks), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
 
