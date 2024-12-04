@@ -3,12 +3,12 @@ import numpy as np
 from scipy.optimize import linprog
 import time
 import copy
-
+    
 class Policy2210xxx(Policy):
     def __init__(self):
         self.stock_buckets = {}
         self.bucket_size = 10  # Define the size range for each bucket
-        self.initial_patterns = []
+        self.optimal_patterns = []
         self.isComputing = True
         self.drawing_counter = -1
         self.drawing_data = []
@@ -23,24 +23,23 @@ class Policy2210xxx(Policy):
             # for pattern in self.initial_patterns:
             #     print(pattern)
             self.isComputing = False
-            for data in self.initial_patterns:
-                stock_idx = data['stock_idx']
-
-                # stock_type = data['stock_type']
-                # stock_idx = self.list_stocks[stock_type]['stock_index'][0]
-                # self.list_stocks[stock_type]['stock_index'].pop(0)
-                
-                items = data['items']
-                if items:
-                    for item_id, details in items.items():
-                        size = (details['width'], details['height'])
-                        positions = details['positions']
-                        for position in positions:
-                            self.drawing_data.append({
-                                'stock_idx': stock_idx,
-                                'size': size,
-                                'position': position,
-                            })
+            for data in self.optimal_patterns:
+                if data['quantity'] == 0: continue
+                for _ in range(data['quantity']):
+                    stock_type = data['stock_type']
+                    stock_idx = self.list_stocks[stock_type]['stock_index'][0]
+                    self.list_stocks[stock_type]['stock_index'].pop(0)
+                    items = data['items']
+                    if items:
+                        for item_id, details in items.items():
+                            size = (details['width'], details['height'])
+                            positions = details['positions']
+                            for position in positions:
+                                self.drawing_data.append({
+                                    'stock_idx': stock_idx,
+                                    'size': size,
+                                    'position': position,
+                                })
             self.drawing_counter += 1
             return {
                 "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
@@ -83,6 +82,7 @@ class Policy2210xxx(Policy):
         # map: (key-value) -> (prod_idx: {"quantity": number, "positions": number[][], "width": number, "height": number})
         
         # Initialize the pattern
+        initial_patterns = []
         for stock_idx, stock in enumerate(initial_stocks):
             stock_w, stock_h = self._get_stock_size_(stock)
             stock_type = -1
@@ -91,7 +91,7 @@ class Policy2210xxx(Policy):
                     stock_type = s_idx
                     break
             pattern_element = {'key': '_' + str(stock_type) + '_','stock_idx': stock_idx, 'stock_type': stock_type, 'width': stock_w,'height': stock_h,'items': {}}
-            self.initial_patterns.append(pattern_element)
+            initial_patterns.append(pattern_element)
 
         clone_stocks = initial_stocks
         clone_prods = initial_prods
@@ -105,15 +105,15 @@ class Policy2210xxx(Policy):
             best_prod_size = heuristic_result["size"]
             # print("prod_idx: ", prod_idx, "best_stock_idx: ", best_stock_idx, "position: ", best_position, "prod_size: ", best_prod_size)
             clone_stocks, clone_prods = self.fill_to_clone_stocks(clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size)
-            if prod_idx in self.initial_patterns[best_stock_idx]["items"]:
-                self.initial_patterns[best_stock_idx]["items"][prod_idx]["quantity"] += 1
-                self.initial_patterns[best_stock_idx]["items"][prod_idx]["positions"].append(best_position)
-                self.initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
+            if prod_idx in initial_patterns[best_stock_idx]["items"]:
+                initial_patterns[best_stock_idx]["items"][prod_idx]["quantity"] += 1
+                initial_patterns[best_stock_idx]["items"][prod_idx]["positions"].append(best_position)
+                initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
             else:
                 position_list = [best_position]
                 prod_w, prod_h = best_prod_size
-                self.initial_patterns[best_stock_idx]["items"][prod_idx] = {"quantity": 1, "positions": position_list, "width": prod_w, "height": prod_h }
-                self.initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
+                initial_patterns[best_stock_idx]["items"][prod_idx] = {"quantity": 1, "positions": position_list, "width": prod_w, "height": prod_h }
+                initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
         
         # Simplex method init
         x = np.array([])
@@ -131,48 +131,47 @@ class Policy2210xxx(Policy):
         # print('S: ',S)
 
         # self.initial_patterns.append({'key': '_83_0_', 'stock_idx': 84, 'stock_type': 83, 'width': np.int64(51), 'height': np.int64(50), 'items': {0: {'quantity': 1, 'positions': [(0, 0)], 'width': np.int64(41), 'height': np.int64(45)}}})
-        unique_patterns = []
         keys = []
         c = np.array([])
-        for pattern in self.initial_patterns:
+        for pattern in initial_patterns:
             if pattern["items"] == {}: continue   
             if pattern["key"] not in keys:
                 keys.append(pattern["key"])
-                unique_pattern = {"stock_type": pattern["stock_type"], "items": pattern["items"]}
-                unique_patterns.append(unique_pattern)
+                unique_pattern = {"quantity": 0, "stock_type": pattern["stock_type"], "items": pattern["items"]}
+                self.optimal_patterns.append(unique_pattern)
                 area = pattern['width'] * pattern['height']
                 # print(unique_pattern)
                 c = np.append(c,area)
         c = c.flatten()
         # print('c: ', c)
      
-        A = np.zeros(shape=(len(self.list_products),len(unique_patterns))) # 11 row - 28 col
-        for pattern_idx, pattern in enumerate(unique_patterns):
+        A = np.zeros(shape=(len(self.list_products),len(self.optimal_patterns))) # 11 row - 28 col
+        for pattern_idx, pattern in enumerate(self.optimal_patterns):
             for prod_idx, value in pattern['items'].items():
                 # print(prod_index, ' ', value['quantity'])
                 A[prod_idx][pattern_idx] = value['quantity']
         # print('A: ', A)
 
-        B = np.zeros(shape=(len(self.list_stocks),len(unique_patterns))) # 97 row - 28 col
-        for pattern_idx, pattern in enumerate(unique_patterns):
+        B = np.zeros(shape=(len(self.list_stocks),len(self.optimal_patterns))) # 97 row - 28 col
+        for pattern_idx, pattern in enumerate(self.optimal_patterns):
             B[pattern["stock_type"]][pattern_idx] = 1
         # print('B: ', B)
 
         #### Simplex method
         # print((np.concatenate((A,B),axis=0)).shape)
 
-        x_bounds = [(0,None) for _ in range(len(unique_patterns))]
+        x_bounds = [(0,None) for _ in range(len(self.optimal_patterns))]
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1)
         x = result_simplex.x
+        x = np.int64(x)
+        print(x)
         dual_prods = result_simplex.eqlin['marginals']
         dual_stocks = result_simplex.ineqlin['marginals']
-        # print(x)
-        # print(dual_prods)
-        # print(dual_stocks)
-        # print(result_simplex)
+        for i in range(len(x)):
+            self.optimal_patterns[i]['quantity'] = x[i]
 
         # 2 vector Dual_variable (về item + về loại stock) 
-        # Mỗi loại stock, truyền vô cái Long làm
+        # Mỗi loại stock, truyền vô cái Long làm 
         # => Trả về [số loại stock] pattern + profit tương ứng
         # Cầm đống pattern mới kiếm tính reduce cost
         # Âm -> Có pattern mới vào RMP -> Quay lại step 1
@@ -226,8 +225,6 @@ class Policy2210xxx(Policy):
                             break
                 if best_position and best_stock_idx != -1:
                     prod["quantity"] -= 1
-                    # print({"prod_idx": self.indices_prods[prod_idx], "stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position})
-                    # print(prod_idx)
                     return {"prod_idx": self.indices_prods[prod_idx], "stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}
         return {"stock_idx": -1, "size": [0, 0], "position": None}
 
