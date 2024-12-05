@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import linprog
 import time
 import copy
-    
+
 class Policy2210xxx(Policy):
     def __init__(self):
         self.stock_buckets = {}
@@ -15,13 +15,12 @@ class Policy2210xxx(Policy):
         self.indices_prods = []
         self.list_stocks = []
         self.list_products = []
-    
+
     def get_action(self, observation, info):
-        # print("Initial first stock: ",self._get_stock_size_(observation["stocks"][0]))
         if(self.isComputing):
             self.solve_cutting_stock_problem(observation,info)
-            # for pattern in self.initial_patterns:
-            #     print(pattern)
+            for pattern in self.optimal_patterns:
+                print(pattern)
             self.isComputing = False
             for data in self.optimal_patterns:
                 if data['quantity'] == 0: continue
@@ -116,8 +115,6 @@ class Policy2210xxx(Policy):
                 initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
         
         # Simplex method init
-        x = np.array([])
-
         D = np.array([])
         for prod in self.list_products:
             D=np.append(D,prod["quantity"])
@@ -164,19 +161,34 @@ class Policy2210xxx(Policy):
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1)
         x = result_simplex.x
         x = np.int64(x)
-        print(x)
+        # print(x)
         dual_prods = result_simplex.eqlin['marginals']
         dual_stocks = result_simplex.ineqlin['marginals']
         for i in range(len(x)):
             self.optimal_patterns[i]['quantity'] = x[i]
+            # self.optimal_patterns[i]['quantity'] = 1
 
         # 2 vector Dual_variable (về item + về loại stock) 
         # Mỗi loại stock, truyền vô cái Long làm 
         # => Trả về [số loại stock] pattern + profit tương ứng
         # Cầm đống pattern mới kiếm tính reduce cost
+        reduce_costs = []
+        for pattern_idx,pattern in enumerate(self.optimal_patterns):            
+            # print(np.dot(A[:,pattern_idx],dual_prods.transpose()))
+            reduce_cost = c[pattern_idx] - (np.dot(A[:,pattern_idx],dual_prods.transpose())  + dual_stocks[pattern['stock_type']])
+            reduce_costs.append(reduce_cost)
+
+        for i in range (len(reduce_costs)):
+            if reduce_costs[i] < 0:
+                # Bo vo RMP
+                # Giai lai simplex
+                print(reduce_costs[i])
+        
+        # result_simplex_milp = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs', integrality=1)
+        # print(reduce_costs)
         # Âm -> Có pattern mới vào RMP -> Quay lại step 1
         # Dương -> Giải MILP để cho ra kết quả nguyên -> Siuuuuuuuuuuuuuu
-
+        
 
     def fill_to_clone_stocks(self,clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size):
         x, y = best_position
@@ -254,4 +266,81 @@ class Policy2210xxx(Policy):
                 if self._can_place_(stock, (x, y), (product_width, product_height)):
                     return (x, y)
         return None
+    
+    # def __init__(self):
+    #     self.stock_buckets = {}
+    #     self.bucket_size = 10  # Define the size range for each bucket
+
+    # def get_action(self, observation, info):
+    #     list_prods = observation["products"]
+    #     best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
+    #     if not hasattr(self, 'sorted_prods'):
+    #         self.sorted_prods = sorted(list_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
+    #         # self.sorted_prods = sorted(list_prods, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
+    #     if not hasattr(self, 'sorted_stocks'):
+    #         self.sorted_stocks = sorted(enumerate(observation["stocks"]), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
+    #     list_prods = self.sorted_prods
+    #     sorted_stocks = self.sorted_stocks
+    #     # Group stocks into buckets based on size ranges
+    #     self._group_stocks_into_buckets(observation["stocks"])
+        
+    #     for prod in list_prods:
+    #         if prod["quantity"] > 0:
+    #             prod_size = prod["size"]
+    #             min_waste_percentage = float('inf')
+    #             candidate_stocks = self._get_candidate_stocks(prod_size)
+                
+    #             for stock_idx, stock in candidate_stocks:
+    #                 placed = False
+    #                 position = self._find_position(stock, prod_size[0], prod_size[1])
+    #                 if position:
+    #                     stock_w, stock_h = self._get_stock_size_(stock)
+    #                     stock_area = stock_w * stock_h
+    #                     prod_area = prod_size[0] * prod_size[1]
+    #                     waste_percentage = (stock_area - prod_area) / stock_area
+    #                     if waste_percentage < min_waste_percentage:
+    #                         min_waste_percentage = waste_percentage
+    #                         best_stock_idx = stock_idx
+    #                         best_position = position
+    #                         best_prod_size = prod_size
+    #                         placed = True
+    #                         break
+    #             if best_position and best_stock_idx != -1:
+    #                 return {"stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}
+    #     return {"stock_idx": -1, "size": [0, 0], "position": None}
+    # def _group_stocks_into_buckets(self, stocks):
+    #     self.stock_buckets = {}
+    #     for idx, stock in enumerate(stocks):
+    #         stock_w, stock_h = self._get_stock_size_(stock)
+    #         bucket_key = (stock_w // self.bucket_size, stock_h // self.bucket_size)
+    #         if bucket_key not in self.stock_buckets:
+    #             self.stock_buckets[bucket_key] = []
+    #         self.stock_buckets[bucket_key].append((idx, stock))
+    # def _get_candidate_stocks(self, prod_size):
+    #     prod_w, prod_h = prod_size
+    #     bucket_key = (prod_w // self.bucket_size, prod_h // self.bucket_size)
+    #     candidate_stocks = []
+    #     for key in self.stock_buckets:
+    #         if key[0] >= bucket_key[0] and key[1] >= bucket_key[1]:
+    #             candidate_stocks.extend(self.stock_buckets[key])
+    #     return candidate_stocks
+    # def _find_position(self, stock, product_width, product_height):
+    #     stock_width, stock_height = self._get_stock_size_(stock)
+    #     for x in range(stock_width - product_width + 1):
+    #         for y in range(stock_height - product_height + 1):
+    #             if self._can_place_(stock, (x, y), (product_width, product_height)):
+    #                 return (x, y)
+    #     return None
+    # def _place_product(self, stock, product_width, product_height, position):
+    #     if position is None:
+    #         return  # No valid position found, do nothing
+    #     x, y = position
+    #     stock_width, stock_height = self._get_stock_size_(stock)
+    #     # Ensure the product is placed within the stock dimensions
+    #     # if x + product_width > stock_width or y + product_height > stock_height:
+    #     #     return
+    #     for i in range(product_height):
+    #         for j in range(product_width):
+    #             stock[y + i][x + j] = 1  # Mark the stock as used
+
     # You can add more functions if needed
