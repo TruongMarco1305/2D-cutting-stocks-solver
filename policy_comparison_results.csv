@@ -1,5 +1,4 @@
 test_case,policy,filled_ratio
-case_5_exact_fit,Greedy,1.0
-case_5_exact_fit,Random,0.0
-case_6_fragmented_stocks,Greedy,0.09
-case_6_fragmented_stocks,Random,0.0
+case_single_stock_type,Custom,0.23
+case_three_stock_types,Custom,0.53
+case_five_stock_types,Custom,0.64

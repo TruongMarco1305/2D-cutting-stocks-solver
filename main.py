@@ -36,9 +36,9 @@ if __name__ == "__main__":
 
         # Test policies
         policies = {
-            "Greedy": GreedyPolicy(),
-            "Random": RandomPolicy(),
-            # "Custom": Policy2210xxx(),
+            # "Greedy": GreedyPolicy(),
+            # "Random": RandomPolicy(),
+            "Custom": Policy2210xxx(),
         }
 
         for policy_name, policy in policies.items():

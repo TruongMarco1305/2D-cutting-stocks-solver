@@ -108,25 +108,43 @@ class CuttingStockEnv(gym.Env):
         self.cutted_stocks = np.full((self.num_stocks,), fill_value=0, dtype=int)
         self._stocks = []
 
-        # Randomize stocks
-        for _ in range(self.num_stocks):
-            width = np.random.randint(low=self.min_w, high=self.max_w + 1)
-            height = np.random.randint(low=self.min_h, high=self.max_h + 1)
-            stock = np.full(shape=(self.max_w, self.max_h), fill_value=-2, dtype=int)
-            stock[:width, :height] = -1  # Empty cells are marked as -1
-            self._stocks.append(stock)
-        self._stocks = tuple(self._stocks)
+        if options and "stocks" in options and "products" in options:
+            # Sử dụng stocks từ options
+            for stock_info in options["stocks"]:
+                stock = np.full(shape=(self.max_w, self.max_h), fill_value=-2, dtype=int)
+                data = stock_info["data"]
+                stock[:data.shape[0], :data.shape[1]] = data
+                self._stocks.append(stock)
+            self._stocks = tuple(self._stocks)
 
-        # Randomize products
-        self._products = []
-        num_type_products = np.random.randint(low=1, high=self.max_product_type)
-        for _ in range(num_type_products):
-            width = np.random.randint(low=1, high=self.min_w + 1)
-            height = np.random.randint(low=1, high=self.min_h + 1)
-            quantity = np.random.randint(low=1, high=self.max_product_per_type + 1)
-            product = {"size": np.array([width, height]), "quantity": quantity}
-            self._products.append(product)
-        self._products = tuple(self._products)
+            # Sử dụng products từ options 
+            self._products = []
+            for product in options["products"]:
+                self._products.append({
+                    "size": np.array(product["size"]),
+                    "quantity": product["quantity"]
+                })
+            self._products = tuple(self._products)
+        else:
+            # Fallback vào random generation nếu không có options
+            # ... code random cũ giữ nguyên ...
+            for _ in range(self.num_stocks):
+                width = np.random.randint(low=self.min_w, high=self.max_w + 1)
+                height = np.random.randint(low=self.min_h, high=self.max_h + 1)
+                stock = np.full(shape=(self.max_w, self.max_h), fill_value=-2, dtype=int)
+                stock[:width, :height] = -1
+                self._stocks.append(stock)
+            self._stocks = tuple(self._stocks)
+
+            self._products = []
+            num_type_products = np.random.randint(low=1, high=self.max_product_type)
+            for _ in range(num_type_products):
+                width = np.random.randint(low=1, high=self.min_w + 1)
+                height = np.random.randint(low=1, high=self.min_h + 1)
+                quantity = np.random.randint(low=1, high=self.max_product_per_type + 1)
+                product = {"size": np.array([width, height]), "quantity": quantity}
+                self._products.append(product)
+            self._products = tuple(self._products)
 
         observation = self._get_obs()
         info = self._get_info()
@@ -207,26 +225,43 @@ class CuttingStockEnv(gym.Env):
         canvas.fill((0, 0, 0))
         pix_square_size = 1  # The size of a single grid square in pixels
 
-        # Create a colormap for the products
-        cmap = colormaps.get_cmap("hsv")
-        norms = mpl.colors.Normalize(vmin=0, vmax=self.max_product_type - 1)
-        list_colors = [cmap(norms(i)) for i in range(self.max_product_type)]
+        # Tạo bảng màu tùy chỉnh với các màu dễ phân biệt
+        distinct_colors = [
+            (46, 134, 193),   # Xanh dương đậm
+            (39, 174, 96),    # Xanh lá đậm
+            (192, 57, 43),    # Đỏ đậm
+            (241, 196, 15),   # Vàng
+            (142, 68, 173),   # Tím
+            (52, 152, 219),   # Xanh dương nhạt
+            (230, 126, 34),   # Cam đậm
+            (26, 188, 156),   # Ngọc lam
+            (231, 76, 60),    # Đỏ tươi
+            (155, 89, 182),   # Tím nhạt
+            (41, 128, 185),   # Xanh biển
+            (22, 160, 133),   # Ngọc lục
+            (211, 84, 0),     # Cam đỏ
+            (44, 62, 80),     # Xanh đen
+            (127, 140, 141),  # Xám
+        ]
+        
+        # Đảm bảo đủ màu cho tất cả các loại sản phẩm
+        while len(distinct_colors) < self.max_product_type:
+            distinct_colors.extend(distinct_colors)
+        list_colors = distinct_colors[:self.max_product_type]
 
         # First we draw the stocks with the products
         for i, stock in enumerate(self._stocks):
             # Compute the actual stock width and height
-            # Outside of the stock, we have empty cells (-2)
             stock_width = np.sum(np.any(stock != -2, axis=1))
             stock_height = np.sum(np.any(stock != -2, axis=0))
 
-            # Fill the stocks wuth grey color
+            # Fill the stocks with grey color
             pygame.draw.rect(
                 canvas,
-                (128, 128, 128),
+                (64, 64, 64),  # Màu xám tối hơn cho nền stock
                 pygame.Rect(
                     (i % (window_size[0] // self.max_w) * self.max_w) * pix_square_size,
-                    (i // (window_size[0] // self.max_w) * self.max_h)
-                    * pix_square_size,
+                    (i // (window_size[0] // self.max_w) * self.max_h) * pix_square_size,
                     stock_width * pix_square_size,
                     stock_height * pix_square_size,
                 ),
@@ -235,12 +270,7 @@ class CuttingStockEnv(gym.Env):
             for x in range(stock.shape[0]):
                 for y in range(stock.shape[1]):
                     if stock[x, y] > -1:
-                        color = list_colors[stock[x, y]][:3]
-                        color = (
-                            int(color[0] * 255),
-                            int(color[1] * 255),
-                            int(color[2] * 255),
-                        )
+                        color = list_colors[stock[x, y]]
                         pygame.draw.rect(
                             canvas,
                             color,
