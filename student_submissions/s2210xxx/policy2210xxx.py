@@ -19,8 +19,6 @@ class Policy2210xxx(Policy):
     def get_action(self, observation, info):
         if(self.isComputing):
             self.solve_cutting_stock_problem(observation,info)
-            for pattern in self.optimal_patterns:
-                print(pattern)
             self.isComputing = False
             for data in self.optimal_patterns:
                 if data['quantity'] == 0: continue
@@ -57,7 +55,7 @@ class Policy2210xxx(Policy):
         initial_stocks = copy.deepcopy(observation["stocks"])
         initial_prods = copy.deepcopy(observation["products"])
         prod_num = 0
-        for prod in initial_prods:
+        for prod_idx,prod in enumerate(initial_prods):
             prod_info = {"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
             prod_num += prod["quantity"]
@@ -178,18 +176,17 @@ class Policy2210xxx(Policy):
             reduce_cost = c[pattern_idx] - (np.dot(A[:,pattern_idx],dual_prods.transpose())  + dual_stocks[pattern['stock_type']])
             reduce_costs.append(reduce_cost)
 
-        for i in range (len(reduce_costs)):
-            if reduce_costs[i] < 0:
-                # Bo vo RMP
-                # Giai lai simplex
-                print(reduce_costs[i])
+    #     for i in range (len(reduce_costs)):
+    #         if reduce_costs[i] < 0:
+    #             # Bo vo RMP
+    #             # Giai lai simplex
+    #             print(reduce_costs[i])
         
-        # result_simplex_milp = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs', integrality=1)
-        # print(reduce_costs)
-        # Âm -> Có pattern mới vào RMP -> Quay lại step 1
-        # Dương -> Giải MILP để cho ra kết quả nguyên -> Siuuuuuuuuuuuuuu
-        
-
+    #     # result_simplex_milp = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs', integrality=1)
+    #     # print(reduce_costs)
+    #     # Âm -> Có pattern mới vào RMP -> Quay lại step 1
+    #     # Dương -> Giải MILP để cho ra kết quả nguyên -> Siuuuuuuuuuuuuuu
+    
     def fill_to_clone_stocks(self,clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size):
         x, y = best_position
         w, h = best_prod_size
