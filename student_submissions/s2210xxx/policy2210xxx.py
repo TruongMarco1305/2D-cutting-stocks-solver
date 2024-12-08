@@ -2,6 +2,7 @@ from policy import Policy
 import numpy as np
 from scipy.optimize import linprog
 from copy import deepcopy
+import itertools
 
 class Policy2210xxx(Policy):    
     def __init__(self):
@@ -20,6 +21,9 @@ class Policy2210xxx(Policy):
             self.isComputing = False
             self.drawing_patterns()
             self.drawing_counter += 1
+            # dual_prods = [10,8] # dual_prods for generate pattern
+            # pattern = self.generate_pattern(dual_prods, 0) # generate pattern for stock type 0
+            # print("Pattern: ", pattern)
             return {
                 "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
                 "size": self.drawing_data[self.drawing_counter]["size"],
