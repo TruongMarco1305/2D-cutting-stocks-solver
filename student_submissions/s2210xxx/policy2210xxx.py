@@ -1,8 +1,6 @@
 from policy import Policy
 import numpy as np
 from scipy.optimize import linprog
-from scipy.optimize import milp
-from scipy.optimize import LinearConstraint
 from copy import deepcopy
 
 class Policy2210xxx(Policy):    
@@ -197,71 +195,70 @@ class Policy2210xxx(Policy):
                             current_bin['strips'].append(strip)
                     if canPlaceMore == False: break
 
-        self.optimal_patterns = initial_patterns
-        for pattern in initial_patterns:
-            print(pattern)
+        # self.optimal_patterns = initial_patterns
+        # for pattern in initial_patterns:
+        #     print(pattern)
 
-        # D = np.array([])
-        # for prod in initial_prods:
-        #     # if '_rotated' in prod['id']: continue
-        #     D=np.append(D,prod["quantity"])
-        # D = D.flatten()
+        D = np.array([])
+        for prod in initial_prods:
+            # if '_rotated' in prod['id']: continue
+            D=np.append(D,prod["quantity"])
+        D = D.flatten()
         # print('D: ',D.shape)
 
-        # S = np.array([])
-        # for stock in self.list_stocks:
-        #     S=np.append(S,stock["quantity"])
-        # S = S.flatten()
+        S = np.array([])
+        for stock in self.list_stocks:
+            S=np.append(S,stock["quantity"])
+        S = S.flatten()
         # print('S: ',S.shape)
 
-        # keys = []
-        # c = np.array([])
-        # for pattern in initial_patterns:
-        #     # print(pattern['key'])
-        #     if pattern["key"] not in keys:
-        #         keys.append(pattern["key"])
-        #         unique_pattern = {'key': pattern['key'], "quantity": 1, "stock_type": pattern["bin_class_id"], "strips": pattern["strips"]}
-        #         self.optimal_patterns.append(unique_pattern)
-        #         area = pattern['length'] * pattern['width']
-        #         c = np.append(c,area)
-        # # c = c.flatten()
-        # # print('c: ', c.shape)
+        keys = []
+        c = np.array([])
+        for pattern in initial_patterns:
+            # print(pattern['key'])
+            if pattern["key"] not in keys:
+                keys.append(pattern["key"])
+                unique_pattern = {'key': pattern['key'], "quantity": 1, "stock_type": pattern["bin_class_id"], "strips": pattern["strips"]}
+                self.optimal_patterns.append(unique_pattern)
+                area = pattern['length'] * pattern['width']
+                c = np.append(c,area)
+            else:
+                self.update_quantity_pattern_by_key(pattern["key"])
+        c = c.flatten()
+        # print('c: ', c.shape)
         # for pattern in self.optimal_patterns:
         #     print(pattern)
 
-        # A = np.zeros(shape=(int(len(self.list_products) / 2),len(self.optimal_patterns))) # 11 row - 28 col
-        # for pattern_idx, pattern in enumerate(self.optimal_patterns):
-        #     for strip in pattern['strips']:
-        #         for item in strip['items']:
-        #         # print(prod_index, ' ', value['quantity'])
-        #             if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
-        #             else: item_idx = item['item_class_id']
-        #             item_idx = int(item_idx)
-        #             # print(item_idx, ' ', pattern_idx)
-        #             A[item_idx][pattern_idx] += item['quantity']
+        A = np.zeros(shape=(int(len(self.list_products) / 2),len(self.optimal_patterns))) # 11 row - 28 col
+        for pattern_idx, pattern in enumerate(self.optimal_patterns):
+            for strip in pattern['strips']:
+                for item in strip['items']:
+                # print(prod_index, ' ', value['quantity'])
+                    if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
+                    else: item_idx = item['item_class_id']
+                    item_idx = int(item_idx)
+                    # print(item_idx, ' ', pattern_idx)
+                    A[item_idx][pattern_idx] += item['quantity']
         # print('A: ', A.shape)
 
-        # B = np.zeros(shape=(len(self.list_stocks),len(self.optimal_patterns))) # 97 row - 28 col
-        # for pattern_idx, pattern in enumerate(self.optimal_patterns):
-        #     B[pattern["stock_type"]][pattern_idx] = 1
+        B = np.zeros(shape=(len(self.list_stocks),len(self.optimal_patterns))) # 97 row - 28 col
+        for pattern_idx, pattern in enumerate(self.optimal_patterns):
+            B[pattern["stock_type"]][pattern_idx] = 1
         # print('B: ', B.shape)
 
-        # x_bounds = [(0,None) for _ in range(len(self.optimal_patterns))]
-        # result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1,options={"presolve": False})
-        # # constraints = [
-        # #     LinearConstraint(A, D, D),  # Equality constraints
-        # #     LinearConstraint(B, -np.inf, S)  # Inequality constraints
-        # # ]
-        # # result_simplex = milp(c,integrality=np.array([1,1,1,1,1,1]),constraints=constraints)
-        # print(result_simplex)
-        # # x = result_simplex.x
-        # # x = np.int64(x)
-        # # print(x)
-        # dual_prods = result_simplex.eqlin['marginals']
-        # dual_stocks = result_simplex.ineqlin['marginals']
+        x_bounds = [(0,None) for _ in range(len(self.optimal_patterns))]
+        result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',options={"presolve": False})
+        if(result_simplex.status == 0):
+            print(result_simplex)
+            # x = result_simplex.x
+            # x = np.int64(x)
+            # print(x)
+            dual_prods = result_simplex.eqlin['marginals']
+            dual_stocks = result_simplex.ineqlin['marginals']
 
         # for pattern in self.optimal_patterns:
         #     print(pattern)
+
 
     def choose_appropriate_stock_type_for_prod(self,list_stocks,item):
         max_items_in_bin = 0
@@ -282,45 +279,65 @@ class Policy2210xxx(Policy):
         else:
             raise Exception(f"No available bin can accommodate item class {item['id']}")
 
-    def get_stock_idx_to_draw(self,stock_type):
+    # def get_stock_idx_to_draw(self,stock_type):
+    #     for stock in self.list_stocks:
+    #         if stock['id'] == stock_type:
+    #             stock_idx = stock['stock_index'][0]
+    #             stock['stock_index'].pop(0)
+    #             rotated = stock['rotated']
+    #             break
+    #     return stock_idx, rotated
+
+    def get_stock_by_type(self,stock_type):
         for stock in self.list_stocks:
             if stock['id'] == stock_type:
-                stock_idx = stock['stock_index'][0]
-                stock['stock_index'].pop(0)
-                rotated = stock['rotated']
-                break
-        return stock_idx, rotated
+                return stock
 
     def drawing_patterns(self):
         for data in self.optimal_patterns:
-            stock_type = data['bin_class_id']
-            stock_idx, rotated = self.get_stock_idx_to_draw(stock_type)
+            stock = self.get_stock_by_type(data['stock_type'])
+            # print(stock)
+            # stock_idx, rotated = self.get_stock_idx_to_draw(stock_type)
             x,y = 0,0
-            if rotated:
-                for strip in data['strips']:
-                    for item in strip['items']:
-                        for _ in range(item['quantity']):
-                            size = (item['height'],item['width'])
-                            position = (x,y)
-                            y += item['width']
-                            self.drawing_data.append({
-                                'stock_idx': stock_idx,
-                                'size': size,
-                                'position': position,
-                            })
-                    x += strip['width']
-                    y = 0
+            if stock['rotated']:
+                for _ in range(data['quantity']):
+                    stock_idx = stock['stock_index'][0]
+                    stock['stock_index'].pop(0)
+                    x,y = 0,0
+                    for strip in data['strips']:
+                        for item in strip['items']:
+                            for _ in range(item['quantity']):
+                                size = (item['height'],item['width'])
+                                position = (x,y)
+                                y += item['width']
+                                self.drawing_data.append({
+                                    'stock_idx': stock_idx,
+                                    'size': size,
+                                    'position': position,
+                                })
+                        x += strip['width']
+                        y = 0
             else:
-                for strip in data['strips']:
-                    for item in strip['items']:
-                        for _ in range (item['quantity']):
-                            size = (item['width'],item['height'])
-                            position = (x,y)
-                            x += item['width']
-                            self.drawing_data.append({
-                                'stock_idx': stock_idx,
-                                'size': size,
-                                'position': position,
-                            })
-                    y += strip['width']
-                    x = 0
+                for _ in range(data['quantity']):
+                    stock_idx = stock['stock_index'][0]
+                    stock['stock_index'].pop(0)
+                    for strip in data['strips']:
+                        for item in strip['items']:
+                            for _ in range (item['quantity']):
+                                size = (item['width'],item['height'])
+                                position = (x,y)
+                                x += item['width']
+                                self.drawing_data.append({
+                                    'stock_idx': stock_idx,
+                                    'size': size,
+                                    'position': position,
+                                })
+                        y += strip['width']
+                        x = 0
+    
+    def update_quantity_pattern_by_key(self,key):
+        for pattern in self.optimal_patterns:
+            if(pattern['key'] == key):
+                pattern['quantity'] += 1
+                break
+        
