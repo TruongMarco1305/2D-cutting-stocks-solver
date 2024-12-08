@@ -1,6 +1,8 @@
 from policy import Policy
 import numpy as np
 from scipy.optimize import linprog
+from scipy.optimize import milp
+from scipy.optimize import LinearConstraint
 from copy import deepcopy
 
 class Policy2210xxx(Policy):    
@@ -37,8 +39,9 @@ class Policy2210xxx(Policy):
         # Student code here
         initial_stocks = deepcopy(observation["stocks"])
         initial_prods = deepcopy(observation["products"])
-        # prod_num = 0
 
+        # ! 2 == 0 -> Normal
+        # ! 2 != 0 -> Rotated
         for prod_idx,prod in enumerate(initial_prods):
             prod_info = {'id': str(prod_idx),"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
@@ -46,7 +49,11 @@ class Policy2210xxx(Policy):
             prod_info = {'id': str(prod_idx) + '_rotated',"width": prod["size"][1], "height": prod["size"][0], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
         self.list_products.sort(key=lambda x: (-x['height'], -x['width']))
+        for prod in self.list_products:
+            print(prod)
+        # print('Products: ',self.list_products)
 
+        stock_id = 0
         for stock_i_idx,stock_i in enumerate(initial_stocks):
             stock_w, stock_h = self._get_stock_size_(stock_i)
             duplicated_stock_idx = -1
@@ -58,9 +65,14 @@ class Policy2210xxx(Policy):
                 self.list_stocks[duplicated_stock_idx]["quantity"] += 1
                 self.list_stocks[duplicated_stock_idx]["stock_index"].append(stock_i_idx)
             else:
-                stock_info = {'id': stock_i_idx,"width": min(stock_w,stock_h), "length": max(stock_h,stock_w), "quantity": 1, "stock_index": [stock_i_idx], 'used': 0, 'rotated': stock_h > stock_w }
+                stock_info = {'id': stock_id,"width": min(stock_w,stock_h), "length": max(stock_h,stock_w), "quantity": 1, "stock_index": [stock_i_idx], 'used': 0, 'rotated': stock_h > stock_w }
+                stock_id += 1
                 self.list_stocks.append(stock_info)
+        stock_quantity = [stock['quantity'] for stock in self.list_stocks]
         self.list_stocks.sort(key=lambda x:x['width'] * x['length'])
+        for stock in self.list_stocks:
+            print(stock)
+        # print('Stocks: ', self.list_stocks)
 
         initial_patterns = []
         bin_counter = 0
@@ -75,7 +87,7 @@ class Policy2210xxx(Policy):
                 # Open a new bin of this class if possible
                 bin_counter += 1
                 # print('bin_class: ',bin_class)
-                current_bin = {'id': bin_counter, 'bin_class_id': bin_class['id'], 'length': bin_class['length'], 'width': bin_class['width'], 'remaining_length': bin_class['length'], 'remaining_width': bin_class['width'], 'strips': []}
+                current_bin = {'id': bin_counter, 'key': str(bin_class['id']),'bin_class_id': bin_class['id'], 'length': bin_class['length'], 'width': bin_class['width'], 'remaining_length': bin_class['length'], 'remaining_width': bin_class['width'], 'strips': []}
                 initial_patterns.append(current_bin)
 
                 while item_demand[item['id']] > 0 and current_bin['remaining_width'] >= item['height']:
@@ -98,7 +110,7 @@ class Policy2210xxx(Policy):
 
                     item_placement = {'item_class_id': item['id'], 'width': item['width'], 'height': item['height'],'quantity': items_to_place}
                     strip = {'length': strip_length, 'width': strip_width, 'items': [item_placement]}
-
+                    current_bin['key'] += ''.join('_' + str(item['id']) for _ in range(items_to_place))
                     # Update bin and item demand
                     current_bin['remaining_width'] -= strip_width
                     item_demand[item['id']] -= items_to_place
@@ -117,6 +129,7 @@ class Policy2210xxx(Policy):
                                 items_to_place = min(item_demand[next_item['id']],int(strip_remaining_length // next_item['width']))
                                 if(items_to_place > 0):
                                     item_placement = {'item_class_id': next_item['id'], 'width': next_item['width'], 'height': next_item['height'],'quantity': items_to_place}
+                                    current_bin['key'] += ''.join('_' + str(next_item['id']) for _ in range(items_to_place))
                                     strip['items'].append(item_placement)
                                     item_demand[next_item['id']] -= items_to_place
                                     if('_rotated' in next_item['id']):
@@ -150,17 +163,9 @@ class Policy2210xxx(Policy):
                             if strip_width > current_bin['remaining_width']:
                                 break  # Cannot place strip in remaining length
 
-                            # item_placement = ItemPlacement(
-                            #     item_class_id=item.id,
-                            #     quantity=items_to_place,
-                            #     position=(0, current_bin.length - current_bin.remaining_length)
-                            # )
                             item_placement = {'item_class_id': sub_item['id'], 'width': sub_item['width'], 'height': sub_item['height'],'quantity': items_to_place}
-                            # strip = Strip(
-                            #     width=strip_width,
-                            #     height=strip_height,
-                            #     items=[item_placement]
-                            # )
+                            current_bin['key'] += ''.join('_' + str(sub_item['id']) for _ in range(items_to_place))
+
                             strip = {'length': strip_length, 'width': strip_width, 'items': [item_placement]}
 
                             # Update bin and item demand
@@ -178,6 +183,7 @@ class Policy2210xxx(Policy):
                                         items_to_place = min(item_demand[next_item['id']],int(strip_remaining_length // next_item['width']))
                                         if(items_to_place > 0):
                                             item_placement = {'item_class_id': next_item['id'],'width': next_item['width'], 'height': next_item['height'], 'quantity': items_to_place}
+                                            current_bin['key'] += ''.join('_' + str(next_item['id']) for _ in range(items_to_place))
                                             strip['items'].append(item_placement)
                                             item_demand[next_item['id']] -= items_to_place
                                             if('_rotated' in next_item['id']):
@@ -192,9 +198,70 @@ class Policy2210xxx(Policy):
                     if canPlaceMore == False: break
 
         self.optimal_patterns = initial_patterns
-
-        for pattern in self.optimal_patterns:
+        for pattern in initial_patterns:
             print(pattern)
+
+        # D = np.array([])
+        # for prod in initial_prods:
+        #     # if '_rotated' in prod['id']: continue
+        #     D=np.append(D,prod["quantity"])
+        # D = D.flatten()
+        # print('D: ',D.shape)
+
+        # S = np.array([])
+        # for stock in self.list_stocks:
+        #     S=np.append(S,stock["quantity"])
+        # S = S.flatten()
+        # print('S: ',S.shape)
+
+        # keys = []
+        # c = np.array([])
+        # for pattern in initial_patterns:
+        #     # print(pattern['key'])
+        #     if pattern["key"] not in keys:
+        #         keys.append(pattern["key"])
+        #         unique_pattern = {'key': pattern['key'], "quantity": 1, "stock_type": pattern["bin_class_id"], "strips": pattern["strips"]}
+        #         self.optimal_patterns.append(unique_pattern)
+        #         area = pattern['length'] * pattern['width']
+        #         c = np.append(c,area)
+        # # c = c.flatten()
+        # # print('c: ', c.shape)
+        # for pattern in self.optimal_patterns:
+        #     print(pattern)
+
+        # A = np.zeros(shape=(int(len(self.list_products) / 2),len(self.optimal_patterns))) # 11 row - 28 col
+        # for pattern_idx, pattern in enumerate(self.optimal_patterns):
+        #     for strip in pattern['strips']:
+        #         for item in strip['items']:
+        #         # print(prod_index, ' ', value['quantity'])
+        #             if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
+        #             else: item_idx = item['item_class_id']
+        #             item_idx = int(item_idx)
+        #             # print(item_idx, ' ', pattern_idx)
+        #             A[item_idx][pattern_idx] += item['quantity']
+        # print('A: ', A.shape)
+
+        # B = np.zeros(shape=(len(self.list_stocks),len(self.optimal_patterns))) # 97 row - 28 col
+        # for pattern_idx, pattern in enumerate(self.optimal_patterns):
+        #     B[pattern["stock_type"]][pattern_idx] = 1
+        # print('B: ', B.shape)
+
+        # x_bounds = [(0,None) for _ in range(len(self.optimal_patterns))]
+        # result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1,options={"presolve": False})
+        # # constraints = [
+        # #     LinearConstraint(A, D, D),  # Equality constraints
+        # #     LinearConstraint(B, -np.inf, S)  # Inequality constraints
+        # # ]
+        # # result_simplex = milp(c,integrality=np.array([1,1,1,1,1,1]),constraints=constraints)
+        # print(result_simplex)
+        # # x = result_simplex.x
+        # # x = np.int64(x)
+        # # print(x)
+        # dual_prods = result_simplex.eqlin['marginals']
+        # dual_stocks = result_simplex.ineqlin['marginals']
+
+        # for pattern in self.optimal_patterns:
+        #     print(pattern)
 
     def choose_appropriate_stock_type_for_prod(self,list_stocks,item):
         max_items_in_bin = 0
@@ -228,12 +295,6 @@ class Policy2210xxx(Policy):
         for data in self.optimal_patterns:
             stock_type = data['bin_class_id']
             stock_idx, rotated = self.get_stock_idx_to_draw(stock_type)
-            # if(stock_idx == 2):
-            #     stock_idx = 72
-            # elif stock_idx == 7:
-            #     stock_idx = 77
-            # elif stock_idx == 0:
-            #     stock_idx = 70
             x,y = 0,0
             if rotated:
                 for strip in data['strips']:
@@ -263,5 +324,3 @@ class Policy2210xxx(Policy):
                             })
                     y += strip['width']
                     x = 0
-    # You can add more functions if needed
-        
