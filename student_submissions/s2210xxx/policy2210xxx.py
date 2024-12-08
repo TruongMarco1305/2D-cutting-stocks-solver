@@ -315,8 +315,12 @@ class Policy2210xxx(Policy):
             for i in range(len(strips["itemCount"])):
                 small_profit = 0
                 small_l = 0
-                array_cal = np.zeros(len(strips["itemCount"]))
+                array_cal = np.zeros(len(strips["itemCount"]), dtype=int)
                 array_cal[i] = int(strips["itemCount"][i])
+                temp_profit = array_cal[i] * dual_prods[int(i / 2)]
+                if sum(array_cal) == 0:
+                    continue
+                small_result.append({"strip": int(strips["strip"]), "profit": int(temp_profit), "itemCount": array_cal.copy()})
                 if prod_clone[i]["height"] > strips["strip"] or prod_clone[i]["width"] > strips["strip"]:
                     continue
                 small_profit = array_cal[i] * dual_prods[int(i / 2)]
@@ -338,7 +342,6 @@ class Policy2210xxx(Policy):
                             else:
                                 continue
                 small_result.append({"strip": int(strips["strip"]), "profit": int(small_profit), "itemCount": array_cal})
-        
         prod_heights = [prod['height'] for prod in self.list_products]
         def find_combinations(heights, target, partial=[], start=0):
             if sum(partial) == target:
@@ -358,13 +361,14 @@ class Policy2210xxx(Policy):
             if sorted_combination not in seen:
                 seen.add(sorted_combination)
                 final_combination.append(combination)
+        max_profit = 0
+        max_result = []
         for combination in final_combination:
-            max_profit = 0
-            max_result = []
             profit_check = 0
             strip_list = combination
             strip_list = np.array(strip_list)
             strip_list = strip_list.tolist()
+            strip_list.sort()
             small_result.sort(key=lambda x: (x["strip"], -x["profit"]))
             item_quantity = np.zeros(int(len(self.list_products)/2))
             for i in range(len(item_quantity)):
@@ -380,14 +384,15 @@ class Policy2210xxx(Policy):
                             item_quantity[int(idx/2)] -= strip['itemCount'][idx]
                         result_stock2.append(strip)
                         break
-                else:
-                    continue
+                    else:
+                        continue
             for strip in result_stock2:
                 profit_check += strip['profit']
             if profit_check > max_profit:
+                print("Profit check: ", profit_check)
                 max_profit = profit_check
                 max_result = result_stock2
         result_stock = result_stock2
         print("Max profit: ", max_profit)
-        return tuple(result_stock)
+        return tuple(max_result)
         
