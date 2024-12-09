@@ -397,6 +397,10 @@ class Policy2210xxx(Policy):
                 if sum(array_cal) == 0:
                     continue
                 small_result.append({"strip": int(strips["strip"]), "profit": int(temp_profit), "itemCount": array_cal.copy()})
+                temp_profit = array_cal[i] * dual_prods[int(i / 2)]
+                if sum(array_cal) == 0:
+                    continue
+                small_result.append({"strip": int(strips["strip"]), "profit": int(temp_profit), "itemCount": array_cal.copy()})
                 if prod_clone[i]["height"] > strips["strip"] or prod_clone[i]["width"] > strips["strip"]:
                     continue
                 small_profit = array_cal[i] * dual_prods[int(i / 2)]
@@ -465,6 +469,7 @@ class Policy2210xxx(Policy):
             for strip in result_stock2:
                 profit_check += strip['profit']
             if profit_check > max_profit:
+                print("Profit check: ", profit_check)
                 print("Profit check: ", profit_check)
                 max_profit = profit_check
                 max_result = result_stock2
