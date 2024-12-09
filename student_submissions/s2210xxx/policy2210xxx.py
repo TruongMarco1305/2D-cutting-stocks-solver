@@ -51,8 +51,8 @@ class Policy2210xxx(Policy):
             prod_info = {'id': str(prod_idx) + '_rotated',"width": prod["size"][1], "height": prod["size"][0], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
         self.list_products.sort(key=lambda x: (-x['height'], -x['width']))
-        for prod in self.list_products:
-            print(prod)
+        # for prod in self.list_products:
+        #     print(prod)
         # print('Products: ',self.list_products)
 
         stock_id = 0
@@ -72,8 +72,8 @@ class Policy2210xxx(Policy):
                 self.list_stocks.append(stock_info)
         stock_quantity = [stock['quantity'] for stock in self.list_stocks]
         self.list_stocks.sort(key=lambda x:x['width'] * x['length'])
-        for stock in self.list_stocks:
-            print(stock)
+        # for stock in self.list_stocks:
+        #     print(stock)
         # print('Stocks: ', self.list_stocks)
 
         initial_patterns = []
@@ -227,7 +227,7 @@ class Policy2210xxx(Policy):
                 area = pattern['length'] * pattern['width']
                 c = np.append(c,area)
             else:
-                self.update_quantity_pattern_by_key(pattern["key"])
+                self.update_quantity_pattern_by_key(patterns_converted, pattern["key"])
         c = c.flatten()
         # print('c: ', c)
         # for pattern in self.optimal_patterns:
@@ -252,17 +252,24 @@ class Policy2210xxx(Policy):
 
         x_bounds = [(-0.99999999,None) for _ in range(len(patterns_converted))]
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs')
-        print(result_simplex)
+        # print(result_simplex)
         if(result_simplex.status == 0):
             dual_prods = result_simplex.eqlin['marginals']
             dual_stocks = result_simplex.ineqlin['marginals']
             # self.list_stocks.sort(key=lambda x: x['id'])
             patterns_profit_generation = []
+            self.list_products.sort(key = lambda x: x['id'])
+            # print(self.list_products)
             for i in range(len(self.list_stocks)):
-                pattern = self.generate_pattern(dual_prods, i)
-                patterns_profit_generation.append(pattern)
-                print("Pattern of index ", i, ": ", pattern)
+                strips = self.generate_pattern(dual_prods, i)
+                patterns_profit_generation.append({'stock_type': self.list_stocks[i]['id'], 'strips': strips})
+                print("Pattern of index ", i, ": ", {'stock_type': self.list_stocks[i]['id'], 'strips': strips})
+            reduce_costs = []
+            for pattern in patterns_profit_generation:
+                reduce_cost = c[pattern_idx] - (np.dot(A[:,pattern_idx],dual_prods.transpose())  + dual_stocks[pattern['stock_type']])
             self.optimal_patterns = patterns_converted
+            # for pattern in patterns_profit_generation:
+            #     print(pattern)
         else:
             self.optimal_patterns = patterns_converted
 
@@ -322,6 +329,7 @@ class Policy2210xxx(Policy):
                 for _ in range(data['quantity']):
                     stock_idx = stock['stock_index'][0]
                     stock['stock_index'].pop(0)
+                    x,y = 0,0
                     for strip in data['strips']:
                         for item in strip['items']:
                             for _ in range (item['quantity']):
@@ -336,8 +344,8 @@ class Policy2210xxx(Policy):
                         y += strip['width']
                         x = 0
     
-    def update_quantity_pattern_by_key(self,key):
-        for pattern in self.optimal_patterns:
+    def update_quantity_pattern_by_key(self,patterns_converted,key):
+        for pattern in patterns_converted:
             if(pattern['key'] == key):
                 pattern['quantity'] += 1
                 break
@@ -349,8 +357,8 @@ class Policy2210xxx(Policy):
         # list_stocks.sort(key=lambda x: x['id'])
         stock_w = self.list_stocks[stock_type]['length']
         stock_h = self.list_stocks[stock_type]['width']
-        product_widths = np.array([prod['width'] for prod in self.list_products])
-        product_heights = np.array([prod['height'] for prod in self.list_products])
+        product_widths = np.array([prod['height'] for prod in self.list_products])
+        product_heights = np.array([prod['width'] for prod in self.list_products])
         # cut horizontal strips
         for i in range(len(product_heights)):
             if product_widths[i] > stock_w or product_heights[i] > stock_h:
