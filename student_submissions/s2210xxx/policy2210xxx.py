@@ -258,6 +258,8 @@ class Policy2210xxx(Policy):
             dual_stocks = result_simplex.ineqlin['marginals']
             # self.list_stocks.sort(key=lambda x: x['id'])
             patterns_profit_generation = []
+            self.list_products.sort(key=lambda x: x['id'])
+            print("Product: ", self.list_products)
             for i in range(len(self.list_stocks)):
                 pattern = self.generate_pattern(dual_prods, i)
                 patterns_profit_generation.append(pattern)
@@ -356,26 +358,14 @@ class Policy2210xxx(Policy):
             if product_widths[i] > stock_w or product_heights[i] > stock_h:
                 continue
             profit = np.zeros(stock_w + 1)
-            itemCount = np.zeros((stock_w + 1, len(self.list_products)))
-            for j in range(1, len(dual_prods)*2 + 1):
-                p = dual_prods[int(j / 2) - 1]
-                w = product_widths[j-1]
-                if w > product_widths[i]:
+            itemCount = np.zeros(len(self.list_products))
+            for j in range(len(product_widths)):
+                if product_heights[j] > product_heights[i] or product_widths[j] > stock_w:
                     continue
-                for s in range(stock_w, 0, -1):
-                    for d in range(1, min(self.list_products[j-1]["quantity"], stock_w // product_widths[j-1]) + 1):
-                        if (s - (d * w) >= 0):
-                            # if ((profit[int(s - (d * w))] + d * p) >= profit[s]):
-                            profit[s] = profit[int(s - (d * w))] + d * p
-                            itemCount[s][j-1] = d
-                        else: 
-                            break
-            maxUse = 1000000000
-            for j in range(len(dual_prods) * 2):
-                if itemCount[stock_w][j] > 0:
-                    maxUse = min(maxUse, self.list_products[j]["quantity"] // itemCount[stock_w][j])
-            result.append({"strip": int(product_heights[i]), "profit": int(profit[stock_w]), "itemCount": itemCount[stock_w].astype(int), "maxUse": int(maxUse)})
+                itemCount[j] = stock_w // product_widths[j]
+            result.append({"strip": int(product_heights[i]), "profit": int(profit[stock_w]), "itemCount": itemCount.astype(int)})
         result = np.array(result)
+        print("Result: ", result)
         small_result = []
         prod_clone = deepcopy(self.list_products)
         for prod in prod_clone:
@@ -387,7 +377,6 @@ class Policy2210xxx(Policy):
         for strips in result:
             strips['profit'] = int(strips['profit'])
             strips['strip'] = int(strips['strip'])
-            strips['maxUse'] = int(strips['maxUse'])
             for i in range(len(strips["itemCount"])):
                 small_profit = 0
                 small_l = 0
@@ -469,8 +458,6 @@ class Policy2210xxx(Policy):
             for strip in result_stock2:
                 profit_check += strip['profit']
             if profit_check > max_profit:
-                print("Profit check: ", profit_check)
-                print("Profit check: ", profit_check)
                 max_profit = profit_check
                 max_result = result_stock2
         result_stock = result_stock2
