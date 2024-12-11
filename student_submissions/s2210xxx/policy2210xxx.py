@@ -15,9 +15,9 @@ class Policy2210xxx(Policy):
         self.drawing_data = []
         self.list_stocks = []
         self.list_products = []
+        self.keys = []
         if policy_id == 1:
             self.sub_optimal_patterns = []
-            self.keys = []
         else:
             self.stock_buckets = {}
             self.bucket_size = 10 
@@ -412,16 +412,15 @@ class Policy2210xxx(Policy):
                 initial_patterns[best_stock_idx]["items"][prod_idx] = {"quantity": 1, "positions": position_list, "width": prod_w, "height": prod_h }
                 initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
         
-        keys = []
         patterns_converted = []
         for pattern in initial_patterns:
             if pattern["items"] == {}: continue   
-            if pattern["key"] not in keys:
-                keys.append(pattern["key"])
+            if pattern["key"] not in self.keys:
+                self.keys.append(pattern["key"])
                 unique_pattern = {"quantity": 1, "stock_type": pattern["stock_type"], "items": pattern["items"]}
                 patterns_converted.append(unique_pattern)
             else:
-                self.update_quantity_pattern_by_key(patterns_converted,key)
+                self.update_quantity_pattern_by_key(patterns_converted,pattern['key'])
         self.optimal_patterns = patterns_converted
             
     def fill_to_clone_stocks(self,clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size):
@@ -666,8 +665,6 @@ class Policy2210xxx(Policy):
             # stock_idx, rotated = self.get_stock_idx_to_draw(stock_type)
 
     def drawing_patterns(self):
-        for pattern in self.optimal_patterns:
-            print(pattern)
         for data in self.optimal_patterns:
             if data['quantity'] == 0: continue
             for _ in range(data['quantity']):
