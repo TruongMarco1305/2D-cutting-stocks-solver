@@ -3,29 +3,32 @@ import numpy as np
 from scipy.optimize import linprog
 from copy import deepcopy
 import itertools
+import time
 
 class Policy2210xxx(Policy):    
-    def __init__(self):
+    def __init__(self, policy_id=1):
+        assert policy_id in [1, 2], "Policy ID must be 1 or 2"
+        self.policy_id = policy_id
         self.optimal_patterns = []
         self.isComputing = True
         self.drawing_counter = -1
         self.drawing_data = []
-        self.indices_prods = []
-        self.indices_stocks = []
         self.list_stocks = []
         self.list_products = []
-        self.sub_optimal_patterns = []
-        self.keys = []
+        if policy_id == 1:
+            self.sub_optimal_patterns = []
+            self.keys = []
+        else:
+            self.stock_buckets = {}
+            self.bucket_size = 10 
+            self.indices_prods = []
 
     def get_action(self, observation, info):
         if(self.isComputing):
-            self.init_heuristic(observation,info)
             self.isComputing = False
-            self.drawing_patterns()
             self.drawing_counter += 1
-            # dual_prods = [10,8,6] # dual_prods for generate pattern
-            # pattern = self.generate_pattern(dual_prods, 0) # generate pattern for stock type 0
-            # print("Pattern: ", pattern)
+            self.implement_policy(observation,info)
+            # print(self.drawing_data)
             return {
                 "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
                 "size": self.drawing_data[self.drawing_counter]["size"],
@@ -39,13 +42,26 @@ class Policy2210xxx(Policy):
                 "position": self.drawing_data[self.drawing_counter]["position"]
             }
         
-    def init_heuristic(self, observation, info):
-        # Student code here
+    def implement_policy(self,observation,info):
         initial_stocks = deepcopy(observation["stocks"])
         initial_prods = deepcopy(observation["products"])
+        if self.policy_id == 1:
+            self.furini_heuristic(initial_stocks,initial_prods)
+            self.drawing_strips()
+        else:
+            self.lazy_init_heuristic(initial_stocks,initial_prods)
+            self.drawing_patterns()
 
-        # ! 2 == 0 -> Normal
-        # ! 2 != 0 -> Rotated
+    def furini_heuristic(self, initial_stocks, initial_prods):
+        # Student code here
+
+        # print('Products: ', initial_prods)
+        # stocks = []
+        # for stock in initial_stocks:
+        #     stock_w, stock_h = self._get_stock_size_(stock)
+        #     stocks.append({'width': stock_w, 'height': stock_h})
+        # print('Stocks: ', stocks)
+
         for prod_idx,prod in enumerate(initial_prods):
             prod_info = {'id': str(prod_idx),"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
@@ -53,11 +69,10 @@ class Policy2210xxx(Policy):
             prod_info = {'id': str(prod_idx) + '_rotated',"width": prod["size"][1], "height": prod["size"][0], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
         self.list_products.sort(key=lambda x: (-x['height'], -x['width']))
-        print('Start product')
-        for prod in self.list_products:
-            print(prod)
-        print('End product')
-        # print('Products: ',self.list_products)
+        # print('Start product')
+        # for prod in self.list_products:
+        #     print(prod)
+        # print('End product')
 
         stock_id = 0
         for stock_i_idx,stock_i in enumerate(initial_stocks):
@@ -69,17 +84,18 @@ class Policy2210xxx(Policy):
                     break
             if duplicated_stock_idx != -1:
                 self.list_stocks[duplicated_stock_idx]["quantity"] += 1
-                self.list_stocks[duplicated_stock_idx]["stock_index"].append(stock_i_idx)
+                self.list_stocks[duplicated_stock_idx]["stock_index"].append((stock_i_idx,stock_h > stock_w))
             else:
-                stock_info = {'id': stock_id,"width": min(stock_w,stock_h), "length": max(stock_h,stock_w), "quantity": 1, "stock_index": [stock_i_idx], 'used': 0, 'rotated': stock_h > stock_w }
+                stock_info = {'id': stock_id,"width": min(stock_w,stock_h), "length": max(stock_h,stock_w), "quantity": 1, "stock_index": [(stock_i_idx,stock_h > stock_w)], 'used': 0, 'rotated': stock_h > stock_w }
                 stock_id += 1
                 self.list_stocks.append(stock_info)
         stock_quantity = [stock['quantity'] for stock in self.list_stocks]
         self.list_stocks.sort(key=lambda x:x['width'] * x['length'])
-        print('Start stock')
-        for stock in self.list_stocks:
-            print(stock)
-        print('End stock')
+        # print('Start stock')
+        # for stock in self.list_stocks:
+        #     print(stock)
+        # print('End stock')
+
         # print('Stocks: ', self.list_stocks)
 
         initial_patterns = []
@@ -255,11 +271,11 @@ class Policy2210xxx(Policy):
         for pattern_idx, pattern in enumerate(patterns_converted):
             B[pattern["stock_type"]][pattern_idx] = 1
 
-        print('D: ',D)
-        print('S: ',S)
-        print('c: ',c)
-        print('A: ',A)
-        print('B: ',B)
+        # print('D: ',D)
+        # print('S: ',S)
+        # print('c: ',c)
+        # print('A: ',A)
+        # print('B: ',B)
         # print('Initial pattern: ')
         # for pattern in patterns_converted:
         #     print(pattern)
@@ -267,75 +283,225 @@ class Policy2210xxx(Policy):
         x_bounds = [(0,None) for _ in range(len(patterns_converted))]
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs')
         if(result_simplex.status == 0):
-            print(result_simplex)
+            # print(result_simplex)
             dual_prods = result_simplex.eqlin['marginals']
             dual_stocks = result_simplex.ineqlin['marginals']
-            self.list_stocks.sort(key=lambda x: x['id'])
-            new_patterns_generation = []
-            # print(self.list_products)
-            self.list_products.sort(key=lambda x: x['id'])
-            # print("Product: ", self.list_products)
-            for i in range(len(self.list_stocks)):
-                print("Finish stock ", i)
-                new_strips = self.generate_pattern(dual_prods, i)
-                key = str(self.list_stocks[i]['id'])
-                converted_strips = []
-                for strip in new_strips:
-                    items = []
-                    length = 0
-                    for item_count_idx,item_count in enumerate(strip['itemCount']):
-                        if item_count == 0: continue
-                        key += ''.join('_' + str(self.list_products[item_count_idx]['id']) for _ in range(item_count))
-                        length += self.list_products[item_count_idx]['width'] * item_count
-                        items.append({'item_class_id': self.list_products[item_count_idx]['id'], 'width': self.list_products[item_count_idx]['width'], 'height': self.list_products[item_count_idx]['height'], 'quantity': item_count})
-                    converted_strips.append({'length': length, 'width': strip['strip'], 'items': items})
-                new_patterns_generation.append({'key': key, 'quantity': 1, 'stock_type': self.list_stocks[i]['id'], 'strips': converted_strips})
-                # for pattern in new_patterns_generation:
-                #     print('converted: ',pattern)
+            # self.list_stocks.sort(key=lambda x: x['id'])
+            # new_patterns_generation = []
+            # # print(self.list_products)
+            # self.list_products.sort(key=lambda x: x['id'])
+            # # print("Product: ", self.list_products)
+            # for i in range(len(self.list_stocks)):
+            #     print("Finish stock ", i)
+            #     new_strips = self.generate_pattern(dual_prods, i)
+            #     key = str(self.list_stocks[i]['id'])
+            #     converted_strips = []
+            #     for strip in new_strips:
+            #         items = []
+            #         length = 0
+            #         for item_count_idx,item_count in enumerate(strip['itemCount']):
+            #             if item_count == 0: continue
+            #             key += ''.join('_' + str(self.list_products[item_count_idx]['id']) for _ in range(item_count))
+            #             length += self.list_products[item_count_idx]['width'] * item_count
+            #             items.append({'item_class_id': self.list_products[item_count_idx]['id'], 'width': self.list_products[item_count_idx]['width'], 'height': self.list_products[item_count_idx]['height'], 'quantity': item_count})
+            #         converted_strips.append({'length': length, 'width': strip['strip'], 'items': items})
+            #     new_patterns_generation.append({'key': key, 'quantity': 1, 'stock_type': self.list_stocks[i]['id'], 'strips': converted_strips})
+            #     # for pattern in new_patterns_generation:
+            #     #     print('converted: ',pattern)
 
-            # Calculate reduce cost
-            solveMilp = True
-            reduce_costs = []
-            for pattern in new_patterns_generation:
-                print(pattern)
-                bin_class = next(bc for bc in self.list_stocks if bc['id'] == pattern['stock_type'])
+            # # Calculate reduce cost
+            # solveMilp = True
+            # reduce_costs = []
+            # for pattern in new_patterns_generation:
+            #     print(pattern)
+            #     bin_class = next(bc for bc in self.list_stocks if bc['id'] == pattern['stock_type'])
                     
-                new_column_A = np.zeros(int(len(self.list_products)/2))
-                for strip in pattern['strips']:
-                    for item in strip['items']:
-                        if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
-                        else: item_idx = item['item_class_id']
-                        item_idx = int(item_idx)
-                        new_column_A[item_idx] += item['quantity']
+            #     new_column_A = np.zeros(int(len(self.list_products)/2))
+            #     for strip in pattern['strips']:
+            #         for item in strip['items']:
+            #             if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
+            #             else: item_idx = item['item_class_id']
+            #             item_idx = int(item_idx)
+            #             new_column_A[item_idx] += item['quantity']
 
-                reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + dual_stocks[pattern['stock_type']])
-                reduce_costs.append(reduce_cost)
-                if reduce_cost < 0 and pattern['key'] not in self.keys:
-                    patterns_converted.append(pattern)
-                    self.keys.append(key)
-                    solveMilp = False
-                    c = np.append(c,bin_class['width'] * bin_class['length'])
+            #     reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + dual_stocks[pattern['stock_type']])
+            #     reduce_costs.append(reduce_cost)
+            #     if reduce_cost < 0 and pattern['key'] not in self.keys:
+            #         patterns_converted.append(pattern)
+            #         self.keys.append(key)
+            #         solveMilp = False
+            #         c = np.append(c,bin_class['width'] * bin_class['length'])
 
-                    # print(new_column_A)
-                    # print(A)
-                    A = np.column_stack((A, new_column_A))
+            #         # print(new_column_A)
+            #         # print(A)
+            #         A = np.column_stack((A, new_column_A))
 
-                    new_column_B = np.zeros(int(len(self.list_stocks)))
-                    new_column_B[pattern["stock_type"]] = 1
-                    B = np.column_stack((B, new_column_B))
-            print("Reduce costs: ",reduce_costs)
-            self.optimal_patterns = self.sub_optimal_patterns
+            #         new_column_B = np.zeros(int(len(self.list_stocks)))
+            #         new_column_B[pattern["stock_type"]] = 1
+            #         B = np.column_stack((B, new_column_B))
+            # print("Reduce costs: ",reduce_costs)
+            # self.optimal_patterns = self.sub_optimal_patterns
 
-            if solveMilp:
-                self.solveMilp(D,S,c,A,B,patterns_converted)
-            else:
-                self.solveLp(D,S,c,A,B,patterns_converted,result_simplex.fun)
+            # if solveMilp:
+            #     self.solveMilp(D,S,c,A,B,patterns_converted)
+            # else:
+            #     self.solveLp(D,S,c,A,B,patterns_converted,result_simplex.fun)
 
-            # self.optimal_patterns = patterns_converted
+            self.optimal_patterns = patterns_converted
         else:
             self.optimal_patterns = self.sub_optimal_patterns
             # for pattern in self.optimal_patterns:
             #     print(pattern)
+
+    def lazy_init_heuristic(self,initial_stocks,initial_prods):
+        prod_num = 0
+        for prod_idx,prod in enumerate(initial_prods):
+            prod_info = {"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
+            self.list_products.append(prod_info)
+            prod_num += prod["quantity"]
+
+        for stock_i_idx,stock_i in enumerate(initial_stocks):
+            stock_w, stock_h = self._get_stock_size_(stock_i)
+            duplicated_stock_idx = -1
+            for stock_idx,stock in enumerate(self.list_stocks):
+                if stock_w == stock["width"] and stock_h == stock["height"]:
+                    duplicated_stock_idx = stock_idx
+                    break
+            if duplicated_stock_idx != -1:
+                self.list_stocks[duplicated_stock_idx]["quantity"] += 1
+                self.list_stocks[duplicated_stock_idx]["stock_index"].append(stock_i_idx)
+            else:
+                stock_info = {"width": stock_w, "height": stock_h, "quantity": 1, "stock_index": [stock_i_idx]}
+                self.list_stocks.append(stock_info)
+
+        # Pattern for all stocks
+        # pattern = {'stock_idx': number, 'items': map[]}[]
+        # map: (key-value) -> (prod_idx: {"quantity": number, "positions": number[][], "width": number, "height": number})
+        
+        # Initialize the pattern
+        initial_patterns = []
+        for stock_idx, stock in enumerate(initial_stocks):
+            stock_w, stock_h = self._get_stock_size_(stock)
+            stock_type = -1
+            for s_idx,s in enumerate(self.list_stocks):
+                if s["width"] == stock_w and s["height"] == stock_h:
+                    stock_type = s_idx
+                    break
+            pattern_element = {'key': '_' + str(stock_type) + '_','stock_idx': stock_idx, 'stock_type': stock_type, 'width': stock_w,'height': stock_h,'items': {}}
+            initial_patterns.append(pattern_element)
+
+        clone_stocks = initial_stocks
+        clone_prods = initial_prods
+        if len(self.indices_prods) == 0:
+            self.indices_prods = list(range(len(clone_prods)))
+        for _ in range(prod_num):
+            heuristic_result = self.lazy_init(clone_prods, clone_stocks, self.indices_prods)
+            prod_idx = heuristic_result["prod_idx"]
+            best_stock_idx = heuristic_result["stock_idx"]
+            best_position = heuristic_result["position"]
+            best_prod_size = heuristic_result["size"]
+            # print("prod_idx: ", prod_idx, "best_stock_idx: ", best_stock_idx, "position: ", best_position, "prod_size: ", best_prod_size)
+            clone_stocks, clone_prods = self.fill_to_clone_stocks(clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size)
+            if prod_idx in initial_patterns[best_stock_idx]["items"]:
+                initial_patterns[best_stock_idx]["items"][prod_idx]["quantity"] += 1
+                initial_patterns[best_stock_idx]["items"][prod_idx]["positions"].append(best_position)
+                initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
+            else:
+                position_list = [best_position]
+                prod_w, prod_h = best_prod_size
+                initial_patterns[best_stock_idx]["items"][prod_idx] = {"quantity": 1, "positions": position_list, "width": prod_w, "height": prod_h }
+                initial_patterns[best_stock_idx]["key"]+=str(prod_idx) + '_'
+        
+        keys = []
+        patterns_converted = []
+        for pattern in initial_patterns:
+            if pattern["items"] == {}: continue   
+            if pattern["key"] not in keys:
+                keys.append(pattern["key"])
+                unique_pattern = {"quantity": 1, "stock_type": pattern["stock_type"], "items": pattern["items"]}
+                patterns_converted.append(unique_pattern)
+            else:
+                self.update_quantity_pattern_by_key(patterns_converted,key)
+        self.optimal_patterns = patterns_converted
+            
+    def fill_to_clone_stocks(self,clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size):
+        x, y = best_position
+        w, h = best_prod_size
+        for i in range(x, x + w):
+            for j in range(y, y + h):
+                clone_stocks[best_stock_idx][i][j] = prod_idx
+        return clone_stocks, clone_prods
+
+    def lazy_init(self, clone_prods, clone_stocks, indices_prods):
+        best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
+        if not hasattr(self, 'sorted_prods'):
+            self.sorted_prods = sorted(clone_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
+            self.indices_prods = sorted(self.indices_prods, key=lambda i: clone_prods[i]["size"][0] * clone_prods[i]["size"][1], reverse=True)
+            # self.sorted_prods = sorted(self.list_products, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
+        if not hasattr(self, 'sorted_stocks'):
+            self.sorted_stocks = sorted(enumerate(clone_stocks), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
+
+        clone_prods = self.sorted_prods
+        sorted_stocks = self.sorted_stocks
+        # print("Sorted first stock: ",self._get_stock_size_(sorted_stocks[0][1]))
+        # Group stocks into buckets based on size ranges
+        self._group_stocks_into_buckets(clone_stocks)
+        # print(clone_prods)
+        
+        for prod_idx,prod in enumerate(clone_prods):
+            if prod["quantity"] > 0:
+                prod_size = prod["size"]
+                min_waste_percentage = float('inf')
+                candidate_stocks = self._get_candidate_stocks(prod_size)
+                
+                for stock_idx, stock in candidate_stocks:
+                    placed = False
+                    position = self._find_position(stock, prod_size[0], prod_size[1])
+                    if position:
+                        stock_w, stock_h = self._get_stock_size_(stock)
+                        stock_area = stock_w * stock_h
+                        prod_area = prod_size[0] * prod_size[1]
+                        waste_percentage = (stock_area - prod_area) / stock_area
+                        if waste_percentage < min_waste_percentage:
+                            min_waste_percentage = waste_percentage
+                            best_stock_idx = stock_idx
+                            best_position = position
+                            best_prod_size = prod_size
+                            placed = True
+                            break
+                if best_position and best_stock_idx != -1:
+                    prod["quantity"] -= 1
+                    return {"prod_idx": self.indices_prods[prod_idx], "stock_idx": best_stock_idx, "size": (best_prod_size[0], best_prod_size[1]), "position": best_position}
+        return {"stock_idx": -1, "size": [0, 0], "position": None}
+
+    def _group_stocks_into_buckets(self, stocks):
+        self.stock_buckets = {}
+        for idx, stock in enumerate(stocks):
+            stock_w, stock_h = self._get_stock_size_(stock)
+            bucket_key = (stock_w // self.bucket_size, stock_h // self.bucket_size)
+            if bucket_key not in self.stock_buckets:
+                self.stock_buckets[bucket_key] = []
+            self.stock_buckets[bucket_key].append((idx, stock))
+
+    def _get_candidate_stocks(self, prod_size):
+        prod_w, prod_h = prod_size
+        bucket_key = (prod_w // self.bucket_size, prod_h // self.bucket_size)
+        candidate_stocks = []
+        for key in self.stock_buckets:
+            if key[0] >= bucket_key[0] and key[1] >= bucket_key[1]:
+                candidate_stocks.extend(self.stock_buckets[key])
+        return candidate_stocks
+
+    def _find_position(self, stock, product_width, product_height):
+        stock_width, stock_height = self._get_stock_size_(stock)
+
+        for x in range(stock_width - product_width + 1):
+            for y in range(stock_height - product_height + 1):
+                if self._can_place_(stock, (x, y), (product_width, product_height)):
+                    return (x, y)
+        return None
+
+    #########################################################################
 
     def solveLp(self,D,S,c,A,B,patterns_converted,result):
         print('Cache result: ', result)
@@ -458,51 +624,67 @@ class Policy2210xxx(Policy):
             if stock['id'] == stock_type:
                 return stock
 
-    def drawing_patterns(self):
-        print("Final patterns")
+    def drawing_strips(self):
+        # print("Final patterns")
         for data in self.optimal_patterns:
             if data['quantity'] == 0: continue
-            print(data)
-            stock = self.get_stock_by_type(data['stock_type'])
-            # print(stock)
-            # stock_idx, rotated = self.get_stock_idx_to_draw(stock_type)
-            x,y = 0,0
-            if stock['rotated']:
-                for _ in range(data['quantity']):
-                    stock_idx = stock['stock_index'][0]
-                    stock['stock_index'].pop(0)
-                    x,y = 0,0
-                    for strip in data['strips']:
+            # print(data)                
+            for _ in range(data['quantity']):
+                stock = self.get_stock_by_type(data['stock_type'])
+                stock_idx_info = stock['stock_index'][0]
+                stock['stock_index'].pop(0)
+                x,y = 0,0
+                for strip in data['strips']:
+                    if stock_idx_info[1]:
                         for item in strip['items']:
                             for _ in range(item['quantity']):
                                 size = (item['height'],item['width'])
                                 position = (x,y)
                                 y += item['width']
                                 self.drawing_data.append({
-                                    'stock_idx': stock_idx,
+                                    'stock_idx': stock_idx_info[0],
                                     'size': size,
                                     'position': position,
                                 })
                         x += strip['width']
                         y = 0
-            else:
-                for _ in range(data['quantity']):
-                    stock_idx = stock['stock_index'][0]
-                    stock['stock_index'].pop(0)
-                    x,y = 0,0
-                    for strip in data['strips']:
+                    else:
                         for item in strip['items']:
                             for _ in range (item['quantity']):
                                 size = (item['width'],item['height'])
                                 position = (x,y)
                                 x += item['width']
                                 self.drawing_data.append({
-                                    'stock_idx': stock_idx,
+                                    'stock_idx': stock_idx_info[0],
                                     'size': size,
                                     'position': position,
                                 })
                         y += strip['width']
                         x = 0
+            
+            # print(stock)
+            # stock_idx, rotated = self.get_stock_idx_to_draw(stock_type)
+
+    def drawing_patterns(self):
+        for pattern in self.optimal_patterns:
+            print(pattern)
+        for data in self.optimal_patterns:
+            if data['quantity'] == 0: continue
+            for _ in range(data['quantity']):
+                stock_type = data['stock_type']
+                stock_idx = self.list_stocks[stock_type]['stock_index'][0]
+                self.list_stocks[stock_type]['stock_index'].pop(0)
+                items = data['items']
+                if items:
+                    for item_id, details in items.items():
+                        size = (details['width'], details['height'])
+                        positions = details['positions']
+                        for position in positions:
+                            self.drawing_data.append({
+                                'stock_idx': stock_idx,
+                                'size': size,
+                                'position': position,
+                            })
     
     def update_quantity_pattern_by_key(self,patterns_converted,key):
         for pattern in patterns_converted:
