@@ -417,7 +417,7 @@ class Policy2210xxx(Policy):
             if pattern["items"] == {}: continue   
             if pattern["key"] not in self.keys:
                 self.keys.append(pattern["key"])
-                unique_pattern = {"quantity": 1, "stock_type": pattern["stock_type"], "items": pattern["items"]}
+                unique_pattern = {"key": pattern['key'], "quantity": 1, "stock_type": pattern["stock_type"], "items": pattern["items"]}
                 patterns_converted.append(unique_pattern)
             else:
                 self.update_quantity_pattern_by_key(patterns_converted,pattern['key'])
