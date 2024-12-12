@@ -715,8 +715,8 @@ class Policy2210xxx(Policy):
         # list_stocks.sort(key=lambda x: x['id'])
         # if(self.list_stocks[stock_type]['rotated']):
         clone_dual_prods = deepcopy(dual_prods)
-        for i in range(len(clone_dual_prods)):
-            dual_prods[dual_prods_idx[i]] = clone_dual_prods[i]
+        # for i in range(len(clone_dual_prods)):
+        #     dual_prods[dual_prods_idx[i]] = clone_dual_prods[i]
         print("Dual prods: ",dual_prods)
         stock_w = self.list_stocks[stock_type]['length']
         stock_h = self.list_stocks[stock_type]['width']
@@ -747,18 +747,13 @@ class Policy2210xxx(Policy):
         # print("Result: ", result)
         small_result = []
         prod_clone = deepcopy(self.list_products)
-        print("Start product")
         for prod in prod_clone:
             if '_rotated' in prod['id']:
                 prod['id'] = int(prod['id'].replace('_rotated', '')) * 2 + 1
             else:
                 prod['id'] = int(prod['id']) * 2
         prod_clone.sort(key=lambda x: x['id'], reverse=False)
-        for prod in prod_clone:
-            print(prod)
-        print("End product")
         top_strips = np.zeros((top * len(product_heights), 1), dtype = int)
-        print("Result: ", result)
         for strips in result:
             strips['profit'] = int(strips['profit'])
             strips['strip'] = int(strips['strip'])
@@ -827,9 +822,6 @@ class Policy2210xxx(Policy):
         prod_heights = [prod['height'] for prod in self.list_products]
         small_result.sort(key=lambda x: (x["strip"], -x["profit"]))
         print("Start result")
-        for strip in small_result:
-            print(strip)
-        print("End result")
         h_strips = np.zeros((top * len(product_heights), 1), dtype = int)
         h_stock = np.zeros((top * len(product_heights), 1), dtype = int)
         min_array = np.zeros((top * len(product_heights), 1), dtype = int)
@@ -844,10 +836,6 @@ class Policy2210xxx(Policy):
                     seen_patterns.add(key)
                     unique_strips.append(strip)
             current_strips = unique_strips
-            print("Start current strips")
-            for strip in current_strips:
-                print(strip)
-            print("End current strips")
             current_strips.sort(key=lambda x: -x['profit'])
             # if len(current_strips) < top:
             #     for i in range(len(prod_clone)):
@@ -878,5 +866,8 @@ class Policy2210xxx(Policy):
                 top_strips[i*top+count][0] = strip['profit']
                 h_strips[i*top+count][0] = strip['strip']
                 count += 1
-        print("Top strips: ", top_strips, "H strips: ", h_strips, "H stock: ", h_stock, "Min array: ", min_array)
+        # print("Top strips", top_strips)
+        # print("H strips", h_strips)
+        # print("H stock", h_stock)
+        # print("Min array", min_array)
         return result
