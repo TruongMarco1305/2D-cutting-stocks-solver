@@ -30,9 +30,10 @@
 \usepackage{graphicx}							% Standard graphics package
 \usepackage{array}
 \usepackage{tabularx, caption}
+\usepackage{placeins}
 \usepackage{multirow}
 \usepackage{multicol}
-\usepackage{float} 
+\usepackage{float}
 \usepackage{rotating}
 \usepackage{graphics}
 \usepackage{geometry}
@@ -132,7 +133,11 @@
 \setlength{\floatsep}{5pt plus 2pt minus 2pt}
 \setlength{\textfloatsep}{5pt plus 2pt minus 2pt}
 \setlength{\intextsep}{10pt plus 2pt minus 2pt}
-
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\DeclareUnicodeCharacter{2190}{\ensuremath{\leftarrow}} % Định nghĩa cho ←
+\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}    % Định nghĩa cho ≠
+\DeclareUnicodeCharacter{2212}{-}                    % Định nghĩa cho −
 \thesislayout
 
 
@@ -422,7 +427,25 @@ Return Result
     \item Items are first sorted in descending order by width, and ties are broken by length.     
     \item Strips are created to fit as many items as possible without exceeding the dimensions of the bin.      
     \item A greedy filling approach is used to fill any remaining space in the strips with smaller items. 
+        
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos, breaklines=true]{cpp}
+For each product class in product set
+	Create a rotated version of that class with the same quantity
+	Insert it to the product class set
+
+Sort the new products set by height then by width (descending)
+
+For each product class in product set:
+	While product demand is not meet:
+		Find the smallest stock class that a single stock can fit all or the most of product
+		Insert product to stock by the following predefined order
+		While remaining stock height is available:
+			Initialize a strip with height equal to height of the first inserted item
+			Fill the strip with items that have the class of the first item
+			When no additional item of can't fit, look for other product class that can fill in the remaining space until no item can be inserted.
+\end{minted}
 \end{itemize}
+
 \item \textbf{Pattern Generation (Knapsack problem): }
 This algorithm for pattern generation in solving the 2-dimensional cutting stock problem involves several key steps:
 \begin{itemize}
@@ -439,36 +462,58 @@ This algorithm for pattern generation in solving the 2-dimensional cutting stock
     \item Check if the combination meets the demand for the required number of items.
     \item Identify and return the most profitable configuration that satisfies the demand and is feasible.
     
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos, breaklines=true]{python}
-Initialize:
-    bucket_size ← 10
-    stock_buckets ← empty dictionary
-    best_stock ← (-1, None, [0, 0])
-    sort products by descending area
-    sort stocks by ascending area (optional)
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos, breaklines=true]{cpp}
+Input:
+    dual_prods, stock_type
 
-Group Stocks into Buckets:
-    for each stock in stocks:
-        key ← (stock.width // bucket_size, stock.height // bucket_size)
-        add stock to stock_buckets[key]
+Output:
+    max_result
 
-Place Products:
-    for each product in products:
-        if product.quantity > 0:
-            min_waste ← ∞
-            for each stock in get_candidate_stocks(product, stock_buckets, bucket_size):
-                for each position in possible_positions(stock):
-                    if can_place(product, stock, position):
-                        waste ← calculate_unused_area(stock, product, position)
-                        if waste < min_waste:
-                            best_stock ← (stock.id, position, [product.width, product.height])
-                            min_waste ← waste
-            if best_stock.id ≠ -1:
-                product.quantity −= 1
-                return best_stock
+Initialize
+    init_list ← []
+    top = 6
+    stock_w, stock_h ← stock_type.width, stock_type.height
+    product_dims ← extract_dimensions(products)
 
-Return:
-    return (-1, [0, 0], None)
+Generate Strips
+    for height in product_dims.heights:
+        if height > stock_h: continue
+        counts ← [stock_w // w for w in product_dims.widths if w ≤ stock_w and height ≤ height]
+        init_list.append({height, counts})
+
+Sort Products
+    sorted_products ← sort(clone(products), dual_prods, descending=True)
+
+Process Strips
+    strip_list ← []
+    for strip in init_list:
+	for each prod_type in strip:
+	    Divide into n array for n product
+	    prod[i] = itemCount[i], else = 0
+            for product in sorted_products:
+                if can_fit(strip, product):
+                    place_product(strip, product)
+            strip_list.append(strip)
+
+Create matrices for optimization
+    top_strips, h_strips, h_stock, min_array ← [], [], [], []
+    for height in product_dims.heights:
+    	current_strips ← strips's height == height
+	sort current_strips by profit
+	for strip in top 6 current_strips by profit:
+	    top_strips.append(top 6 of current strips) 
+	    h_strips = strip's height
+	    h_stock = stock_height
+	    min_array = max number of strip can use
+MILP
+    Pass top_strips, h_strips, h_stock and min_array for milp solving
+    Return pattern of strips
+    Combine into stock
+    return pattern.
+
+Return
+    print(max_profit)
+    return max_result
 \end{minted}
 \end{itemize}
 \end{itemize}
@@ -498,8 +543,73 @@ Return:
 
 
 \section{Modeling}
+The two-dimensional Cutting Stock Problem involves cutting a specified quantity of various stock materials into desired products in a manner that satisfies all demand requirements while minimizing the total area of stock sheets utilized. This optimization ensures efficient use of resources and reduces material waste in the manufacturing process.
+
+\vspace{0.4cm}
+
+\noindent Formally, we are given \( m \) classes of rectangular items, each item class \( i \) (\( i = 1, \dots, m \)) having a demand \( D_i \), and \( n \) classes of rectangular bins, each bin class \( j \) (\( j = 1, \dots, n \)) having an limited number of copies. Each item of class \( i \) (\( i = 1, \dots, m \)) has dimensions \( (l_i, w_i) \), where \( l_i \) and \( w_i \) are, respectively, the length and the width of the item (orthogonal rotation is allowed). Each bin of class \( j \) (\( j = 1, \dots, n \)) has dimensions \( (L_j, W_j) \), where \( L_j \) and \( W_j \) are, respectively, the length and the width of the bin. All the input data are assumed to have positive integer values. We define the cutting patterns (simply denoted as patterns in the following) to obtain all the requested items in the specified demand by minimizing the total area of the used bins.
+
+\vspace{0.1cm}
+
+\noindent We model the problem as a linear programming formulation as follows:
+
+\begin{align}
+\text{Min} \quad & \sum_{j=1}^{n} \sum_{p_j \in P_j} c_{p_j} \cdot x_{p_j}\\
+\text{Subject to} \quad & \sum_{j=1}^{m} \sum_{p_j \in P_j} C_{p_j}^i \cdot x_{p_j} = D_i \quad ( i = 1, 2, ..., m) \\ 
+& \sum_{p_j \in P_j} x_{p_j} \le S_j \quad ( j = 1, 2, ..., n) \\ 
+& x_{p_j} \in \mathbb{Z}^+ \quad ( j = 1, 2, ..., n, p_j \in P_j )
+\end{align}
+
+\textbf{List of Symbols:}
+\begin{align*}{\textwidth}
+    x_{p_j} & : \text{ number of pattern } p_j \text{ used} \\
+    c_j     & : \text{ cost of each pattern } p_j \text{ (known as the area of the stock that pattern } p_j \text{ uses)} \\
+    P_j     & : \text{ set of possible patterns (set of } p_j \text{) of stock } j \\
+    C_{p_j}^i & : \text{ number of item class i in pattern } p_j \\
+    S_j & : \text{ number of available stocks of stock type j } \\ 
+    \text{(1) Objective function} & : \text{ Minimize the area of stock used} \\
+    \text{(2) Demand constraint} & : \text{ Ensure that the required quantities for each class item are fully met, adhering to the specified demand constraints (in this context we consider = instead of \( \ge\), which is appropriate in real-life as the product may exceed the demand lead to the trim loss is minimized )} \\ 
+    \text{(3) Stock availability constraint} & : \text{Ensure the use of stocks do not exceed its type stock limit}
+    \text{(4): Integrality constraint} & : \text{All the value of x must be possitive integer}
+    \end{align*}
+
+By dropping the integrality requirement for the variables, imposed by constraints (3), we obtain the Linear Programming (LP) Relaxation of model (1)–(3) defined by (1), (2) and:
+\begin{align}
+    x_{p_j} \ge 0 \quad ( j = 1, 2, ..., n, p_j \in P_j )
+\end{align}
+ Model (1), (2) and (4), called \textbf{Master Problem (MP)}(or the primal problem), needs column generation techniques to be efficiently managed. It has exponentially many variables, which cannot be explicitly generated for large-size instances. Instead of the original Master Problem, a \textbf{Restricted Master Problem (RMP)} is considered which is initialized and solved with a subset of the exponentially many variables \(x_{p_j}\) ; \(p_j\) \( \in \) \(P_j\); j = 1;...;n. In particular, RMP is initialized with the variables (columns) corresponding to a feasible solution computed through the initial heuristic algorithm. Given a solution to RMP, new variables, needed to optimally solve MP, are obtained by separating the following dual constraints from the dual problem below:
+\begin{align}
+\text{Max} \quad & \sum_{i=1}^{m} D_i \alpha_i + \sum_{j=1}^{n} s_j \beta_j \\
+\text{Subject to} \quad & \sum_{i=1}^{m} C_{p_j}^i \alpha_i + \beta_j \le c_{p_j} \quad \text{for each pattern } p_j \\
+& \alpha_i, \beta_j \ge 0
+\end{align}
+\textbf{List of Symbols:}
+    \begin{align*}{\textwidth}
+    \alpha_i & : \text{ dual variable for demand constraint } \\
+    \beta_j  & : \text{ dual variable for stock availability constraint} \\
+    \end{align*}
+\textbf{Reduced cost for each pattern \(p_j\) : }
+\begin{align}
+& r_p = c_{p_j} - \left( \sum_{i=1}^{m} C_{p_j}^i \alpha_i + \beta_j \right)
+\end{align}
+In order to generate new pattern (column) for optimizing the problem or to check optimality, we need to solve a Knapsack problem ( pricing problem ) to determine new pattern, which reduced cost < 0, to put in RMP. If there is no negative reduced cost then the problem has reached optimality and need to solve for integrality solution. Below is the formulation for the Knapsack problem:
+
+\begin{align}
+\text{Max} \quad & \sum_{i=1}^{m} C_{p_j}^i \alpha_i \\
+\text{Subject to} \quad & \sum_{i=1}^{m} c_i C_{p_j}^i \le c_{p_j} \\
+& C_{p_j}^i \in \mathbb{Z}^+
+\end{align}
+\textbf{List of Symbols:}
+    \begin{align*}{\textwidth}
+    c_i & : \text{ cost of each class i item ( known as the area of item class i )  } \\
+    \text{(10) Objective function} & : \text{ Maximize the profit of the pattern for a specific type of stock} \\
+    \text{(11) Size constraint} & : \text{ The area of items in stock must not exceed the stock size} \\
+    \end{align*}
+
+\subsection*{Summary for Modeling}
+To solve to optimality MP given by model (1), (2) and (4), a clas- sical column generation scheme is applied. In detail, RMP is initial- ized with the columns corresponding to a heuristic solution. Then the current RMP is solved to optimality, thus obtaining a vector of dual variables \(\alpha^*\) . A Knapsack problem SP is defined for every bin class j (j = 1, . . . , n). Then the Knapsack problem are solved with pattern generation scheme and new columns with negative reduced cost are added to current RMP. If no column with negative reduced cost is found, the current solution ( possibly fractional ) of RMP is optimal for MP. Finally, we solve the MILP model to obtain integer solution
 \section{Analyze result}
-To evaluate the our model. The initial cutting plans were carried out using the standalone software optiCutter and CutList Optimizer (hyperlink nha Kỳ Nam). These same cutting plans were then implemented using our model to compare its level of effectiveness
+To evaluate the our model. The initial cutting plans were carried out using the standalone software \href{https://www.opticutter.com/}{optiCutter} and \href{https://www.cutlistoptimizer.com/}{CutList Optimizer}. These same cutting plans were then implemented using our model to compare its level of effectiveness
 \subsection{General Assessment}
 This report will be evaluate by these indexes : 
 \begin{itemize}
@@ -520,54 +630,50 @@ This report will be evaluate by these indexes :
 \end{itemize}
 Below, we present the average evaluation results based on 100 runs of randomized test cases
 
- \begin{table}[h!]
+ \begin{table}[H]
         \centering
-        \begin{tabular}{|c|c|c|c|c|}
+        \begin{tabular}{|c|c|c|c|}
             \hline
-            \textbf{} & \textbf{optiCutter} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
-            \textbf{Filled Ratio} & - & - & - & - \\ \hline
-            \textbf{Trim Loss} & - & - & - & - \\ \hline
-            \textbf{Time} & - & - & - & - \\ \hline
+            \textbf{} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
+            \textbf{Area Filled Ratio} & 0.204 & - & 0.183 \\ \hline
+            \textbf{Filled Ratio} & - & - & - \\ \hline
+            \textbf{Trim Loss}  & 0.309 & - & 0.213 \\ \hline
+            \textbf{Time} & 40.476 & - & 33.216 \\ \hline
         \end{tabular}
 \end{table}
+\FloatBarrier
 \subsection{Case Study}
 
 \subsubsection{Case Study 1}
 
 \subsubsection*{Scenario}
-Factory \textbf{Z} manufactures a wide array of plastic components và employs five different stock sheet types to cater to various product dimensions.
+Factory \textbf{X} manufactures a wide array of plastic components và employs five different stock sheet types to cater to various product dimensions.
 
 \subsubsection*{Available Stock}
 \begin{table}[H]
     \centering
-    \caption{Available Stock for Factory Z}
+    \caption{Available Stock for Factory X}
     \begin{tabular}{|c|c|c|c|}
         \hline
         \textbf{Stock Type} & \textbf{Quantity} & \textbf{Width (cm)} & \textbf{Length (cm)} \\ \hline
-        1 & 20 & 40 & 50 \\ \hline
-        2 & 20 & 55 & 45 \\ \hline
-        3 & 20 & 70 & 60 \\ \hline
-        4 & 20 & 80 & 65 \\ \hline
-        5 & 20 & 95 & 75 \\ \hline
+        1 & 20 & 53 & 56  \\ \hline
+        2 & 20 & 52 & 59  \\ \hline
+        3 & 20 & 55 & 81  \\ \hline
+        4 & 20 & 68 & 78  \\ \hline
+        5 & 20 & 73 & 62  \\ \hline
     \end{tabular}
 \end{table}
 
 \subsubsection*{Product Requirements}
 \begin{table}[H]
     \centering
-    \caption{Product Requirements for Factory Z}
+    \caption{Product Requirements for Factory X}
     \begin{tabular}{|c|c|}
         \hline
         \textbf{Product Size (cm)} & \textbf{Quantity Required} \\ \hline
-        20 × 15 & 20 \\ \hline
-        25 × 20 & 18 \\ \hline
-        35 × 30 & 15 \\ \hline
-        40 × 35 & 12 \\ \hline
-        45 × 40 & 10 \\ \hline
-        50 × 45 & 8 \\ \hline
-        60 × 50 & 6 \\ \hline
-        70 × 55 & 4 \\ \hline
-        85 × 65 & 3 \\ \hline
+        11 × 14 & 50 \\ \hline
+        18 × 2 & 51 \\ \hline
+        39 × 14 & 52 \\ \hline
     \end{tabular}
 \end{table}
 \subsubsection*{Evaluation}
@@ -577,15 +683,15 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
   % Hàng 1
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{nho/1.png}
-    \caption{Hình 1}
+    \includegraphics[width=0.9\textwidth]{nho/1.png}
+    \caption{Figure 1}
     \label{fig:1}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{nho/2.png}
-    \caption{Hình 2}
+    \includegraphics[width=0.9\textwidth]{nho/2.png}
+    \caption{Figure 2}
     \label{fig:2}
   \end{subfigure}
   
@@ -594,15 +700,15 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
   % Hàng 2
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{nho/3.png}
-    \caption{Hình 3}
+    \includegraphics[width=0.9\textwidth]{nho/3.png}
+    \caption{Figure 3}
     \label{fig:3}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{nho/4.png}
-    \caption{Hình 4}
+    \includegraphics[width=0.9\textwidth]{nho/4.png}
+    \caption{Figure 4}
     \label{fig:4}
   \end{subfigure}
   
@@ -611,15 +717,15 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
   % Hàng 3
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{nho/5.png}
-    \caption{Hình 5}
+    \includegraphics[width=0.9\textwidth]{nho/5.png}
+    \caption{Figure 5}
     \label{fig:5}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{nho/6.png}
-    \caption{Hình 6}
+    \includegraphics[width=0.9\textwidth]{nho/6.png}
+    \caption{Figure 6}
     \label{fig:6}
   \end{subfigure}
                                                            
@@ -632,21 +738,22 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
             \hline
             \textbf{} & \textbf{optiCutter} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
              \textbf{Stock Area Used} & 39030 & 46678 & - & 42252 \\ \hline
-            \textbf{Filled Ratio} & 0.096 & 0.114 & - & 0.104 \\ \hline
+             \textbf{Area Filled Ratio} & 0.096 & 0.114 & - & 0.104 \\ \hlinex
+            \textbf{Filled Ratio} & - & - & - & - \\ \hline
             \textbf{Trim Loss} & 0.028 & 0.195 & - & 0.102 \\ \hline
             \textbf{Time} & - & 30.754 & - & 36.106 \\ \hline
         \end{tabular}
     \end{table}
-
+\FloatBarrier
 \subsubsection{Case Study 2}
 
 \subsubsection*{Scenario}
-Factory \textbf{Z} manufactures a wide array of plastic components và employs five different stock sheet types to cater to various product dimensions.
+Factory \textbf{Y} manufactures a wide array of plastic components và employs five different stock sheet types to cater to various product dimensions.
 
 \subsubsection*{Available Stock}
 \begin{table}[H]
     \centering
-    \caption{Available Stock for Factory Z}
+    \caption{Available Stock for Factory Y}
     \begin{tabular}{|c|c|c|c|}
         \hline
         \textbf{Stock Type} & \textbf{Quantity} & \textbf{Width (cm)} & \textbf{Length (cm)} \\ \hline
@@ -661,19 +768,16 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
 \subsubsection*{Product Requirements}
 \begin{table}[H]
     \centering
-    \caption{Product Requirements for Factory Z}
+    \caption{Product Requirements for Factory Y}
     \begin{tabular}{|c|c|}
         \hline
         \textbf{Product Size (cm)} & \textbf{Quantity Required} \\ \hline
-        20 × 15 & 20 \\ \hline
-        25 × 20 & 18 \\ \hline
-        35 × 30 & 15 \\ \hline
-        40 × 35 & 12 \\ \hline
-        45 × 40 & 10 \\ \hline
-        50 × 45 & 8 \\ \hline
-        60 × 50 & 6 \\ \hline
-        70 × 55 & 4 \\ \hline
-        85 × 65 & 3 \\ \hline
+        20 × 15 & 10 \\ \hline
+        25 × 20 & 8 \\ \hline
+        40 × 35 & 22 \\ \hline
+        50 × 45 & 4 \\ \hline
+        60 × 50 & 3 \\ \hline
+        85 × 65 & 4 \\ \hline
     \end{tabular}
 \end{table}
 \subsubsection*{Evaluation}
@@ -683,14 +787,14 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{5type/5_1.png}
-    \caption{Hình 1}
+    \caption{Figure 1}
     \label{fig:1}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{5type/5_2.png}
-    \caption{Hình 2}
+    \caption{Figure 2}
     \label{fig:2}
   \end{subfigure}
   
@@ -700,14 +804,14 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{5type/5_3.png}
-    \caption{Hình 3}
+    \caption{Figure 3}
     \label{fig:3}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{5type/5_4.png}
-    \caption{Hình 4}
+    \caption{Figure 4}
     \label{fig:4}
   \end{subfigure}
   
@@ -717,14 +821,14 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{5type/5_5.png}
-    \caption{Hình 5}
+    \caption{Figure 5}
     \label{fig:5}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{5type/5_6.png}
-    \caption{Hình 6}
+    \caption{Figure 6}
     \label{fig:6}
   \end{subfigure}
                                                            
@@ -737,43 +841,53 @@ Factory \textbf{Z} manufactures a wide array of plastic components và employs f
             \hline
             \textbf{} & \textbf{optiCutter} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
              \textbf{Stock Used Area} & 57625 & 72700 & - & 65000 \\ \hline
-            \textbf{Filled Ratio} & 0.137 & 0.173 & - & 0.154 \\ \hline
+             \textbf{Area Filled Ratio} & 0.137 & 0.173 & - & 0.154 \\ \hline
+            \textbf{Filled Ratio} & - & - & - & - \\ \hline
             \textbf{Trim Loss} & 0.108 & 0.296 & - & 0.234 \\ \hline
             \textbf{Time} & - & 6.224 & - & 6.311 \\ \hline
         \end{tabular}
     \end{table}
- \subsubsection{Case Study 2:}
-
+    
+\FloatBarrier
+ \subsubsection{Case Study 3:}
 \subsubsection*{Scenario}
-Factory \textbf{Y} produces a range of metal parts và utilizes three distinct types of stock sheets to accommodate different product sizes.
+Factory \textbf{Z} produces a range of metal parts và utilizes three distinct types of stock sheets to accommodate different product sizes.
 
 \subsubsection*{Available Stock}
-\begin{table}[h!]
+\begin{table}[H]
     \centering
-    \caption{Available Stock for Factory Y}
-    \begin{tabular}{|c|c|c|}
+    \caption{Available Stock for Factory Z}
+    \begin{tabular}{|c|c|c|c|}
         \hline
-        \textbf{Stock Type} & \textbf{Quantity} & \textbf{Dimensions (Width × Length in cm)} \\ \hline
-        1 & 34 & 60 cm × 45 cm \\ \hline
-        2 & 33 & 75 cm × 60 cm \\ \hline
-        3 & 33 & 90 cm × 80 cm \\ \hline
+        \textbf{Stock Type} & \textbf{Quantity} & \textbf{Width (cm)} & \textbf{Length (cm)} \\ \hline
+        1 & 10 & 40 & 50 \\ \hline
+        2 & 14 & 55 & 45 \\ \hline
+        3 & 4 & 70 & 60 \\ \hline
+        4 & 17 & 80 & 65 \\ \hline
+        5 & 11 & 95 & 75 \\ \hline
+        6 & 7 & 60 & 30 \\ \hline
+        7 & 12 & 78 & 48 \\ \hline
+        8 & 11 & 50 & 90 \\ \hline
+        9 & 8 & 70 & 70 \\ \hline
+        10 & 6 & 90 & 90 \\ \hline
     \end{tabular}
 \end{table}
 
 \subsubsection*{Product Requirements}
-\begin{table}[h!]
+\begin{table}[H]
     \centering
-    \caption{Product Requirements for Y}
+    \caption{Product Requirements for Z}
     \begin{tabular}{|c|c|}
         \hline
         \textbf{Product Size (cm)} & \textbf{Quantity Required} \\ \hline
-        20 × 15 & 20 \\ \hline
-        30 × 25 & 15 \\ \hline
-        40 × 30 & 12 \\ \hline
-        45 × 40 & 10 \\ \hline
-        50 × 45 & 8 \\ \hline
-        70 × 50 & 6 \\ \hline
-        80 × 60 & 4 \\ \hline
+        23 × 18 & 16 \\ \hline
+        28 × 23 & 12 \\ \hline
+        43 × 38 & 12 \\ \hline
+        33 × 28 & 14 \\ \hline
+        63 × 53 & 11 \\ \hline
+        14 × 34 & 15 \\ \hline
+        20 × 22 & 5 \\ \hline
+        32 × 59 & 10 \\ \hline
     \end{tabular}
 \end{table}
 \subsubsection*{Evaluation}
@@ -784,43 +898,34 @@ Factory \textbf{Y} produces a range of metal parts và utilizes three distinct t
   
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_1.png}
-    \caption{Hình 1}
+   \includegraphics[width=0.9\textwidth]{3type/3_1.png}
+    \caption{Figure 1}
     \label{fig:1}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_2.png}
-    \caption{Hình 2}
+    \includegraphics[width=0.9\textwidth]{3type/3_2.png}
+    \caption{Figure 2}
     \label{fig:2}
   \end{subfigure}
 
-  \vspace{10cm} % Khoảng cách giữa các hàng
+  \vspace{0.1cm} % Khoảng cách giữa các hàng
   
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_3.png}
-    \caption{Hình 3}
+    \includegraphics[width=0.9\textwidth]{3type/3_3.png}
+    \caption{Figure 3}
     \label{fig:3}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_4.png}
-    \caption{Hình 4}
+    \includegraphics[width=0.9\textwidth]{3type/3_4.png}
+    \caption{Figure 4}
     \label{fig:4}
   \end{subfigure}
-  
-  \vspace{0.1cm}
-  
-  \begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{3type/3_5.png}
-    \caption{Hình 5}
-    \label{fig:5}
-  \end{subfigure}
-  
+
   \label{fig:all_images_part1}
 \end{figure}
 
@@ -828,46 +933,57 @@ Factory \textbf{Y} produces a range of metal parts và utilizes three distinct t
 \begin{figure}[H] % Sử dụng [H] để cố định vị trí
   \centering
   \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước chữ chú thích
-  
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_6.png}
-    \caption{Hình 6}
+    \includegraphics[width=0.9\textwidth]{3type/3_5.png}
+    \caption{Figure 5}
+    \label{fig:5}
+    \hfill
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_6.png}
+    \caption{Figure 6}
     \label{fig:6}
   \end{subfigure}
-  \hfill
+  
+  \vspace{0.1cm}
+  
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_7.png}
-    \caption{Hình 7}
+    \includegraphics[width=0.9\textwidth]{3type/3_7.png}
+    \caption{Figure 7}
     \label{fig:7}
-  \end{subfigure}
-  
-  \vspace{0.1cm} % Khoảng cách giữa các hàng
-  
+    \end{subfigure}
+    \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_8.png}
-    \caption{Hình 8}
+    \includegraphics[width=0.9\textwidth]{3type/3_8.png}
+    \caption{Figure 8}
     \label{fig:8}
   \end{subfigure}
+
+
+ 
+  \label{fig:all_images_part2}
+\end{figure}
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và 
+
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_9.png}
+    \caption{Figure 9}
+    \label{fig:9}
+  \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{3type/3_9.png}
-    \caption{Hình 9}
-    \label{fig:9}
-  \end{subfigure}
-  
-  \vspace{10cm}
-  
-  \begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{3type/3_10.png}
-    \caption{Hình 10}
+    \includegraphics[width=0.9\textwidth]{3type/3_10.png}
+    \caption{Figure 10}
     \label{fig:10}
   \end{subfigure}
-  
   \label{fig:all_images_part2}
 \end{figure}
  \begin{table}[H]
@@ -875,13 +991,18 @@ Factory \textbf{Y} produces a range of metal parts và utilizes three distinct t
         \caption{Evaluation Using Our Code}
         \begin{tabular}{|c|c|c|c|c|}
             \hline
-            \textbf{} & \textbf{optiCutter} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
-            \textbf{Stock Used Area} & 57625 & - & - & - \\ \hline
-            \textbf{Filled Ratio} & 0.137 & - & - & - \\ \hline
-            \textbf{Trim Loss} & 0.108 & - & - & - \\ \hline
-            \textbf{Time} & - & - & - & - \\ \hline
+            \textbf{} & \textbf{CutList Optimizer} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
+            \textbf{Stock Area Used} & 111845 & 188350 & - & 154650 \\ \hline
+            \textbf{Area Filled Ratio} & 0.258 & 0.435 & - & 0.357 \\ \hline
+            \textbf{Filled Ratio} & - & - & - & - \\ \hline
+            \textbf{Trim Loss} & 0.155 & 0.399 & - & 0.289 \\ \hline
+            \textbf{Time} & - & 19.092 & - & 24.349 \\ \hline
         \end{tabular}
-\end{table}   
+\end{table}
+\FloatBarrier
+\subsection*{Summary for Analyze Result}
+
+The evaluation results demonstrate that our model effectively optimizes the 2D Cutting Stock Problem, achieving high material utilization and low waste. A key advantage of our algorithm is its implementation of guillotine cuts, which aligns with the practical requirements of businesses and factories. Guillotine cuts simplify the cutting process and are easily automatable in industrial settings, ensuring that our solutions are not only optimal but also feasible for real-world applications. This compatibility with existing manufacturing processes makes our algorithm a valuable tool for enhancing operational efficiency and reducing material costs in various industrial environments.
 \section{Conclusion}
 
 The two-dimensional Cutting Stock Problem (2D CSP) remains a critical challenge in industries aiming to optimize material usage and reduce costs. This report has examined the complexities of 2D CSP and evaluated effective algorithmic approaches, notably the \textbf{Lazy Stock Initialization Heuristic} and \textbf{Column Generation}.
