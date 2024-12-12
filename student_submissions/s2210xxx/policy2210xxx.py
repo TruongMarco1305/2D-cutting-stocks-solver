@@ -1,6 +1,8 @@
 from policy import Policy
 import numpy as np
 from scipy.optimize import linprog
+from scipy.optimize import milp
+from scipy.optimize import LinearConstraint
 from copy import deepcopy
 import itertools
 import time
@@ -288,6 +290,7 @@ class Policy2210xxx(Policy):
             dual_prods = result_simplex.eqlin['marginals']
             dual_stocks = result_simplex.ineqlin['marginals']
             # self.list_stocks.sort(key=lambda x: x['id'])
+            self.list_products.sort(key=lambda x: x['id'])
             new_patterns_generation = []
             print("Start stock")
             for stock in self.list_stocks:
@@ -304,14 +307,14 @@ class Policy2210xxx(Policy):
                 # print("End producta")
                 clone_dual_prods = deepcopy(dual_prods)
                 clone_dual_prods_idx = deepcopy(dual_prods)
-                i = 0
+                j = 0
                 for prod in self.list_products:
                     if '_rotated' in prod['id']: continue
-                    clone_dual_prods_idx[i]= int(prod['id'])
-                    i+=1
+                    clone_dual_prods_idx[j]= int(prod['id'])
+                    j+=1
                 clone_dual_prods_idx = [int(x) for x in clone_dual_prods_idx]
-                print("Clone dual prods: ",clone_dual_prods_idx)
                 new_strips = self.generate_pattern(clone_dual_prods, clone_dual_prods_idx, i)
+                # print(new_strips)
                 key = str(self.list_stocks[i]['id'])
                 converted_strips = []
                 for strip in new_strips:
@@ -324,8 +327,8 @@ class Policy2210xxx(Policy):
                         items.append({'item_class_id': self.list_products[item_count_idx]['id'], 'width': self.list_products[item_count_idx]['width'], 'height': self.list_products[item_count_idx]['height'], 'quantity': item_count})
                     converted_strips.append({'length': length, 'width': strip['strip'], 'items': items})
                 new_patterns_generation.append({'key': key, 'quantity': 1, 'stock_type': self.list_stocks[i]['id'], 'strips': converted_strips})
-                # for pattern in new_patterns_generation:
-                #     print('converted: ',pattern)
+            # for pattern in new_patterns_generation:
+            #     print('converted: ',pattern)
 
             # # Calculate reduce cost
             # solveMilp = True
@@ -717,7 +720,6 @@ class Policy2210xxx(Policy):
         clone_dual_prods = deepcopy(dual_prods)
         # for i in range(len(clone_dual_prods)):
         #     dual_prods[dual_prods_idx[i]] = clone_dual_prods[i]
-        print("Dual prods: ",dual_prods)
         stock_w = self.list_stocks[stock_type]['length']
         stock_h = self.list_stocks[stock_type]['width']
         # else:
@@ -821,10 +823,10 @@ class Policy2210xxx(Policy):
                 prod_clone = deepcopy(prod_clone_clone)
         prod_heights = [prod['height'] for prod in self.list_products]
         small_result.sort(key=lambda x: (x["strip"], -x["profit"]))
-        print("Start result")
         h_strips = np.zeros((top * len(product_heights), 1), dtype = int)
         h_stock = np.zeros((top * len(product_heights), 1), dtype = int)
         min_array = np.zeros((top * len(product_heights), 1), dtype = int)
+        strip_list = []
         strip_idx = [strip['strip'] for strip in small_result]
         for i in range(len(prod_heights)):
             current_strips = [s for s in small_result if s['strip'] == prod_heights[i]]
@@ -859,15 +861,36 @@ class Policy2210xxx(Policy):
                 min_for_array = 1000000
                 min2 = 1000000
                 for j in range(len(strip['itemCount'])):
+                    if strip['itemCount'][j] == 0: continue
                     d_i = min(int(self.list_products[j]['quantity']), int(stock_h * stock_w / (product_widths[j] * product_heights[j])))
-                    min2 = min(d_i / strip['itemCount'][j], min2)
-                min_for_array = min(min2, stock_h / strip['strip'])
-                min_array[i*top+count][0] = int(min_for_array)
+                    min2 = min(d_i, min2, strip['itemCount'][j])
+                min_for_array = min(min2, stock_h // strip['strip'])
+                min_array[i*top+count][0] = min_for_array
                 top_strips[i*top+count][0] = strip['profit']
                 h_strips[i*top+count][0] = strip['strip']
+                strip_list.append(strip)
                 count += 1
-        # print("Top strips", top_strips)
-        # print("H strips", h_strips)
-        # print("H stock", h_stock)
-        # print("Min array", min_array)
-        return result
+        print('top_strips: ', top_strips.transpose())
+        print('h_strips: ', h_strips.transpose())
+        print('h_stock: ', h_stock.transpose())
+        print('min_array: ', min_array.transpose())
+        A = np.array([h_strips.transpose()]).reshape(-1, h_strips.shape[0])
+        for i in range(0,len(min_array)):
+            constraint_binary = np.zeros(len(min_array))
+            constraint_binary[i] = 1
+            A = np.vstack((A,constraint_binary))
+        b_u = np.array([stock_h])
+        for min_array_element in min_array.transpose():
+            b_u = np.append(b_u,min_array_element)
+        b_l = np.full_like(b_u,-np.inf,dtype=float)
+        constraints = LinearConstraint(A,b_l,b_u)
+        integrality = np.ones_like(len(top_strips))
+        res = milp(c=-top_strips.transpose().reshape(-1), constraints=constraints, integrality=integrality)
+        return_res = []
+        print("res.x: ", res.x)
+        # result_simplex = linprog(-top_strips,A_ub=h_stock,b_ub=stock_h,A_eq=h_strips,b_eq=prod_heights,bounds=x_bounds,method='highs')
+        for i in range(len(res.x)):
+            if res.x[i] != 0:
+                for j in range(int(res.x[i])):
+                    return_res.append(strip_list[i])
+        return tuple(return_res)
