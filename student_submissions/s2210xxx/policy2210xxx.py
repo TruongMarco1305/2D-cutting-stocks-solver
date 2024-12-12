@@ -4,13 +4,12 @@ from scipy.optimize import linprog
 from scipy.optimize import milp
 from scipy.optimize import LinearConstraint
 from copy import deepcopy
-import itertools
 import time
 
 class Policy2210xxx(Policy):    
     def __init__(self, policy_id=1):
         assert policy_id in [1, 2], "Policy ID must be 1 or 2"
-        self.policy_id = 1
+        self.policy_id = policy_id
         self.optimal_patterns = []
         self.isComputing = True
         self.drawing_counter = -1
@@ -21,17 +20,17 @@ class Policy2210xxx(Policy):
         self.sub_optimal_patterns = []
         if policy_id == 1:
             self.sub_optimal_patterns = []
-        if policy_id == 2:
+        else:
             self.stock_buckets = {}
             self.bucket_size = 10 
             self.indices_prods = []
+            self.sorted_prods = []
 
     def get_action(self, observation, info):
         if(self.isComputing):
             self.isComputing = False
             self.drawing_counter += 1
-            self.implement_policy(observation,info)
-            # print(self.drawing_data)
+            self.implement_policy(observation,info)                
             return {
                 "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
                 "size": self.drawing_data[self.drawing_counter]["size"],
@@ -39,12 +38,34 @@ class Policy2210xxx(Policy):
             }
         else:
             self.drawing_counter += 1
-            return {
-                "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
-                "size": self.drawing_data[self.drawing_counter]["size"],
-                "position": self.drawing_data[self.drawing_counter]["position"]
-            }
-        
+            if(self.drawing_counter == len(self.drawing_data)):
+                # self.isComputing = True
+                self.drawing_counter = 0
+                self.optimal_patterns = []
+                self.drawing_data = []
+                self.list_products = []
+                self.list_stocks = []
+                self.keys = []
+                if self.policy_id == 1:
+                    self.sub_optimal_patterns = []
+                else:
+                    self.stock_buckets = {}
+                    self.bucket_size = 10
+                    self.indices_prods = []
+                    self.sorted_prods = []
+                self.implement_policy(observation,info)
+                return {
+                    "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
+                    "size": self.drawing_data[self.drawing_counter]["size"],
+                    "position": self.drawing_data[self.drawing_counter]["position"]
+                }
+            else:
+                return {
+                    "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
+                    "size": self.drawing_data[self.drawing_counter]["size"],
+                    "position": self.drawing_data[self.drawing_counter]["position"]
+                }
+
     def implement_policy(self,observation,info):
         # initial_prods = [{'size': np.array([]), 'quantity': None} for _ in range(len(observation['stocks']))]
         # for prod_idx,prod in enumerate(observation["products"]):
@@ -77,10 +98,10 @@ class Policy2210xxx(Policy):
             prod_info = {'id': str(prod_idx) + '_rotated',"width": prod["size"][1], "height": prod["size"][0], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
         self.list_products.sort(key=lambda x: (-x['height'], -x['width']))
-        print('Start product')
-        for prod in self.list_products:
-            print(prod)
-        print('End product')
+        # print('Start product')
+        # for prod in self.list_products:
+        #     print(prod)
+        # print('End product')
 
         stock_id = 0
         for stock_i_idx,stock_i in enumerate(initial_stocks):
@@ -236,29 +257,13 @@ class Policy2210xxx(Policy):
         patterns_converted = []
         # D = np.array([])
         D = np.zeros(len(initial_prods))
-        print(self.list_products)
+        # print(self.list_products)
         # for prod in initial_prods:
         for prod in self.list_products:
             if '_rotated' in prod['id']: continue
             D[int(prod['id'])]=prod["quantity"]
         D = D.flatten()
         # print(D)
-        # [quantity[0],quantity[1],quantity[2]]
-        #[{'id': '2_rotated', 'width': np.int64(14), 'height': np.int64(39), 'quantity': 52}, 
-        # {'id': '1_rotated', 'width': np.int64(2), 'height': np.int64(18), 'quantity': 51}, 
-        # {'id': '2', 'width': np.int64(39), 'height': np.int64(14), 'quantity': 52}, 
-        # {'id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': 50}, 
-        # {'id': '0_rotated', 'width': np.int64(14), 'height': np.int64(11), 'quantity': 50}, 
-        # {'id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': 51}]
-        #[ 1.607e+02  1.786e+01  6.135e+02]
-        
-        #[{'id': '0_rotated', 'width': np.int64(14), 'height': np.int64(39), 'quantity': 52}, 
-        # {'id': '1_rotated', 'width': np.int64(2), 'height': np.int64(18), 'quantity': 51}, 
-        # {'id': '0', 'width': np.int64(39), 'height': np.int64(14), 'quantity': 52}, 
-        # {'id': '2', 'width': np.int64(11), 'height': np.int64(14), 'quantity': 50}, 
-        # {'id': '2_rotated', 'width': np.int64(14), 'height': np.int64(11), 'quantity': 50},
-        # {'id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': 51}]
-        # [ 6.135e+02  1.786e+01  1.607e+02]
 
         # S = np.array([])
         S = np.zeros(len(self.list_stocks))
@@ -296,14 +301,14 @@ class Policy2210xxx(Policy):
         for pattern_idx, pattern in enumerate(patterns_converted):
             B[pattern["stock_type"]][pattern_idx] = 1
 
-        print('D: ',D)
-        print('S: ',S)
-        print('c: ',c)
-        print('A: ',A)
-        print('B: ',B)
-        print('Initial pattern: ')
-        for pattern in patterns_converted:
-            print(pattern)
+        # print('D: ',D)
+        # print('S: ',S)
+        # print('c: ',c)
+        # print('A: ',A)
+        # print('B: ',B)
+        # print('Initial pattern: ')
+        # for pattern in patterns_converted:
+        #     print(pattern)
         
         x_bounds = [(0,None) for _ in range(len(patterns_converted))]
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs')
@@ -336,7 +341,7 @@ class Policy2210xxx(Policy):
                     j+=1
                 clone_dual_prods_idx = [int(x) for x in clone_dual_prods_idx]
                 new_strips = self.generate_pattern(clone_dual_prods, clone_dual_prods_idx, i)
-                # print(new_strips)
+                print(new_strips)
                 key = str(self.list_stocks[i]['id'])
                 converted_strips = []
                 for strip in new_strips:
@@ -349,8 +354,8 @@ class Policy2210xxx(Policy):
                         items.append({'item_class_id': self.list_products[item_count_idx]['id'], 'width': self.list_products[item_count_idx]['width'], 'height': self.list_products[item_count_idx]['height'], 'quantity': item_count})
                     converted_strips.append({'length': length, 'width': strip['strip'], 'items': items})
                 new_patterns_generation.append({'key': key, 'quantity': 1, 'stock_type': self.list_stocks[i]['id'], 'strips': converted_strips})
-            # for pattern in new_patterns_generation:
-            #     print('converted: ',pattern)
+            for pattern in new_patterns_generation:
+                print('converted: ',pattern)
 
             # # Calculate reduce cost
             # solveMilp = True
@@ -387,6 +392,13 @@ class Policy2210xxx(Policy):
             # else:
             #     self.solveLp(D,S,c,A,B,patterns_converted,result_simplex.fun)
             # self.optimal_patterns = self.sub_optimal_patterns
+            self.optimal_patterns = [
+# {'key': '0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1', 'quantity': 1, 'stock_type': 0, 'strips': [{'length': np.int64(275), 'width': 14, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(25)}]}, {'length': np.int64(275), 'width': 14, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(25)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(54), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(3)}]}, {'length': np.int64(54), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(3)}]}, {'length': np.int64(54), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(3)}]}, {'length': np.int64(36), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(2)}]}, {'length': np.int64(36), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(2)}]}, {'length': np.int64(18), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(1)}]}]}
+# ,{'key': '1_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1', 'quantity': 1, 'stock_type': 1, 'strips': [{'length': np.int64(275), 'width': 14, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(25)}]}, {'length': np.int64(275), 'width': 14, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(25)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(72), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(4)}]}, {'length': np.int64(54), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(3)}]}, {'length': np.int64(54), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(3)}]}, {'length': np.int64(54), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(3)}]}, {'length': np.int64(36), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(2)}]}, {'length': np.int64(36), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(2)}]}, {'length': np.int64(18), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(1)}]}]}
+# ,{'key': '2_1_1_1_1_1_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_2_2_2_2_2', 'quantity': 1, 'stock_type': 2, 'strips': [{'length': np.int64(90), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(5)}]}, {'length': np.int64(440), 'width': 14, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(40)}]}, {'length': np.int64(250), 'width': 39, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(5)}, {'item_class_id': '2', 'width': np.int64(39), 'height': np.int64(14), 'quantity': np.int64(5)}]}]}
+# ,{'key': '4_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_2_2_2_2_2', 'quantity': 1, 'stock_type': 4, 'strips': [{'length': np.int64(90), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(5)}]}, {'length': np.int64(90), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(5)}]}, {'length': np.int64(90), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(5)}]}, {'length': np.int64(90), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(5)}]}, {'length': np.int64(396), 'width': 14, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(36)}]}, {'length': np.int64(195), 'width': 39, 'items': [{'item_class_id': '2', 'width': np.int64(39), 'height': np.int64(14), 'quantity': np.int64(5)}]}]}
+# ,{'key': '3_0_rotated_0_rotated_0_rotated_0_rotated_1_1_1_1_1_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_0_2_2_2_2_2', 'quantity': 1, 'stock_type': 3, 'strips': [{'length': np.int64(56), 'width': 11, 'items': [{'item_class_id': '0_rotated', 'width': np.int64(14), 'height': np.int64(11), 'quantity': np.int64(4)}]}, {'length': np.int64(90), 'width': 2, 'items': [{'item_class_id': '1', 'width': np.int64(18), 'height': np.int64(2), 'quantity': np.int64(5)}]}, {'length': np.int64(429), 'width': 14, 'items': [{'item_class_id': '0', 'width': np.int64(11), 'height': np.int64(14), 'quantity': np.int64(39)}]}, {'length': np.int64(195), 'width': 39, 'items': [{'item_class_id': '2', 'width': np.int64(39), 'height': np.int64(14), 'quantity': np.int64(5)}]}]}             
+            ]
         else:
             self.optimal_patterns = self.sub_optimal_patterns
             # for pattern in self.optimal_patterns:
@@ -477,15 +489,15 @@ class Policy2210xxx(Policy):
 
     def lazy_init(self, clone_prods, clone_stocks, indices_prods):
         best_stock_idx, best_position, best_prod_size = -1, None, [0, 0]
-        if not hasattr(self, 'sorted_prods'):
+        if self.sorted_prods == []:
             self.sorted_prods = sorted(clone_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
             self.indices_prods = sorted(self.indices_prods, key=lambda i: clone_prods[i]["size"][0] * clone_prods[i]["size"][1], reverse=True)
             # self.sorted_prods = sorted(self.list_products, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
-        if not hasattr(self, 'sorted_stocks'):
-            self.sorted_stocks = sorted(enumerate(clone_stocks), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
+        # if not hasattr(self, 'sorted_stocks'):
+        #     self.sorted_stocks = sorted(enumerate(clone_stocks), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
 
         clone_prods = self.sorted_prods
-        sorted_stocks = self.sorted_stocks
+        # sorted_stocks = self.sorted_stocks
         # print("Sorted first stock: ",self._get_stock_size_(sorted_stocks[0][1]))
         # Group stocks into buckets based on size ranges
         self._group_stocks_into_buckets(clone_stocks)
@@ -767,7 +779,7 @@ class Policy2210xxx(Policy):
                 prod['id'] = int(prod['id'].replace('_rotated', '')) * 2 + 1
             else:
                 prod['id'] = int(prod['id']) * 2
-        clone_products.sort(key=lambda x: x['id'], reverse=True)
+        clone_products.sort(key=lambda x: x['id'])
         product_widths = np.array([prod['height'] for prod in clone_products])
         product_heights = np.array([prod['width'] for prod in clone_products])
         # cut horizontal strips
@@ -907,27 +919,58 @@ class Policy2210xxx(Policy):
                 h_strips[i*top+count][0] = strip['strip']
                 strip_list.append(strip)
                 count += 1
-        print('top_strips: ', top_strips.transpose())
-        print('h_strips: ', h_strips.transpose())
-        print('h_stock: ', h_stock.transpose())
-        print('min_array: ', min_array.transpose())
+            if (len(current_strips) < top):
+                for _ in range (top - len(current_strips)):
+                    strip_list.append({"strip": 0, "profit": 0, "itemCount": np.zeros(len(product_heights),dtype=int)})
+        # print('top_strips: ', top_strips.transpose())
+        # print('h_strips: ', h_strips.transpose())
+        # print('h_stock: ', h_stock.transpose())
+        # print('min_array: ', min_array.transpose())
+
+        prod_demand_constraints = np.array([])
+        for product in clone_products:
+            if product['id'] % 2 == 1: continue
+            prod_demand_constraints = np.append(prod_demand_constraints,product['quantity'])
+        # print('demand: ',prod_demand_constraints)
+
+        prod_quantity_in_strip = np.zeros((int(len(clone_products)/2),len(top_strips)))
+        for i in range(int(len(clone_products)/2)):
+            for j in range(len(top_strips)):
+                prod_quantity_in_strip[i][j] = strip_list[j]['itemCount'][i * 2] + strip_list[j]['itemCount'][i * 2 + 1]
+        # print('prod_quantity_in_strip: ',prod_quantity_in_strip)
+
         A = np.array([h_strips.transpose()]).reshape(-1, h_strips.shape[0])
         for i in range(0,len(min_array)):
             constraint_binary = np.zeros(len(min_array))
             constraint_binary[i] = 1
             A = np.vstack((A,constraint_binary))
+        for quantity_strip in prod_quantity_in_strip:
+            A = np.vstack((A,quantity_strip))
+
         b_u = np.array([stock_h])
         for min_array_element in min_array.transpose():
             b_u = np.append(b_u,min_array_element)
+        for demand_constraint in prod_demand_constraints:
+            b_u = np.append(b_u,demand_constraint)
+
         b_l = np.full_like(b_u,-np.inf,dtype=float)
         constraints = LinearConstraint(A,b_l,b_u)
         integrality = np.ones_like(len(top_strips))
+
+        # B1 * (số product thứ 1 (normal + rotated) + số product thứ 2 (normal + rotated)) + B2 * (số product thứ 1 + số product thứ 2 + ... số product thứ n) + ... = Ma trận demand
+        # print(clone_products)
+        # print(clone_products)
+        # 2 2
+        # 2 2
+        # print(len(strip_list))
+
         res = milp(c=-top_strips.transpose().reshape(-1), constraints=constraints, integrality=integrality)
+        print(res)
         return_res = []
         print("res.x: ", res.x)
-        # result_simplex = linprog(-top_strips,A_ub=h_stock,b_ub=stock_h,A_eq=h_strips,b_eq=prod_heights,bounds=x_bounds,method='highs')
         for i in range(len(res.x)):
             if res.x[i] != 0:
                 for j in range(int(res.x[i])):
                     return_res.append(strip_list[i])
+        # print('return_res: ',return_res)
         return tuple(return_res)
