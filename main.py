@@ -56,7 +56,7 @@ if __name__ == "__main__":
     # ]
 
     # print("Products: ", observation["products"])
-    policy2210xxx = Policy2210xxx(policy_id=2)
+    policy2210xxx = Policy2210xxx(policy_id=1)
     list_products = observation["products"]
     sumA = 0
     # for prod in list_products:
