@@ -14,32 +14,32 @@ NUM_EPISODES = 100
 
 if __name__ == "__main__":
     # Reset the environment
-    # observation, info = env.reset(seed=42)
+    # observation, info = env, reset(seed=42)
 
     # # Test GreedyPolicy
     # gd_policy = GreedyPolicy()
     # ep = 0
     # while ep < NUM_EPISODES:
-    #     action = gd_policy.get_action(observation, info)
-    #     observation, reward, terminated, truncated, info = env.step(action)
+    #     action = gd_policy, get_action(observation, info)
+    #     observation, reward, terminated, truncated, info = env, step(action)
 
     #     if terminated or truncated:
-    #         observation, info = env.reset(seed=ep)
+    #         observation, info = env, reset(seed=ep)
     #         print(info)
     #         ep += 1
 
     # # Reset the environment
-    # observation, info = env.reset(seed=42)
+    # observation, info = env, reset(seed=42)
 
     # # Test RandomPolicy
     # rd_policy = RandomPolicy()
     # ep = 0
     # while ep < NUM_EPISODES:
-    #     action = rd_policy.get_action(observation, info)
-    #     observation, reward, terminated, truncated, info = env.step(action)
+    #     action = rd_policy, get_action(observation, info)
+    #     observation, reward, terminated, truncated, info = env, step(action)
 
     #     if terminated or truncated:
-    #         observation, info = env.reset(seed=ep)
+    #         observation, info = env, reset(seed=ep)
     #         print(info)
     #         ep += 1
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
             elapsed_time = end_time - start_time
             print(info)
             print(f"Elapsed time: {elapsed_time} seconds")
-            input("Press Enter to continue...")
+            input("Press Enter to continue, , , ")
             break
 
         if terminated or truncated:
@@ -95,36 +95,98 @@ if __name__ == "__main__":
 
 env.close()
 
+# import gym_cutting_stock
+# import gymnasium as gym
+# from policy import GreedyPolicy, RandomPolicy
+# from student_submissions, s2210xxx, policy2210xxx import Policy2210xxx
+
+# # Create the environment
+# env = gym, make(
+#     "gym_cutting_stock/CuttingStock-v0",
+#     render_mode="human",  # Comment this line to disable rendering
+# )
+# NUM_EPISODES = 10
+
+# if __name__ == "__main__":
+#     # Reset the environment
+#     # observation, info = env, reset(seed=42)
+
+#     # # Test GreedyPolicy
+#     # gd_policy = GreedyPolicy()
+#     # ep = 0
+#     # while ep < NUM_EPISODES:
+#     #     action = gd_policy, get_action(observation, info)
+#     #     observation, reward, terminated, truncated, info = env, step(action)
+
+#     #     if terminated or truncated:
+#     #         print(info)
+#     #         observation, info = env, reset(seed=ep)
+#     #         ep += 1
+
+#     # Reset the environment
+#     # observation, info = env, reset(seed=42)
+
+#     # # Test RandomPolicy
+#     # rd_policy = RandomPolicy()
+#     # ep = 0
+#     # while ep < NUM_EPISODES:
+#     #     action = rd_policy, get_action(observation, info)
+#     #     observation, reward, terminated, truncated, info = env, step(action)
+
+#     #     if terminated or truncated:
+#     #         print(info)
+#     #         observation, info = env, reset(seed=ep)
+#     #         ep += 1
+
+#     # Uncomment the following code to test your policy
+#     # Reset the environment
+#     observation, info = env, reset(seed=42)
+#     ep = 0
+#     # print(info)
+#     while ep < NUM_EPISODES:
+#         policy2210xxx = Policy2210xxx(policy_id=1)
+#         for _ in range(200):
+#             action = policy2210xxx, get_action(observation, info)
+#             observation, reward, terminated, truncated, info = env, step(action)
+#             print('Action: ', action)
+
+#             if terminated or truncated:
+#                 print(info)
+#                 observation, info = env, reset()
+#                 ep += 1
+# env, close()
+
+
 # import numpy as np
 # import scipy
-# from scipy.optimize import milp, LinearConstraint, Bounds
+# from scipy, optimize import milp, LinearConstraint, Bounds
 
 # # Minimal data
-# D = np.array([50., 51., 52.])
-# S = np.array([20., 20., 20., 20., 20.])
-# c = np.array([4455., 4455., 4455., 4455., 5304., 5304.])
+# D = np, array([50, , 51, , 52])
+# S = np, array([20, , 20, , 20, , 20, , 20])
+# c = np, array([4455, , 4455, , 4455, , 4455, , 5304, , 5304])
 
-# A = np.array([
-#     [0., 0., 1., 10., 33., 6.],
-#     [9., 6., 0., 0., 0., 0.],
-#     [7., 7., 7., 3., 0., 0.]
+# A = np, array([
+#     [0, , 0, , 1, , 10, , 33, , 6],
+#     [9, , 6, , 0, , 0, , 0, , 0],
+#     [7, , 7, , 7, , 3, , 0, , 0]
 # ])
 
-# B = np.array([
-#     [0., 0., 0., 0., 0., 0.],
-#     [0., 0., 0., 0., 0., 0.],
-#     [1., 1., 1., 1., 0., 0.],
-#     [0., 0., 0., 0., 1., 1.],
-#     [0., 0., 0., 0., 0., 0.]
+# B = np, array([
+#     [0, , 0, , 0, , 0, , 0, , 0],
+#     [0, , 0, , 0, , 0, , 0, , 0],
+#     [1, , 1, , 1, , 1, , 0, , 0],
+#     [0, , 0, , 0, , 0, , 1, , 1],
+#     [0, , 0, , 0, , 0, , 0, , 0]
 # ])
 
 # constraints = [
 #     LinearConstraint(A, D, D),
-#     LinearConstraint(B, -np.inf, S)
+#     LinearConstraint(B, -np, inf, S)
 # ]
 
 # # Create bounds using Bounds class
-# x_bounds = Bounds(np.zeros(len(c)), np.ones(len(c)) * 1e20)
+# x_bounds = Bounds(np, zeros(len(c)), np, ones(len(c)) * 1e20)
 
 # integrality = [1] * len(c)
 
@@ -137,41 +199,41 @@ env.close()
 # )
 
 
-# if result_milp.success:
-#     print("Optimal solution found.")
-#     print("Decision variables (pattern usages):", result_milp.x)
-#     print("Minimum total cost (total area):", result_milp.fun)
+# if result_milp, success:
+#     print("Optimal solution found, ")
+#     print("Decision variables (pattern usages):", result_milp, x)
+#     print("Minimum total cost (total area):", result_milp, fun)
 # else:
-#     print("Optimization failed.")
-#     print("Status:", result_milp.status)
-#     print("Message:", result_milp.message)
+#     print("Optimization failed, ")
+#     print("Status:", result_milp, status)
+#     print("Message:", result_milp, message)
 
 # import numpy as np
-# from scipy.optimize import milp, LinearConstraint
+# from scipy, optimize import milp, LinearConstraint
 
 # # Define your data based on the provided matrices
-# D = np.array([50., 51., 52.])            # Demand vector
-# S = np.array([20., 20., 20., 20., 20.]) # Stock vector
-# c = np.array([4455., 4455., 4455., 4455., 5304., 5304.]) # Cost vector
+# D = np, array([50, , 51, , 52])            # Demand vector
+# S = np, array([20, , 20, , 20, , 20, , 20]) # Stock vector
+# c = np, array([4455, , 4455, , 4455, , 4455, , 5304, , 5304]) # Cost vector
 
-# A = np.array([
-#     [0., 0., 1., 10., 33., 6.],
-#     [9., 6., 0., 0., 0., 0.],
-#     [7., 7., 7., 3., 0., 0.]
+# A = np, array([
+#     [0, , 0, , 1, , 10, , 33, , 6],
+#     [9, , 6, , 0, , 0, , 0, , 0],
+#     [7, , 7, , 7, , 3, , 0, , 0]
 # ])
 
-# B = np.array([
-#     [0., 0., 0., 0., 0., 0.],
-#     [0., 0., 0., 0., 0., 0.],
-#     [1., 1., 1., 1., 0., 0.],
-#     [0., 0., 0., 0., 1., 1.],
-#     [0., 0., 0., 0., 0., 0.]
+# B = np, array([
+#     [0, , 0, , 0, , 0, , 0, , 0],
+#     [0, , 0, , 0, , 0, , 0, , 0],
+#     [1, , 1, , 1, , 1, , 0, , 0],
+#     [0, , 0, , 0, , 0, , 1, , 1],
+#     [0, , 0, , 0, , 0, , 0, , 0]
 # ])
 
 # # Define constraints
 # constraints = [
 #     LinearConstraint(A, D, D),         # Equality constraints: A * x = D
-#     LinearConstraint(B, -np.inf, S)    # Inequality constraints: B * x <= S
+#     LinearConstraint(B, -np, inf, S)    # Inequality constraints: B * x <= S
 # ]
 
 # # Define bounds for each variable (x >= 0)
@@ -189,38 +251,38 @@ env.close()
 # )
 
 # # Check and print results
-# if result_milp.success:
-#     print("Optimal solution found.")
-#     print("Decision variables (pattern usages):", result_milp.x)
-#     print("Minimum total cost (total area):", result_milp.fun)
+# if result_milp, success:
+#     print("Optimal solution found, ")
+#     print("Decision variables (pattern usages):", result_milp, x)
+#     print("Minimum total cost (total area):", result_milp, fun)
 # else:
-#     print("Optimization failed.")
-#     print("Status:", result_milp.status)
-#     print("Message:", result_milp.message)
+#     print("Optimization failed, ")
+#     print("Status:", result_milp, status)
+#     print("Message:", result_milp, message)
 
-# from scipy.optimize import milp
-# from scipy.optimize import LinearConstraint
+# from scipy, optimize import milp
+# from scipy, optimize import LinearConstraint
 # import numpy as np
 
-# c = np.array([1, -4]) 
-# A = np.array([
+# c = np, array([1, -4]) 
+# A = np, array([
 #     [-10, 20],  
 #     [5, 10],
 #     [1,0]  
 # ])
-# b_u = np.array([22, 49, 5])
-# b_l = np.full_like(b_u, -np.inf, dtype=float)
+# b_u = np, array([22, 49, 5])
+# b_l = np, full_like(b_u, -np, inf, dtype=float)
 # constraints = LinearConstraint(A, b_l, b_u)
-# integrality = np.ones_like(c)
+# integrality = np, ones_like(c)
 # result = milp(c=c, constraints=constraints, integrality=integrality)
 
 # # Display results
-# if result.success:
-#     print(f"Optimal value: {-result.fun}, x1: {result.x[0]}, x2: {result.x[1]}")
+# if result, success:
+#     print(f"Optimal value: {-result, fun}, x1: {result, x[0]}, x2: {result, x[1]}")
 # else:
-#     print("Optimization failed.")
+#     print("Optimization failed, ")
 
-# from scipy.optimize import linprog
+# from scipy, optimize import linprog
 
 # # Coefficients of the objective function (negated for minimization) # -7x1 - 2x2
 # c = [-7, -2, 0, 0, 0]
@@ -242,13 +304,13 @@ env.close()
 # result = linprog(c, A_ub=A, b_ub=b, bounds=x_bounds, method="highs")
 
 # # Output the results
-# if result.success:
-#     print("Optimal value:", result.fun)  # Convert back to maximization
-#     print("Optimal solution:", result.x)
+# if result, success:
+#     print("Optimal value:", result, fun)  # Convert back to maximization
+#     print("Optimal solution:", result, x)
 # else:
-#     print("No solution found.")
+#     print("No solution found, ")
 
-# from scipy.optimize import linprog
+# from scipy, optimize import linprog
 
 # # Coefficients of the objective function (negated for minimization) # -7x1 - 2x2
 # c = [-2,-3]
@@ -270,12 +332,12 @@ env.close()
 # result = linprog(c, A_ub=A, b_ub=b, bounds=x_bounds, method="highs")
 
 # # Output the results
-# if result.success:
-#     print("Optimal value:", -result.fun)  # Convert back to maximization
-#     print("Optimal solution:", result.x)
-#     print("Dual variable: ", result.ineqlin['marginals'])
+# if result, success:
+#     print("Optimal value:", -result, fun)  # Convert back to maximization
+#     print("Optimal solution:", result, x)
+#     print("Dual variable: ", result, ineqlin['marginals'])
 # else:
-#     print("No solution found.")
+#     print("No solution found, ")
 
 
 # ###################
@@ -300,12 +362,12 @@ env.close()
 # result = linprog(c, A_ub=A, b_ub=b, bounds=x_bounds, method="highs")
 
 # # Output the results
-# if result.success:
-#     print("Optimal value:", result.fun)  # Convert back to maximization
-#     print("Optimal solution:", result.x)
-#     print("Dual variable: ", result.ineqlin['marginals'])
+# if result, success:
+#     print("Optimal value:", result, fun)  # Convert back to maximization
+#     print("Optimal solution:", result, x)
+#     print("Dual variable: ", result, ineqlin['marginals'])
 # else:
-#     print("No solution found.")
+#     print("No solution found, ")
 # from dataclasses import dataclass
 # from typing import List, Optional, Tuple
 
@@ -351,33 +413,33 @@ env.close()
 #     strips: List[Strip]
 
 # def ensure_longer_side_as_length(item_or_bin):
-#     """Ensure that the length is the longer side."""
-#     if item_or_bin.length < item_or_bin.width:
-#         item_or_bin.length, item_or_bin.width = item_or_bin.width, item_or_bin.length
+#     """Ensure that the length is the longer side, """
+#     if item_or_bin, length < item_or_bin, width:
+#         item_or_bin, length, item_or_bin, width = item_or_bin, width, item_or_bin, length
 
 # def create_rotated_item_classes(item_classes: List[ItemClass]) -> List[ItemClass]:
 #     new_item_classes = []
 #     for item in item_classes:
 #         ensure_longer_side_as_length(item)
-#         new_item_classes.append(item)
-#         if item.rotatable and item.length != item.width:
+#         new_item_classes, append(item)
+#         if item, rotatable and item, length != item, width:
 #             rotated_item = ItemClass(
 #                 id=len(new_item_classes) + 1,
-#                 length=item.width,
-#                 width=item.length,
-#                 demand=item.demand,
+#                 length=item, width,
+#                 width=item, length,
+#                 demand=item, demand,
 #                 rotatable=False,  # Avoid rotating again
-#                 original_id=item.id,
+#                 original_id=item, id,
 #                 rotated=True
 #             )
 #             ensure_longer_side_as_length(rotated_item)
-#             new_item_classes.append(rotated_item)
+#             new_item_classes, append(rotated_item)
 #     return new_item_classes
 
 # def sort_item_classes(item_classes: List[ItemClass]) -> List[ItemClass]:
 #     return sorted(
 #         item_classes,
-#         key=lambda x: (-x.width, -x.length)
+#         key=lambda x: (-x, width, -x, length)
 #     )
 
 # def assign_bin_classes_to_items(
@@ -387,32 +449,32 @@ env.close()
 #     b_i = {}  # Mapping from item_class_id to bin_class_id
 #     for item in item_classes:
 #         assigned_bin_class = None
-#         for bin_class in sorted(bin_classes, key=lambda x: x.area):
+#         for bin_class in sorted(bin_classes, key=lambda x: x, area):
 #             ensure_longer_side_as_length(bin_class)
 #             # Check if the bin can fit the entire demand in one bin
-#             items_fit_length = bin_class.length // item.length
-#             items_fit_width = bin_class.width // item.width
+#             items_fit_length = bin_class, length // item, length
+#             items_fit_width = bin_class, width // item, width
 #             max_items_in_bin = int(items_fit_length * items_fit_width)
-#             if max_items_in_bin >= item.demand:
+#             if max_items_in_bin >= item, demand:
 #                 assigned_bin_class = bin_class
 #                 break
 #         if assigned_bin_class:
-#             b_i[item.id] = assigned_bin_class.id
+#             b_i[item, id] = assigned_bin_class, id
 #         else:
 #             # Assign the bin that can fit the largest number of items
 #             max_items_overall = 0
 #             best_bin_class = None
-#             for bin_class in sorted(bin_classes, key=lambda x: x.area):
-#                 items_fit_length = bin_class.length // item.length
-#                 items_fit_width = bin_class.width // item.width
+#             for bin_class in sorted(bin_classes, key=lambda x: x, area):
+#                 items_fit_length = bin_class, length // item, length
+#                 items_fit_width = bin_class, width // item, width
 #                 max_items_in_bin = int(items_fit_length * items_fit_width)
 #                 if max_items_in_bin > max_items_overall:
 #                     max_items_overall = max_items_in_bin
 #                     best_bin_class = bin_class
 #             if best_bin_class:
-#                 b_i[item.id] = best_bin_class.id
+#                 b_i[item, id] = best_bin_class, id
 #             else:
-#                 raise Exception(f"No bin can accommodate item class {item.id}")
+#                 raise Exception(f"No bin can accommodate item class {item, id}")
 #     return b_i
 
 # def place_items(
@@ -422,91 +484,91 @@ env.close()
 # ) -> List[Bin]:
 #     bins = []
 #     bin_counter = 0
-#     item_demand = {item.id: item.demand for item in item_classes}
+#     item_demand = {item, id: item, demand for item in item_classes}
 
 #     sorted_items = sort_item_classes(item_classes)
 
 #     for item in sorted_items:
-#         while item_demand[item.id] > 0:
-#             bin_class_id = b_i[item.id]
-#             bin_class = next(bc for bc in bin_classes if bc.id == bin_class_id)
+#         while item_demand[item, id] > 0:
+#             bin_class_id = b_i[item, id]
+#             bin_class = next(bc for bc in bin_classes if bc, id == bin_class_id)
 
 #             # Open a new bin of this class if possible
-#             if bin_class.quantity_used < bin_class.quantity_limit:
-#                 bin_class.quantity_used += 1
+#             if bin_class, quantity_used < bin_class, quantity_limit:
+#                 bin_class, quantity_used += 1
 #                 bin_counter += 1
 #                 current_bin = Bin(
 #                     id=bin_counter,
-#                     bin_class_id=bin_class.id,
-#                     length=bin_class.length,
-#                     width=bin_class.width,
-#                     remaining_length=bin_class.length,
-#                     remaining_width=bin_class.width,
+#                     bin_class_id=bin_class, id,
+#                     length=bin_class, length,
+#                     width=bin_class, width,
+#                     remaining_length=bin_class, length,
+#                     remaining_width=bin_class, width,
 #                     strips=[]
 #                 )
-#                 bins.append(current_bin)
+#                 bins, append(current_bin)
 #             else:
 #                 # Try to find another bin class
 #                 alternative_bin_class = None
-#                 for bc in sorted(bin_classes, key=lambda x: x.area):
-#                     if bc.quantity_used < bc.quantity_limit:
+#                 for bc in sorted(bin_classes, key=lambda x: x, area):
+#                     if bc, quantity_used < bc, quantity_limit:
 #                         alternative_bin_class = bc
 #                         break
 #                 if alternative_bin_class:
 #                     bin_class = alternative_bin_class
-#                     b_i[item.id] = bin_class.id
-#                     bin_class.quantity_used += 1
+#                     b_i[item, id] = bin_class, id
+#                     bin_class, quantity_used += 1
 #                     bin_counter += 1
 #                     current_bin = Bin(
 #                         id=bin_counter,
-#                         bin_class_id=bin_class.id,
-#                         length=bin_class.length,
-#                         width=bin_class.width,
-#                         remaining_length=bin_class.length,
-#                         remaining_width=bin_class.width,
+#                         bin_class_id=bin_class, id,
+#                         length=bin_class, length,
+#                         width=bin_class, width,
+#                         remaining_length=bin_class, length,
+#                         remaining_width=bin_class, width,
 #                         strips=[]
 #                     )
-#                     bins.append(current_bin)
+#                     bins, append(current_bin)
 #                 else:
 #                     # No more bins available, but demand must be fulfilled
-#                     raise Exception(f"Cannot fulfill demand for item class {item.id} due to bin quantity limits.")
+#                     raise Exception(f"Cannot fulfill demand for item class {item, id} due to bin quantity limits, ")
 
 #             # Place items in strips within the bin
-#             while item_demand[item.id] > 0 and current_bin.remaining_length >= item.length:
+#             while item_demand[item, id] > 0 and current_bin, remaining_length >= item, length:
 #                 # Initialize a new strip
-#                 strip_width = item.width
+#                 strip_width = item, width
 #                 strip_height = 0
 #                 strip_items = []
 
-#                 max_items_in_row = int(current_bin.remaining_width // item.width)
-#                 max_rows_in_strip = int(current_bin.remaining_length // item.length)
+#                 max_items_in_row = int(current_bin, remaining_width // item, width)
+#                 max_rows_in_strip = int(current_bin, remaining_length // item, length)
 #                 total_items_in_strip = max_items_in_row * max_rows_in_strip
-#                 items_to_place = min(item_demand[item.id], total_items_in_strip)
+#                 items_to_place = min(item_demand[item, id], total_items_in_strip)
 
 #                 if items_to_place == 0:
 #                     break  # Cannot place more items in this bin
 
 #                 rows_needed = (items_to_place + max_items_in_row - 1) // max_items_in_row
-#                 strip_height = rows_needed * item.length
+#                 strip_height = rows_needed * item, length
 
-#                 if strip_height > current_bin.remaining_length:
+#                 if strip_height > current_bin, remaining_length:
 #                     break  # Cannot place strip in remaining length
 
 #                 item_placement = ItemPlacement(
-#                     item_class_id=item.id,
+#                     item_class_id=item, id,
 #                     quantity=items_to_place,
-#                     position=(0, current_bin.length - current_bin.remaining_length)
+#                     position=(0, current_bin, length - current_bin, remaining_length)
 #                 )
 #                 strip = Strip(
 #                     width=strip_width,
 #                     height=strip_height,
 #                     items=[item_placement]
 #                 )
-#                 current_bin.strips.append(strip)
+#                 current_bin, strips, append(strip)
 
 #                 # Update bin and item demand
-#                 current_bin.remaining_length -= strip_height
-#                 item_demand[item.id] -= items_to_place
+#                 current_bin, remaining_length -= strip_height
+#                 item_demand[item, id] -= items_to_place
 
 #                 # Fill the strip with smaller items if possible (greedy procedure)
 #                 fill_strip_with_smaller_items(
@@ -526,23 +588,23 @@ env.close()
 # ):
 #     # Start from the next item class in sorted order
 #     sorted_items = sort_item_classes(item_classes)
-#     strip_remaining_width = current_bin.remaining_width - strip.width
+#     strip_remaining_width = current_bin, remaining_width - strip, width
 #     for next_item in sorted_items:
-#         if item_demand[next_item.id] > 0 and next_item.width <= strip_remaining_width:
-#             max_items_in_row = int(strip_remaining_width // next_item.width)
-#             max_rows_in_strip = int(strip.height // next_item.length)
+#         if item_demand[next_item, id] > 0 and next_item, width <= strip_remaining_width:
+#             max_items_in_row = int(strip_remaining_width // next_item, width)
+#             max_rows_in_strip = int(strip, height // next_item, length)
 #             total_items = max_items_in_row * max_rows_in_strip
-#             items_to_place = min(item_demand[next_item.id], total_items)
+#             items_to_place = min(item_demand[next_item, id], total_items)
 #             if items_to_place > 0:
 #                 item_placement = ItemPlacement(
-#                     item_class_id=next_item.id,
+#                     item_class_id=next_item, id,
 #                     quantity=items_to_place,
-#                     position=(strip.width, current_bin.length - current_bin.remaining_length)
+#                     position=(strip, width, current_bin, length - current_bin, remaining_length)
 #                 )
-#                 strip.items.append(item_placement)
-#                 item_demand[next_item.id] -= items_to_place
-#                 strip.width += next_item.width * max_items_in_row
-#                 strip_remaining_width -= next_item.width * max_items_in_row
+#                 strip, items, append(item_placement)
+#                 item_demand[next_item, id] -= items_to_place
+#                 strip, width += next_item, width * max_items_in_row
+#                 strip_remaining_width -= next_item, width * max_items_in_row
 #                 if strip_remaining_width <= 0:
 #                     break
 
@@ -580,16 +642,16 @@ env.close()
 
 #     # Output the solution
 #     for bin in bins:
-#         print(f"Bin {bin.id} (Class {bin.bin_class_id}):")
-#         for strip in bin.strips:
-#             print(f"  Strip Width: {strip.width}, Height: {strip.height}")
-#             for item in strip.items:
-#                 print(f"    Item Class {item.item_class_id}, Quantity: {item.quantity}, Position: {item.position}")
+#         print(f"Bin {bin, id} (Class {bin, bin_class_id}):")
+#         for strip in bin, strips:
+#             print(f"  Strip Width: {strip, width}, Height: {strip, height}")
+#             for item in strip, items:
+#                 print(f"    Item Class {item, item_class_id}, Quantity: {item, quantity}, Position: {item, position}")
 
 # if __name__ == "__main__":
 #     main()
-# from scipy.optimize import linprog
-# from scipy.optimize import milp, LinearConstraint
+# from scipy, optimize import linprog
+# from scipy, optimize import milp, LinearConstraint
 # import numpy as np
 
 # D = [50, 51, 52]
@@ -604,46 +666,300 @@ env.close()
 #  [0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0],
 #  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-# # D = [ 3., 18., 15., 20.,  5.,  3., 14.,  9.,  6., 17., 19.,  1., 20., 14.,  1., 15.,  8., 10., 17.]
+# # D = [ 3, , 18, , 15, , 20, ,  5, ,  3, , 14, ,  9, ,  6, , 17, , 19, ,  1, , 20, , 14, ,  1, , 15, ,  8, , 10, , 17]
 # # S = [1 for _ in range(0,31)]
 # # c = [4550, 4590, 4760, 4784, 4785, 4150, 4731, 4836, 4896, 5002, 5040, 5076, 8742, 8281, 8550, 8640, 8645, 9114, 7056, 7980, 8613, 8712, 5084, 5130, 5133, 5162, 8217, 7800, 5640, 5208, 5320]
 # # A = [[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  2,  1,  0,  0,  0,  0,  0],
 # #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  2,  0,  0,  0,  0,  8,  8,  0,  0],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  4,  5,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0, 17,  3,  0,  0,  0.],
-# #  [ 1,  1,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  2,  0,  1,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  0,  0,  0,  0, 0,  0,  0,  0,  2,  2,  1,  1,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  1,  1,  0,  2,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  2,  2,  2,  1, 2,  4,  0,  2,  0,  0,  0,  0,  1,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  4,  4,  4,  4,  2, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  2,  6,  3,  3,  3,  3,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2, 4,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, 11,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  3.],
-# #  [ 3,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.],
-# #  [ 3,  3,  3,  3,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0.]]
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  4,  5,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0, 17,  3,  0,  0,  0],
+# #  [ 1,  1,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  2,  0,  1,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  0,  0,  0,  0, 0,  0,  0,  0,  2,  2,  1,  1,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  1,  1,  0,  2,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  2,  2,  2,  1, 2,  4,  0,  2,  0,  0,  0,  0,  1,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  4,  4,  4,  4,  2, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  2,  6,  3,  3,  3,  3,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2, 4,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, 11,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  3],
+# #  [ 3,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+# #  [ 3,  3,  3,  3,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]]
 
-# # B:  [[0, 0, 0, .., 0, 0, 0.]
-# #  [0, 0, 0, .., 0, 0, 0.]
-# #  [0, 0, 0, .., 0, 0, 0.]
-# #  ...
-# #  [0, 0, 0, .., 0, 0, 0.]
-# #  [0, 0, 0, .., 1, 0, 0.]
-# #  [0, 0, 0, .., 0, 0, 0.]]
+# # B:  [[0, 0, 0, , , , 0, 0, 0]
+# #  [0, 0, 0, , , , 0, 0, 0]
+# #  [0, 0, 0, , , , 0, 0, 0]
+# #  , , , 
+# #  [0, 0, 0, , , , 0, 0, 0]
+# #  [0, 0, 0, , , , 1, 0, 0]
+# #  [0, 0, 0, , , , 0, 0, 0]]
 # # B = [[0 for _ in range(0, 31)] for _ in range(0, 31)]
 # # # temp = [71, 78, 77, 55, 39, 70, 19, 65, 57, 10, 15, 69, 62, 16, 82, 73, 38, 52, 50, 30, 24, 12, 63, 64, 5, 49, 91, 68, 90, 58, 54]
 # # for i in range (0,31):
 # #     B[i][i] = 1
 
+import numpy as np
+from scipy.optimize import linprog
+from scipy.optimize import milp
+from scipy.optimize import LinearConstraint
 # x_bounds = [(0,None) for _ in range(len(c))]
-# # print(linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1).x)
+# # print(linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1), x)
+A = [[15,  15,  15,  15,  15,  15,  20,  20,  20,  20,  20,  20,  20,  20,  20,  20,  20,  20, 
+ 25,  25,  25,  25,  25,  25,  35,  35,  35,  35,  35,  35,  40,  40,  40,  40,  40,  40, 
+ 45,  45,  45,  45,  45,  45,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50, 
+ 60,  60,  60,  60,  60,  60,  65,  65,  65,  65,  65,  65,  85,  85,  85,  85,  85,  85],
+[1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
+[2,  1,  0,  0,  0,  0,  2,  1,  3,  3,  2,  1,  2,  1,  3,  3,  2,  1,  2,  1,  3,  3,  2,  1, 
+ 0,  1,  2,  1,  3,  3,  0,  1,  0,  1,  2,  1,  0,  0,  1,  0,  1,  2,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 1,  1,  0,  0,  0,  0,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+[0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]]
+
+# b_u = [45.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 8.0, 22.0, 4.0, 3.0, 4.0]
+
+b_u = [60.0, 3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 3.0, 2.0, 1.0, 3.0, 3.0, 2.0, 3.0, 2.0, 1.0, 3.0, 3.0, 2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 8.0, 22.0, 4.0, 3.0, 4.0]
+
+b_l = np.full_like(b_u,-np.inf,dtype=float)
+constraints = LinearConstraint(A,b_l,b_u)
+integrality = np.ones_like(72)
+
+c=[-0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -2100.0, -2100.0, -0.0, -0.0, -0.0, -0.0, -4200.0, -2100.0, -2100.0, -2100.0, -0.0, -0.0, -4200.0, -3562.0, -3562.0, -2100.0, -2100.0, -2100.0, -4200.0, -4200.0, -3562.0, -3562.0, -3562.0, -3562.0, -4200.0, -4200.0, -3562.0, -3562.0, -3562.0, -3562.0, -4200.0, -4200.0, -4200.0, -4200.0, -3562.0, -3562.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0]
+res = milp(c=c, constraints=constraints, integrality=integrality)
+print(res)
 # constraints = [
 #     LinearConstraint(A,D,D),
-#     LinearConstraint(B, -np.inf, S)
+#     LinearConstraint(B, -np, inf, S)
 # ]
 # integrality = [1] * len(c)
 # result_milp = milp(
@@ -653,12 +969,12 @@ env.close()
 #     options={"presolve": True, "disp": True}
 # )
 # # Check and print results
-# # if result_milp.success:
-# #     print("Optimal solution found.")
-# #     print("Decision variables (pattern usages):", result_milp.x)
-# #     print("Minimum total cost (total area):", result_milp.fun)
+# # if result_milp, success:
+# #     print("Optimal solution found, ")
+# #     print("Decision variables (pattern usages):", result_milp, x)
+# #     print("Minimum total cost (total area):", result_milp, fun)
 # # else:
-# #     print("Optimization failed.")
-# #     print("Status:", result_milp.status)
-# #     print("Message:", result_milp.message)
-# print(np.int64(result_milp.x))
+# #     print("Optimization failed, ")
+# #     print("Status:", result_milp, status)
+# #     print("Message:", result_milp, message)
+# print(np, int64(result_milp, x))
