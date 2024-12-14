@@ -99,13 +99,14 @@ import gym_cutting_stock
 import gymnasium as gym
 from policy import GreedyPolicy, RandomPolicy
 from student_submissions.s2210xxx.policy2210xxx import Policy2210xxx
+import time
 
 # Create the environment
 env = gym.make(
     "gym_cutting_stock/CuttingStock-v0",
     render_mode="human",  # Comment this line to disable rendering
 )
-NUM_EPISODES = 10
+NUM_EPISODES = 25
 
 if __name__ == "__main__":
     # Reset the environment
@@ -126,35 +127,54 @@ if __name__ == "__main__":
     # Reset the environment
     observation, info = env.reset(seed=42)
 
+    average_time = 0
+    average_filled_ratio = 0
+    average_area_filled_ratio = 0
+    average_trim_loss = 0
+
     # Test RandomPolicy
+    policy2210xxx = Policy2210xxx(policy_id=1)    
+    ep = 0
+    start_time = time.perf_counter()
+    counter = True
+    while ep < NUM_EPISODES:
+        action = policy2210xxx.get_action(observation, info)
+        if counter:
+            counter = False
+            end_time = time.perf_counter()
+            average_time += end_time - start_time
+            print('Optimize time: ',end_time - start_time)
+        
+        observation, reward, terminated, truncated, info = env.step(action)
+        print(action)
+
+        if terminated or truncated:
+            average_filled_ratio += info['filled_ratio']
+            average_area_filled_ratio += info['area_filled_ratio']
+            average_trim_loss += info['trim_loss']
+            print(info)
+            observation, info = env.reset(seed=ep)
+            ep += 1
+    print('Average time: ',average_time/NUM_EPISODES)
+    print('Average filled ratio: ',average_filled_ratio/NUM_EPISODES)
+    print('Average area filled ratio: ',average_area_filled_ratio/NUM_EPISODES)
+    print('Average trim loss: ',average_trim_loss/NUM_EPISODES)
+    # Uncomment the following code to test your policy
+    # Reset the environment
+    # observation, info = env.reset(seed=42)
+    # print(info)
+
     # policy2210xxx = Policy2210xxx(policy_id=1)
-    # ep = 0
-    # while ep < NUM_EPISODES:
+    # for _ in range(500):
     #     action = policy2210xxx.get_action(observation, info)
     #     observation, reward, terminated, truncated, info = env.step(action)
     #     print(action)
+    #     print('Terminated: ', terminated)
+    #     print('Truncated: ', truncated)
 
     #     if terminated or truncated:
     #         print(info)
-    #         observation, info = env.reset(seed=ep)
-    #         ep += 1
-
-    # Uncomment the following code to test your policy
-    # Reset the environment
-    observation, info = env.reset(seed=42)
-    print(info)
-
-    policy2210xxx = Policy2210xxx(policy_id=1)
-    for _ in range(200):
-        action = policy2210xxx.get_action(observation, info)
-        observation, reward, terminated, truncated, info = env.step(action)
-        print(action)
-        print('Terminated: ', terminated)
-        print('Truncated: ', truncated)
-
-        if terminated or truncated:
-            print(info)
-            break
-            observation, info = env.reset()
+    #         break
+    #         observation, info = env.reset()
 
 env.close()
