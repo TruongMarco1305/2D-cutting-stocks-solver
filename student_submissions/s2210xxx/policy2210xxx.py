@@ -77,12 +77,12 @@ class Policy2210xxx(Policy):
 
     def furini_heuristic(self, initial_stocks, initial_prods):
         # Student code here
-        print('Products: ', initial_prods)
-        stocks = []
-        for stock in initial_stocks:
-            stock_w, stock_h = self._get_stock_size_(stock)
-            stocks.append({'width': stock_w, 'height': stock_h})
-        print('Stocks: ', stocks)
+        # print('Products: ', initial_prods)
+        # stocks = []
+        # for stock in initial_stocks:
+        #     stock_w, stock_h = self._get_stock_size_(stock)
+        #     stocks.append({'width': stock_w, 'height': stock_h})
+        # print('Stocks: ', stocks)
 
         prod_num = 0
         for prod_idx,prod in enumerate(initial_prods):
@@ -116,7 +116,7 @@ class Policy2210xxx(Policy):
                 self.list_stocks.append(stock_info)
         stock_quantity = [stock['quantity'] for stock in self.list_stocks]
         self.list_stocks.sort(key=lambda x:x['width'] * x['length'])
-        # print('Start stock')
+        print('Start stock')
         # for stock in self.list_stocks:
         #     print(stock)
         # print('End stock')
@@ -326,7 +326,22 @@ class Policy2210xxx(Policy):
             # print(self.list_products)
             # print("Product: ", self.list_products)
             gen_status = True
-            list_prod_sort_by_id = sorted(self.list_products, key=lambda x:x['id'])
+            list_prod_sort_by_id = deepcopy(self.list_products)
+            for prod in list_prod_sort_by_id:
+                if '-rotated' in prod['id']:
+                    prod['id'] = int(prod['id'].replace('-rotated', '')) * 2 + 1
+                else:
+                    prod['id'] = int(prod['id']) * 2
+            list_prod_sort_by_id.sort(key=lambda x: x['id'], reverse=False)
+
+            i = 0
+            for prod in list_prod_sort_by_id:
+                if prod['id'] % 2 != 0:
+                    prod['id'] = str(i - 1) + '-rotated'
+                else:
+                    prod['id'] = str(i)
+                    i += 1
+
             for i in range(len(self.list_stocks)):
                 # print("Finish stock ", i)
                 # print("dual_prods: ",dual_prods)
@@ -347,7 +362,10 @@ class Policy2210xxx(Policy):
                 if new_strips == None:
                     gen_status = False
                     break
-                # print('new strips: ',new_strips)
+                # print(new_strips)
+                # for strip in new_strips
+                #     if strip['strip'] == 15:
+                #         print('new strips: ',new_strips)
                 key = str(i)
                 converted_strips = []
                 for strip in new_strips:
@@ -580,7 +598,24 @@ class Policy2210xxx(Policy):
             # print("End stock")
             # print(self.list_products)
             # print("Product: ", self.list_products)
-            list_prod_sort_by_id = sorted(self.list_products, key=lambda x:x['id'])
+            # list_prod_sort_by_id = sorted(self.list_products, key=lambda x:x['id'])
+            
+            list_prod_sort_by_id = deepcopy(self.list_products)
+            for prod in list_prod_sort_by_id:
+                if '-rotated' in prod['id']:
+                    prod['id'] = int(prod['id'].replace('-rotated', '')) * 2 + 1
+                else:
+                    prod['id'] = int(prod['id']) * 2
+            list_prod_sort_by_id.sort(key=lambda x: x['id'], reverse=False)
+
+            i = 0
+            for prod in list_prod_sort_by_id:
+                if prod['id'] % 2 != 0:
+                    prod['id'] = str(i - 1) + '-rotated'
+                else:
+                    prod['id'] = str(i)
+                    i += 1
+            # print(list_prod_sort_by_id)
             # print('new strips: ', self.generate_pattern(dual_prods, 0))
             gen_status = True
             for i in range(len(self.list_stocks)):
@@ -602,7 +637,8 @@ class Policy2210xxx(Policy):
                 if new_strips == None:
                     gen_status = False
                     break
-                # print('new strips: ',new_strips)
+                # if new_strips['strip'] == 15:
+                #     print('new strips: ',new_strips)
                 key = str(i)
                 converted_strips = []
                 for strip in new_strips:
@@ -612,6 +648,7 @@ class Policy2210xxx(Policy):
                         if item_count == 0: continue
                         key += ''.join('_' + str(list_prod_sort_by_id[item_count_idx]['id']) for _ in range(item_count))
                         length += list_prod_sort_by_id[item_count_idx]['width'] * item_count
+                        # if(length == 176 and i == 19): print(strip)
                         items.append({'item_class_id': list_prod_sort_by_id[item_count_idx]['id'], 'width': list_prod_sort_by_id[item_count_idx]['width'], 'height': list_prod_sort_by_id[item_count_idx]['height'], 'quantity': item_count})
                     converted_strips.append({'length': length, 'width': strip['strip'], 'items': items})
                 # print({'key': key, 'quantity': 1, 'stock_type': i, 'strips': converted_strips})
@@ -668,6 +705,7 @@ class Policy2210xxx(Policy):
         # print('c Milp: ',c)
         # print('A Milp: ',A)
         # print('B Milp: ',B)
+
         print('MILP')
         x_bounds = [(0,None) for _ in range(len(c))]
         optimal_result = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1,options={'presolve': False})
@@ -836,7 +874,8 @@ class Policy2210xxx(Policy):
                 itemCount[j] = min(clone_products[j]['quantity'],stock_w / product_widths[j])
             result.append({"strip": int(product_heights[i]), "profit": int(profit[stock_w]), "itemCount": itemCount.astype(int)})
         result = np.array(result)
-        # print(result)
+        # if stock_type == 19:
+        #     print(result)
 
         small_result = []
 
@@ -954,14 +993,19 @@ class Policy2210xxx(Policy):
                 strip_length += item * product_widths[item_idx]
             if strip_length <= stock_w:
                 valid_patterns.append(strip)
-        # for strip in valid_patterns:
-        #     print(strip)
+
+        # if stock_type == 19:
+        #     for strip in valid_patterns:
+        #         if strip['strip'] == 25:
+        #             print('checking: ',strip['itemCount'][10], ', ', strip['itemCount'][11])
+
         prod_heights = [prod['height'] for prod in prod_clone]
         valid_patterns.sort(key=lambda x: (x["strip"], -x["profit"]))
 
-        # if(stock_type == 2):
-        # for strip in valid_patterns:
-        #     print('valid: ',strip)
+        # if(stock_type == 19):
+        #     for strip in valid_patterns:
+        #         if(strip['strip'] == 25):
+        #             print('valid: ',strip)
 
         h_strips = np.zeros((top * len(product_heights), 1), dtype = int)
         h_stock = np.zeros((top * len(product_heights), 1), dtype = int)
@@ -1122,5 +1166,7 @@ class Policy2210xxx(Policy):
                 if res.x[i] > 0:
                     for j in range(int(res.x[i])):
                         return_res.append(strip_list[i])
-            # print('Return res: ',return_res)
+            # if stock_type == 19:
+            #     print('Return res: ',return_res)
+            # print(return_res)
             return return_res
