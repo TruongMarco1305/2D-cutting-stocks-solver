@@ -1,14 +1,13 @@
 from policy import Policy
 import numpy as np
 from scipy.optimize import linprog
-from scipy.optimize import milp
-from scipy.optimize import LinearConstraint
 from copy import deepcopy
 import time
 
-class Policy2210xxx(Policy):    
+class Policy2352938_2352703_2352331_2352787_2352856(Policy):    
     def __init__(self, policy_id=1):
         assert policy_id in [1, 2], "Policy ID must be 1 or 2"
+
         self.policy_id = policy_id
         self.optimal_patterns = []
         self.isComputing = True
@@ -18,9 +17,10 @@ class Policy2210xxx(Policy):
         self.list_products = []
         self.keys = []
         self.sub_optimal_patterns = []
+
         if policy_id == 1:
             self.sub_optimal_patterns = []
-        else:
+        elif policy_id == 2:
             self.stock_buckets = {}
             self.bucket_size = 10 
             self.indices_prods = []
@@ -77,13 +77,6 @@ class Policy2210xxx(Policy):
 
     def furini_heuristic(self, initial_stocks, initial_prods):
         # Student code here
-        # print('Products: ', initial_prods)
-        # stocks = []
-        # for stock in initial_stocks:
-        #     stock_w, stock_h = self._get_stock_size_(stock)
-        #     stocks.append({'width': stock_w, 'height': stock_h})
-        # print('Stocks: ', stocks)
-
         prod_num = 0
         for prod_idx,prod in enumerate(initial_prods):
             prod_info = {'id': str(prod_idx),"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
@@ -93,11 +86,6 @@ class Policy2210xxx(Policy):
             self.list_products.append(prod_info)
             prod_num += prod['quantity']
         self.list_products.sort(key=lambda x: (-x['height'], -x['width']))
-        # print(prod_num)
-        # print('Start product')
-        # for prod in self.list_products:
-        #     print(prod)
-        # print('End product')
 
         stock_id = 0
         for stock_i_idx,stock_i in enumerate(initial_stocks):
@@ -116,12 +104,6 @@ class Policy2210xxx(Policy):
                 self.list_stocks.append(stock_info)
         stock_quantity = [stock['quantity'] for stock in self.list_stocks]
         self.list_stocks.sort(key=lambda x:x['width'] * x['length'])
-        print('Start stock')
-        # for stock in self.list_stocks:
-        #     print(stock)
-        # print('End stock')
-
-        # print('Stocks: ', self.list_stocks)
 
         initial_patterns = []
         bin_counter = 0
@@ -129,7 +111,6 @@ class Policy2210xxx(Policy):
 
         for item in self.list_products:
             while item_demand[item['id']] > 0:
-                # bin_class_id = b_i[item['id']]
                 bin_class_id = self.choose_appropriate_stock_type_for_prod(self.list_stocks,item)
                 if bin_class_id == -1:
                     item_demand[item['id']] = 0
@@ -138,12 +119,10 @@ class Policy2210xxx(Policy):
     
                 # Open a new bin of this class if possible
                 bin_counter += 1
-                # print('bin_class: ',bin_class)
                 current_bin = {'id': bin_counter, 'key': str(bin_class['id']),'bin_class_id': bin_class['id'], 'length': bin_class['length'], 'width': bin_class['width'], 'remaining_length': bin_class['length'], 'remaining_width': bin_class['width'], 'strips': []}
                 initial_patterns.append(current_bin)
 
                 while item_demand[item['id']] > 0 and current_bin['remaining_width'] >= item['height']:
-                    # print(item['id'],': ',item_demand[item['id']])
                     # Initialize a new strip
                     strip_width = item['height']
                     strip_length = 0
@@ -154,7 +133,6 @@ class Policy2210xxx(Policy):
                     if items_to_place == 0:
                         break  # Cannot place more items in this bin
 
-                    # rows_needed = (items_to_place + max_items_in_row - 1) // max_items_in_row
                     strip_length = items_to_place * item['width']
 
                     if strip_width > current_bin['remaining_width']:
@@ -170,8 +148,6 @@ class Policy2210xxx(Policy):
                         item_demand[item['id'].replace('-rotated','')] -= items_to_place
                     else:
                         item_demand[item['id'] + '-rotated'] -= items_to_place
-                    # print(item['id'],': ',item_demand[item['id']])
-                    # print(item['id'].replace('-rotated',''),': ',item_demand[item['id'].replace('-rotated','')])
                     # Fill the strip with smaller items if possible (greedy procedure)
                     
                     strip_remaining_length = current_bin['length'] - strip['length']
@@ -248,32 +224,20 @@ class Policy2210xxx(Policy):
                                                 break
                             current_bin['strips'].append(strip)
                     if canPlaceMore == False: break
-        # print(item_demand)
-        # print("Initial patterns")
-        # for pattern in initial_patterns:
-        #     print(pattern)
-        # print("End initial")
         patterns_converted = []
-        # D = np.array([])
         D = np.zeros(len(initial_prods))
-        # print(self.list_products)
-        # for prod in initial_prods:
         for prod in self.list_products:
             if '-rotated' in prod['id']: continue
             D[int(prod['id'])]=prod["quantity"]
         D = D.flatten()
-        # print(D)
 
-        # S = np.array([])
         S = np.zeros(len(self.list_stocks))
         for stock in self.list_stocks:
             S[int(stock['id'])] = stock['quantity']
         S = S.flatten()
-        # print(S)
         
         c = np.array([])
         for pattern in initial_patterns:
-            # print(pattern['key'])
             if pattern["key"] not in self.keys:
                 self.keys.append(pattern["key"])
                 unique_pattern = {'key': pattern['key'], "quantity": 1, "stock_type": pattern["bin_class_id"], "strips": pattern["strips"]}
@@ -290,41 +254,21 @@ class Policy2210xxx(Policy):
         for pattern_idx, pattern in enumerate(patterns_converted):
             for strip in pattern['strips']:
                 for item in strip['items']:
-                # print(prod_index, ' ', value['quantity'])
                     if '-rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('-rotated','')
                     else: item_idx = item['item_class_id']
                     item_idx = int(item_idx)
-                    # print(item_idx, ' ', pattern_idx)
                     A[item_idx][pattern_idx] += item['quantity']
 
         B = np.zeros(shape=(len(self.list_stocks),len(patterns_converted))) # 97 row - 28 col
         for pattern_idx, pattern in enumerate(patterns_converted):
             B[pattern["stock_type"]][pattern_idx] = 1
-
-        # print('D: ',D)
-        # print('S: ',S)
-        # print('c: ',c)
-        # print('A: ',A)
-        # print('B: ',B)
-        # print('Initial pattern: ')
-        # for pattern in patterns_converted:
-        #     print(pattern)
         
         x_bounds = [(0,None) for _ in range(len(patterns_converted))]
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs')
         if(result_simplex.status == 0):
-            # print(result_simplex)
             dual_prods = result_simplex.eqlin['marginals']
             dual_stocks = result_simplex.ineqlin['marginals']
-            # self.list_stocks.sort(key=lambda x: x['id'])
-            # self.list_products.sort(key=lambda x: x['id'])
             new_patterns_generation = []
-            # print("Start stock")
-            # for stock in self.list_stocks:
-            #     print(stock)
-            # print("End stock")
-            # print(self.list_products)
-            # print("Product: ", self.list_products)
             gen_status = True
             list_prod_sort_by_id = deepcopy(self.list_products)
             for prod in list_prod_sort_by_id:
@@ -342,30 +286,11 @@ class Policy2210xxx(Policy):
                     prod['id'] = str(i)
                     i += 1
 
-            for i in range(len(self.list_stocks)):
-                # print("Finish stock ", i)
-                # print("dual_prods: ",dual_prods)
-                # print("Start producta")
-                # for prod in self.list_products:
-                #     print(prod)
-                # print("End producta")
-                # clone_dual_prods = deepcopy(dual_prods)
-                # clone_dual_prods_idx = deepcopy(dual_prods)
-                # j = 0
-                # for prod in self.list_products:
-                #     if '-rotated' in prod['id']: continue
-                #     clone_dual_prods_idx[j]= int(prod['id'])
-                #     j+=1
-                # clone_dual_prods_idx = [int(x) for x in clone_dual_prods_idx]
-            
+            for i in range(len(self.list_stocks)): 
                 new_strips = self.generate_pattern(dual_prods, i)
                 if new_strips == None:
                     gen_status = False
                     break
-                # print(new_strips)
-                # for strip in new_strips
-                #     if strip['strip'] == 15:
-                #         print('new strips: ',new_strips)
                 key = str(i)
                 converted_strips = []
                 for strip in new_strips:
@@ -377,10 +302,7 @@ class Policy2210xxx(Policy):
                         length += list_prod_sort_by_id[item_count_idx]['width'] * item_count
                         items.append({'item_class_id': list_prod_sort_by_id[item_count_idx]['id'], 'width': list_prod_sort_by_id[item_count_idx]['width'], 'height': list_prod_sort_by_id[item_count_idx]['height'], 'quantity': item_count})
                     converted_strips.append({'length': length, 'width': strip['strip'], 'items': items})
-                # print({'key': key, 'quantity': 1, 'stock_type': i, 'strips': converted_strips})
                 new_patterns_generation.append({'key': key, 'quantity': 1, 'stock_type': i, 'strips': converted_strips})
-            # for pattern in new_patterns_generation:
-            #     print('converted: ',pattern)
 
             # Calculate reduce cost
             if gen_status:
@@ -396,7 +318,6 @@ class Policy2210xxx(Policy):
                             item_idx = int(item_idx)
                             new_column_A[item_idx] += item['quantity']
                     reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + self.get_stock_price(dual_stocks,pattern['stock_type']))
-                    # print(reduce_cost)
                     if reduce_cost < 0 and pattern['key'] not in self.keys:
                         patterns_converted.append(pattern)
                         self.keys.append(pattern['key'])
@@ -406,26 +327,15 @@ class Policy2210xxx(Policy):
                         new_column_B = np.zeros(int(len(self.list_stocks)))
                         new_column_B[pattern["stock_type"]] = 1
                         B = np.column_stack((B, new_column_B))
-                # print("Reduce costs: ",reduce_costs)
 
-                # print('D after gen: ',D)
-                # print('S after gen: ',S)
-                # print('c after gen: ',c)
-                # print(A)
-                # print('B after gen: ',B)
                 if solveMilp:
                     self.solveMilp(D,S,c,A,B,patterns_converted,prod_num)
                 else:
                     self.solveLp(D,S,c,A,B,patterns_converted,prod_num)
             else:
-                print('kill_switch_gen_pattern')
                 self.optimal_patterns = self.sub_optimal_patterns
-            # self.optimal_patterns = self.sub_optimal_patterns 
         else:
-            print('kill_switch_initial')
             self.optimal_patterns = self.sub_optimal_patterns
-            # for pattern in self.optimal_patterns:
-            #     print(pattern)
 
     def get_stock_price(self,dual_stocks,stock_type):
         for stock_idx, stock in enumerate(self.list_stocks):
@@ -479,7 +389,6 @@ class Policy2210xxx(Policy):
             best_stock_idx = heuristic_result["stock_idx"]
             best_position = heuristic_result["position"]
             best_prod_size = heuristic_result["size"]
-            # print("prod_idx: ", prod_idx, "best_stock_idx: ", best_stock_idx, "position: ", best_position, "prod_size: ", best_prod_size)
             clone_stocks, clone_prods = self.fill_to_clone_stocks(clone_stocks, clone_prods, prod_idx, best_stock_idx, best_position, best_prod_size)
             if prod_idx in initial_patterns[best_stock_idx]["items"]:
                 initial_patterns[best_stock_idx]["items"][prod_idx]["quantity"] += 1
@@ -515,16 +424,10 @@ class Policy2210xxx(Policy):
         if self.sorted_prods == []:
             self.sorted_prods = sorted(clone_prods, key=lambda p: p["size"][0] * p["size"][1], reverse=True)
             self.indices_prods = sorted(self.indices_prods, key=lambda i: clone_prods[i]["size"][0] * clone_prods[i]["size"][1], reverse=True)
-            # self.sorted_prods = sorted(self.list_products, key=lambda p: (p["size"][0], p["size"][1]), reverse=True)
-        # if not hasattr(self, 'sorted_stocks'):
-        #     self.sorted_stocks = sorted(enumerate(clone_stocks), key=lambda x: self._get_stock_size_(x[1])[0] * self._get_stock_size_(x[1])[1])
 
         clone_prods = self.sorted_prods
-        # sorted_stocks = self.sorted_stocks
-        # print("Sorted first stock: ",self._get_stock_size_(sorted_stocks[0][1]))
         # Group stocks into buckets based on size ranges
         self._group_stocks_into_buckets(clone_stocks)
-        # print(clone_prods)
         
         for prod_idx,prod in enumerate(clone_prods):
             if prod["quantity"] > 0:
@@ -582,23 +485,12 @@ class Policy2210xxx(Policy):
     #########################################################################
 
     def solveLp(self,D,S,c,A,B,patterns_converted,prod_num):
-        print('LP')
         x_bounds = [(0,None) for _ in range(len(patterns_converted))]
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs')
         if(result_simplex.status == 0):
-            # print(result_simplex)
             dual_prods = result_simplex.eqlin['marginals']
             dual_stocks = result_simplex.ineqlin['marginals']
-            # self.list_stocks.sort(key=lambda x: x['id'])
-            # self.list_products.sort(key=lambda x: x['id'])
             new_patterns_generation = []
-            # print("Start stock")
-            # for stock in self.list_stocks:
-            #     print(stock)
-            # print("End stock")
-            # print(self.list_products)
-            # print("Product: ", self.list_products)
-            # list_prod_sort_by_id = sorted(self.list_products, key=lambda x:x['id'])
             
             list_prod_sort_by_id = deepcopy(self.list_products)
             for prod in list_prod_sort_by_id:
@@ -615,30 +507,13 @@ class Policy2210xxx(Policy):
                 else:
                     prod['id'] = str(i)
                     i += 1
-            # print(list_prod_sort_by_id)
-            # print('new strips: ', self.generate_pattern(dual_prods, 0))
+
             gen_status = True
             for i in range(len(self.list_stocks)):
-                # print("Finish stock ", i)
-                # print("dual_prods: ",dual_prods)
-                # print("Start producta")
-                # for prod in self.list_products:
-                #     print(prod)
-                # print("End producta")
-                # clone_dual_prods = deepcopy(dual_prods)
-                # clone_dual_prods_idx = deepcopy(dual_prods)
-                # j = 0
-                # for prod in self.list_products:
-                #     if '-rotated' in prod['id']: continue
-                #     clone_dual_prods_idx[j]= int(prod['id'])
-                #     j+=1
-                # clone_dual_prods_idx = [int(x) for x in clone_dual_prods_idx]
                 new_strips = self.generate_pattern(dual_prods, i)
                 if new_strips == None:
                     gen_status = False
                     break
-                # if new_strips['strip'] == 15:
-                #     print('new strips: ',new_strips)
                 key = str(i)
                 converted_strips = []
                 for strip in new_strips:
@@ -648,13 +523,9 @@ class Policy2210xxx(Policy):
                         if item_count == 0: continue
                         key += ''.join('_' + str(list_prod_sort_by_id[item_count_idx]['id']) for _ in range(item_count))
                         length += list_prod_sort_by_id[item_count_idx]['width'] * item_count
-                        # if(length == 176 and i == 19): print(strip)
                         items.append({'item_class_id': list_prod_sort_by_id[item_count_idx]['id'], 'width': list_prod_sort_by_id[item_count_idx]['width'], 'height': list_prod_sort_by_id[item_count_idx]['height'], 'quantity': item_count})
                     converted_strips.append({'length': length, 'width': strip['strip'], 'items': items})
-                # print({'key': key, 'quantity': 1, 'stock_type': i, 'strips': converted_strips})
                 new_patterns_generation.append({'key': key, 'quantity': 1, 'stock_type': i, 'strips': converted_strips})
-            # for pattern in new_patterns_generation:
-            #     print('converted: ',pattern)
 
             # Calculate reduce cost
             if gen_status:
@@ -670,7 +541,6 @@ class Policy2210xxx(Policy):
                             item_idx = int(item_idx)
                             new_column_A[item_idx] += item['quantity']
                     reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + self.get_stock_price(dual_stocks,pattern['stock_type']))
-                    # print(reduce_cost)
                     if reduce_cost < 0 and pattern['key'] not in self.keys:
                         patterns_converted.append(pattern)
                         self.keys.append(pattern['key'])
@@ -680,13 +550,7 @@ class Policy2210xxx(Policy):
                         new_column_B = np.zeros(int(len(self.list_stocks)))
                         new_column_B[pattern["stock_type"]] = 1
                         B = np.column_stack((B, new_column_B))
-                # print("Reduce costs: ",reduce_costs)
 
-                # print('D after gen: ',D)
-                # print('S after gen: ',S)
-                # print('c after gen: ',c)
-                # print(A)
-                # print('B after gen: ',B)
                 if solveMilp:
                     self.solveMilp(D,S,c,A,B,patterns_converted,prod_num)
                 else:
@@ -694,45 +558,25 @@ class Policy2210xxx(Policy):
             else:
                 self.optimal_patterns = self.sub_optimal_patterns
         else:
-            print('kill_switch_lp')
             self.optimal_patterns = self.sub_optimal_patterns
-            # for pattern in self.optimal_patterns:
-            #     print(pattern)
 
     def solveMilp(self,D,S,c,A,B,patterns_converted,prod_num):
-        # print('D Milp: ',D)
-        # print('S Milp: ',S)
-        # print('c Milp: ',c)
-        # print('A Milp: ',A)
-        # print('B Milp: ',B)
-
-        print('MILP')
         x_bounds = [(0,None) for _ in range(len(c))]
         optimal_result = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1,options={'presolve': False})
-        # print("Optimal Result")
-        print(optimal_result)
         if optimal_result.status == 0:
             patterns_quantity = np.int_(optimal_result.x)
-            # print(patterns_quantity)
             total_area = 0
             for pattern_idx,pattern in enumerate(patterns_converted):
                 pattern['quantity'] = patterns_quantity[pattern_idx]
-                if pattern['quantity'] != 0: print(pattern)
-                # if pattern['quantity'] != 0: total_area += self.list_stocks[pattern['stock_type']]['length'] * self.list_stocks[pattern['stock_type']]['width'] * pattern['quantity']
             prod_sum = 0
             for pattern in patterns_converted:
                 if pattern['quantity'] == 0: continue
                 prod_sum += pattern['key'].count('_') * pattern['quantity']
-            # print('prod_sum: ',prod_sum)
-            # print('prod_num: ',prod_num)
-            # print(self.sub_optimal_patterns)
             if prod_sum != prod_num:
-                print('kill_switch_quantity')
                 self.optimal_patterns = self.sub_optimal_patterns
             else: 
                 self.optimal_patterns = patterns_converted
         else:
-            print('kill_switch_milp')
             self.optimal_patterns = self.sub_optimal_patterns
 
     def choose_appropriate_stock_type_for_prod(self,list_stocks,item):
@@ -748,11 +592,9 @@ class Policy2210xxx(Policy):
                     max_items_in_bin = max_items
                     assigned_bin_class = bin_class
         if assigned_bin_class:
-            # b_i[item['id']] = assigned_bin_class['id']
             assigned_bin_class['used'] += 1
             return assigned_bin_class['id']
         else:
-            # raise Exception(f"No available bin can accommodate item class {item['id']}")
             return -1
 
     def get_stock_by_type(self,stock_type):
@@ -761,12 +603,8 @@ class Policy2210xxx(Policy):
                 return stock
 
     def drawing_strips(self):
-        # print("Final patterns")
-        # for i in self.optimal_patterns:
-        #     print(i)
         for data in self.optimal_patterns:
             if data['quantity'] == 0: continue
-            # print(data)                
             for _ in range(data['quantity']):
                 stock = self.get_stock_by_type(data['stock_type'])
                 stock_idx_info = stock['stock_index'][0]
@@ -799,9 +637,6 @@ class Policy2210xxx(Policy):
                                 })
                         y += strip['width']
                         x = 0
-            
-            # print(stock)
-            # stock_idx, rotated = self.get_stock_idx_to_draw(stock_type)
 
     def drawing_patterns(self):
         for data in self.optimal_patterns:
@@ -832,9 +667,6 @@ class Policy2210xxx(Policy):
         #Initialize
         top = 6
         result = []
-        # clone_list_stock = deepcopy(self.list_stocks)
-        # clone_list_stock.sort(key=lambda x: x['id'])
-        # clone_dual_prods = deepcopy(dual_prods)
         stock = self.get_stock_by_type(stock_type)
         stock_w = stock['length']
         stock_h = stock['width']
@@ -852,12 +684,6 @@ class Policy2210xxx(Policy):
         product_heights = np.array([prod['height'] for prod in clone_products])
         product_quantity = np.array([prod['quantity'] for prod in clone_products])
 
-        # print('dual_prod: ', dual_prods)
-        # print('product height: ', product_heights)
-        # print('product width: ', product_widths)
-        # print('product quantity: ', product_quantity)
-        # print('stock dimension: ', (stock_w,stock_h))
-
         # cut horizontal strips
         # get all possible strip can be form
         strip_height_unique = set()
@@ -874,8 +700,6 @@ class Policy2210xxx(Policy):
                 itemCount[j] = min(clone_products[j]['quantity'],stock_w / product_widths[j])
             result.append({"strip": int(product_heights[i]), "profit": int(profit[stock_w]), "itemCount": itemCount.astype(int)})
         result = np.array(result)
-        # if stock_type == 19:
-        #     print(result)
 
         small_result = []
 
@@ -893,14 +717,10 @@ class Policy2210xxx(Policy):
             strips['strip'] = int(strips['strip'])
             existing_patterns = set()
             for i in range(len(strips["itemCount"])):
-                # array_cal[i]: number of item in strip
                 array_cal = np.zeros(len(strips["itemCount"]), dtype=int)
                 array_cal[i] = int(strips["itemCount"][i])
-                # print("Array cal: ", array_cal[i], " strip: ", strips["strip"], " product height: ", clone_products[i]["height"], " product width: ", clone_products[i]["width"], " prod id: ", clone_products[i]['id'])
-                # if prod_clone[i]["height"] > strips["strip"]:
                 if clone_products[i]['height'] > strips["strip"]:
                     continue
-                # small_profit = array_cal[i] * dual_prods[int(prod_clone[i]['id'] / 2)]
                 small_profit = array_cal[i] * dual_prods[int(clone_products[i]['id'] / 2)]
                 small_l = product_widths[i] * array_cal[i]
 
@@ -909,7 +729,6 @@ class Policy2210xxx(Policy):
 
                 # Add initial pattern
                 pattern_key = tuple(array_cal)
-                # print('key: ', pattern_key)
                 if pattern_key not in existing_patterns:
                     small_result.append({
                         "strip": int(strips["strip"]),
@@ -917,11 +736,6 @@ class Policy2210xxx(Policy):
                         "itemCount": array_cal.copy()
                     })
                     existing_patterns.add(pattern_key)
-                    # print('new ele: ', {
-                    #         "strip": int(strips["strip"]),
-                    #         "profit": int(small_profit),
-                    #         "itemCount": array_cal.copy()
-                    # })
                 
                 clone_array_cal = deepcopy(array_cal)
                 prod_clone_clone = deepcopy(prod_clone)
@@ -942,20 +756,12 @@ class Policy2210xxx(Policy):
                         "profit": int(greedy_profit),
                         "itemCount": clone_array_cal.copy()
                     })
-                    # print('new ele in small_result: ', {
-                    #     "strip": int(strips["strip"]),
-                    #     "profit": int(small_profit - dual_prods[int(prod_clone[i]['id'] / 2)] * (array_cal[i] - k)),
-                    #     "itemCount": clone_array_cal.copy()
-                    # })
 
                 prod_clone.sort(key=lambda x: dual_prods[int(x['id'] / 2)], reverse=False)
-                # print('prod sort by price: ',prod_clone)
 
                 for j in range(len(prod_clone)):
                     if prod_clone[j]["height"] > strips["strip"] or prod_clone[j]["width"] > stock_w - small_l or prod_clone[j]['id'] == prod_clone[i]['id']:
                         continue
-                    # if prod_clone[j]["id"] == prod_clone[i]['id']:
-                    #     continue
                     max_k = min(prod_clone[j]["quantity"], int((stock_w - small_l) // product_widths[j]))
                     for k in range(0, max_k + 1):
                         array_cal[prod_clone[j]["id"]] += 1
@@ -971,20 +777,12 @@ class Policy2210xxx(Policy):
                                 "itemCount": array_cal.copy()
                             })
                             existing_patterns.add(pattern_key)
-                            # print('new ele in small_result: ', {
-                            #         "strip": int(strips["strip"]),
-                            #         "profit": int(small_profit),
-                            #         "itemCount": array_cal.copy()
-                            # })
 
                     # Reset for next iteration
                     small_profit -= dual_prods[int(prod_clone[j]["id"] / 2)] * max_k
                     small_l -= product_widths[j] * max_k
                     array_cal[prod_clone[j]["id"]] -= max_k
                 prod_clone = deepcopy(prod_clone_clone)
-
-        # for strip in small_result:
-        #     print('strip in small_result: ',strip)
 
         valid_patterns = []
         for strip in small_result:
@@ -994,39 +792,17 @@ class Policy2210xxx(Policy):
             if strip_length <= stock_w:
                 valid_patterns.append(strip)
 
-        # if stock_type == 19:
-        #     for strip in valid_patterns:
-        #         if strip['strip'] == 25:
-        #             print('checking: ',strip['itemCount'][10], ', ', strip['itemCount'][11])
-
         prod_heights = [prod['height'] for prod in prod_clone]
         valid_patterns.sort(key=lambda x: (x["strip"], -x["profit"]))
-
-        # if(stock_type == 19):
-        #     for strip in valid_patterns:
-        #         if(strip['strip'] == 25):
-        #             print('valid: ',strip)
 
         h_strips = np.zeros((top * len(product_heights), 1), dtype = int)
         h_stock = np.zeros((top * len(product_heights), 1), dtype = int)
         min_array = np.zeros((top * len(product_heights), 1), dtype = int)
-
-        # h_strips = np.zeros(top * len(result), dtype = int)
-        # h_stock = np.zeros(top * len(result), dtype = int)
-        # min_array = np.zeros(top * len(result), dtype = int)
-        # print('h_strips: ', h_strips)
-        # print('h_stock: ', h_stock)
-        # print('min_array: ', min_array)
-
         strip_list = []
 
         strip_idx = [strip['strip'] for strip in valid_patterns]
         for i in range(len(prod_heights)):
             current_strips = [s for s in valid_patterns if s['strip'] == prod_heights[i]]
-            # if current_strips == []:
-            #     for _ in range(top):
-            #         strip_list.append({"strip": 0, "profit": 0, "itemCount": np.zeros(len(product_heights),dtype=int)})
-            #     continue
             seen_patterns = set()
             unique_strips = []
             for strip in current_strips:
@@ -1036,30 +812,8 @@ class Policy2210xxx(Policy):
                     unique_strips.append(strip)
             current_strips = unique_strips
             current_strips.sort(key=lambda x: -x['profit'])
-            # if len(current_strips) < top:
-            #     for i in range(len(prod_clone)):
-            #         for j in range(top):
-            #             h_strips[i*top+j][0] = prod_heights[i]
-            #             h_stock[i*top+j][0] = stock_h
-            #     for strip in current_strips:
-            #         min_for_array = 1000000
-            #         min2 = 1000000
-            #         for j in range(len(strip['itemCount'])):
-            #             d_i = min(int(self.list_products[j]['quantity']), int(stock_h * stock_w / (product_widths[j] * product_heights[j])))
-            #             min2 = min(d_i / strip['itemCount'][j], min2)
-            #         min_for_array = min(min2, stock_h / strip['strip'])
-            #         min_array[i*top][0] = int(min_for_array)
-            #         top_strips[i*top][0] = strip['profit']
-            # else:
-            # print(current_strips)
-            count = 0
-            # for k in range(len(h_stock)):
-            #     h_stock[k][0] = stock_h
-            # for k in range(len(product_heights)):
-            #     h_strips[k*top:(k+1)*top] = prod_heights[k] 
-            # print("top curr: ", current_strips[:top])               
+            count = 0          
             for strip in current_strips[:top]:
-                # print('a', strip)
                 min_for_array = 1000000
                 min2 = 1000000
                 for j in range(len(strip['itemCount'])):
@@ -1068,24 +822,12 @@ class Policy2210xxx(Policy):
                     min2 = min(d_i, min2, strip['itemCount'][j])
                 min_for_array = min(min2, stock_h // strip['strip'])
                 min_array[i*top+count][0] = min_for_array
-                # if(strip['strip'] == 0): min_array[i*top+count][0] = 0
-                # else: min_array[i*top+count][0] = stock_h // strip['strip']
-                # if strip['profit'] == 0:
-                #     top_strips[i*top+count][0] = 0
-                # else:
                 h_stock[i*top+count][0] = stock_h
                 top_strips[i*top+count][0] = strip['profit']
                 h_strips[i*top+count][0] = strip['strip']
                 strip_list.append(strip)
                 count += 1
-            # if (len(current_strips) < top):
-            #     for _ in range (top - len(current_strips)):
-            #         strip_list.append({"strip": 0, "profit": 0, "itemCount": np.zeros(len(product_heights),dtype=int)})
-        # for i in range(len(strip_list)):
-        #     print('strip_list ', i, ': ',strip_list[i])
-        # print(len(top_strips))
-        # for i in top_strips.transpose():
-        #     print(i)
+
         top_strips_unique = np.zeros(len(strip_list))
         h_strips_unique = np.zeros(len(strip_list))
         h_stock_unique = np.zeros(len(strip_list))
@@ -1095,25 +837,17 @@ class Policy2210xxx(Policy):
             h_strips_unique[i] = strip_list[i]['strip']
             h_stock_unique[i] = stock_h
             min_array_unique[i] = stock_h // strip_list[i]['strip']
-        # print('top_strips: ', top_strips_unique.transpose().reshape(-1))
-        # print('h_strips: ', h_strips_unique.transpose().reshape(-1))
-        # print('h_stock: ', h_stock_unique.transpose().reshape(-1))
-        # print('min_array: ', min_array_unique.transpose().reshape(-1))
 
         ############################################################################################################
         prod_demand_constraints = np.array([])
         for product in clone_products:
             if product['id'] % 2 == 1: continue
             prod_demand_constraints = np.append(prod_demand_constraints,product['quantity'])
-        # print('demand: ',prod_demand_constraints)
-        # print(len(strip_list))
-        # print(len(top_strips))
+
         prod_quantity_in_strip = np.zeros((int(len(clone_products)/2),len(strip_list)))
-        # print(prod_quantity_in_strip.shape)
         for i in range(int(len(clone_products)/2)):
             for j in range(len(strip_list)):
                 prod_quantity_in_strip[i][j] = strip_list[j]['itemCount'][i * 2] + strip_list[j]['itemCount'][i * 2 + 1]
-        # print('prod_quantity_in_strip: ',prod_quantity_in_strip)
 
         A = np.array([h_strips_unique.transpose()]).reshape(-1, h_strips_unique.shape[0])
         for i in range(0,len(min_array_unique)):
@@ -1123,42 +857,17 @@ class Policy2210xxx(Policy):
         for quantity_strip in prod_quantity_in_strip:
             A = np.vstack((A,quantity_strip))
 
-        # for a in A:
-        #     print(a)
-
         b_u = np.array([stock_h])
         for min_array_element in min_array_unique.transpose():
             b_u = np.append(b_u,min_array_element)
         for demand_constraint in prod_demand_constraints:
             b_u = np.append(b_u,demand_constraint)
-        # print(b_u.shape)
-        # for b in b_u:
-        #     print(b, end=' ')
-        # print()
         
         b_l = np.full_like(b_u,-np.inf,dtype=float)
-        constraints = LinearConstraint(A,b_l,b_u)
-        integrality = np.ones_like(len(top_strips))
 
-        # B1 * (số product thứ 1 (normal + rotated) + số product thứ 2 (normal + rotated)) + B2 * (số product thứ 1 + số product thứ 2 + ... số product thứ n) + ... = Ma trận demand
-        # print(clone_products)
-        # print(clone_products)
-        # 2 2
-        # 2 2
-        # print(len(strip_list))
-        # for strip in top_strips:
-        #     print(strip)
-        # for i in -top_strips.transpose().reshape(-1):
-        #     print(i, end=', ')
         c = -top_strips_unique.transpose().reshape(-1)
-        # if np.array_equal(A,A_check): print('check A')
-        # if np.array_equal(b_u,b_u_check): print('check B')
-        # if np.array_equal(c,c_check): print('check C')
         res = linprog(c=c,A_ub=A,b_ub=b_u,bounds=(0,None),method='highs',integrality=1,options={'presolve': False})
-        # res = milp(c=c, constraints=constraints, integrality=integrality)
-        # print('MILP gen pattern result: ',res)
         if(res.status != 0):
-            print('Fail gen')
             return None
         else:
             return_res = []
@@ -1166,7 +875,4 @@ class Policy2210xxx(Policy):
                 if res.x[i] > 0:
                     for j in range(int(res.x[i])):
                         return_res.append(strip_list[i])
-            # if stock_type == 19:
-            #     print('Return res: ',return_res)
-            # print(return_res)
             return return_res
