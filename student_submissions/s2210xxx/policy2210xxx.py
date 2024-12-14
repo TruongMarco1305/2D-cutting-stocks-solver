@@ -38,33 +38,34 @@ class Policy2210xxx(Policy):
             }
         else:
             self.drawing_counter += 1
-            # if(self.drawing_counter == len(self.drawing_data)):
-            #     # self.isComputing = True
-            #     self.drawing_counter = 0
-            #     self.optimal_patterns = []
-            #     self.drawing_data = []
-            #     self.list_products = []
-            #     self.list_stocks = []
-            #     self.keys = []
-            #     if self.policy_id == 1:
-            #         self.sub_optimal_patterns = []
-            #     else:
-            #         self.stock_buckets = {}
-            #         self.bucket_size = 10
-            #         self.indices_prods = []
-            #         self.sorted_prods = []
-            #     self.implement_policy(observation,info)
-            #     return {
-            #         "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
-            #         "size": self.drawing_data[self.drawing_counter]["size"],
-            #         "position": self.drawing_data[self.drawing_counter]["position"]
-            #     }
-            # else:
-            return {
-                "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
-                "size": self.drawing_data[self.drawing_counter]["size"],
-                "position": self.drawing_data[self.drawing_counter]["position"]
-            }
+            if(self.drawing_counter == len(self.drawing_data)):
+                # self.isComputing = True
+                self.drawing_counter = 0
+                # self.optimal_patterns = []
+                self.optimal_patterns.clear()
+                self.drawing_data.clear()
+                self.list_products.clear()
+                self.list_stocks.clear()
+                self.keys.clear()
+                if self.policy_id == 1:
+                    self.sub_optimal_patterns.clear()
+                else:
+                    self.stock_buckets.clear()
+                    # self.bucket_size = 10
+                    self.indices_prods.clear()
+                    self.sorted_prods.clear()
+                self.implement_policy(observation,info)
+                return {
+                    "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
+                    "size": self.drawing_data[self.drawing_counter]["size"],
+                    "position": self.drawing_data[self.drawing_counter]["position"]
+                }
+            else:
+                return {
+                    "stock_idx": self.drawing_data[self.drawing_counter]["stock_idx"],
+                    "size": self.drawing_data[self.drawing_counter]["size"],
+                    "position": self.drawing_data[self.drawing_counter]["position"]
+                }
 
     def implement_policy(self,observation,info):
         # initial_prods = [{'size': np.array([]), 'quantity': None} for _ in range(len(observation['stocks']))]
@@ -84,20 +85,23 @@ class Policy2210xxx(Policy):
     def furini_heuristic(self, initial_stocks, initial_prods):
         # Student code here
 
-        # print('Products: ', initial_prods)
-        # stocks = []
-        # for stock in initial_stocks:
-        #     stock_w, stock_h = self._get_stock_size_(stock)
-        #     stocks.append({'width': stock_w, 'height': stock_h})
-        # print('Stocks: ', stocks)
+        print('Products: ', initial_prods)
+        stocks = []
+        for stock in initial_stocks:
+            stock_w, stock_h = self._get_stock_size_(stock)
+            stocks.append({'width': stock_w, 'height': stock_h})
+        print('Stocks: ', stocks)
 
+        prod_num = 0
         for prod_idx,prod in enumerate(initial_prods):
             prod_info = {'id': str(prod_idx),"width": prod["size"][0], "height": prod["size"][1], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
             # prod_num += prod["quantity"]
-            prod_info = {'id': str(prod_idx) + '_rotated',"width": prod["size"][1], "height": prod["size"][0], "quantity": prod["quantity"]}
+            prod_info = {'id': str(prod_idx) + '-rotated',"width": prod["size"][1], "height": prod["size"][0], "quantity": prod["quantity"]}
             self.list_products.append(prod_info)
+            prod_num += prod['quantity']
         self.list_products.sort(key=lambda x: (-x['height'], -x['width']))
+        # print(prod_num)
         # print('Start product')
         # for prod in self.list_products:
         #     print(prod)
@@ -170,12 +174,12 @@ class Policy2210xxx(Policy):
                     # Update bin and item demand
                     current_bin['remaining_width'] -= strip_width
                     item_demand[item['id']] -= items_to_place
-                    if('_rotated' in item['id']):
-                        item_demand[item['id'].replace('_rotated','')] -= items_to_place
+                    if('-rotated' in item['id']):
+                        item_demand[item['id'].replace('-rotated','')] -= items_to_place
                     else:
-                        item_demand[item['id'] + '_rotated'] -= items_to_place
+                        item_demand[item['id'] + '-rotated'] -= items_to_place
                     # print(item['id'],': ',item_demand[item['id']])
-                    # print(item['id'].replace('_rotated',''),': ',item_demand[item['id'].replace('_rotated','')])
+                    # print(item['id'].replace('-rotated',''),': ',item_demand[item['id'].replace('-rotated','')])
                     # Fill the strip with smaller items if possible (greedy procedure)
                     
                     strip_remaining_length = current_bin['length'] - strip['length']
@@ -188,10 +192,10 @@ class Policy2210xxx(Policy):
                                     current_bin['key'] += ''.join('_' + str(next_item['id']) for _ in range(items_to_place))
                                     strip['items'].append(item_placement)
                                     item_demand[next_item['id']] -= items_to_place
-                                    if('_rotated' in next_item['id']):
-                                        item_demand[next_item['id'].replace('_rotated','')] -= items_to_place
+                                    if('-rotated' in next_item['id']):
+                                        item_demand[next_item['id'].replace('-rotated','')] -= items_to_place
                                     else:
-                                        item_demand[next_item['id'] + '_rotated'] -= items_to_place
+                                        item_demand[next_item['id'] + '-rotated'] -= items_to_place
                                     strip['length'] += items_to_place * next_item['width']
                                     strip_remaining_length -= items_to_place * next_item['width']
                                     if strip_remaining_length <= 0:
@@ -227,10 +231,10 @@ class Policy2210xxx(Policy):
                             # Update bin and item demand
                             current_bin['remaining_width'] -= strip_width
                             item_demand[sub_item['id']] -= items_to_place
-                            if('_rotated' in sub_item['id']):
-                                item_demand[sub_item['id'].replace('_rotated','')] -= items_to_place
+                            if('-rotated' in sub_item['id']):
+                                item_demand[sub_item['id'].replace('-rotated','')] -= items_to_place
                             else:
-                                item_demand[sub_item['id'] + '_rotated'] -= items_to_place
+                                item_demand[sub_item['id'] + '-rotated'] -= items_to_place
                             
                             strip_remaining_length = current_bin['length'] - strip['length']
                             if strip_remaining_length > 0:
@@ -242,10 +246,10 @@ class Policy2210xxx(Policy):
                                             current_bin['key'] += ''.join('_' + str(next_item['id']) for _ in range(items_to_place))
                                             strip['items'].append(item_placement)
                                             item_demand[next_item['id']] -= items_to_place
-                                            if('_rotated' in next_item['id']):
-                                                item_demand[next_item['id'].replace('_rotated','')] -= items_to_place
+                                            if('-rotated' in next_item['id']):
+                                                item_demand[next_item['id'].replace('-rotated','')] -= items_to_place
                                             else:
-                                                item_demand[next_item['id'] + '_rotated'] -= items_to_place
+                                                item_demand[next_item['id'] + '-rotated'] -= items_to_place
                                             strip['length'] += items_to_place * next_item['width']
                                             strip_remaining_length -= items_to_place * next_item['width']
                                             if strip_remaining_length <= 0:
@@ -263,7 +267,7 @@ class Policy2210xxx(Policy):
         # print(self.list_products)
         # for prod in initial_prods:
         for prod in self.list_products:
-            if '_rotated' in prod['id']: continue
+            if '-rotated' in prod['id']: continue
             D[int(prod['id'])]=prod["quantity"]
         D = D.flatten()
         # print(D)
@@ -288,13 +292,14 @@ class Policy2210xxx(Policy):
             else:
                 self.update_quantity_pattern_by_key(patterns_converted, pattern["key"])
         c = c.flatten()
+        self.sub_optimal_patterns = deepcopy(patterns_converted)
 
         A = np.zeros(shape=(int(len(self.list_products) / 2),len(patterns_converted))) # 11 row - 28 col
         for pattern_idx, pattern in enumerate(patterns_converted):
             for strip in pattern['strips']:
                 for item in strip['items']:
                 # print(prod_index, ' ', value['quantity'])
-                    if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
+                    if '-rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('-rotated','')
                     else: item_idx = item['item_class_id']
                     item_idx = int(item_idx)
                     # print(item_idx, ' ', pattern_idx)
@@ -328,6 +333,7 @@ class Policy2210xxx(Policy):
             # print("End stock")
             # print(self.list_products)
             # print("Product: ", self.list_products)
+            gen_status = True
             list_prod_sort_by_id = sorted(self.list_products, key=lambda x:x['id'])
             for i in range(len(self.list_stocks)):
                 # print("Finish stock ", i)
@@ -340,11 +346,15 @@ class Policy2210xxx(Policy):
                 # clone_dual_prods_idx = deepcopy(dual_prods)
                 # j = 0
                 # for prod in self.list_products:
-                #     if '_rotated' in prod['id']: continue
+                #     if '-rotated' in prod['id']: continue
                 #     clone_dual_prods_idx[j]= int(prod['id'])
                 #     j+=1
                 # clone_dual_prods_idx = [int(x) for x in clone_dual_prods_idx]
+            
                 new_strips = self.generate_pattern(dual_prods, i)
+                if new_strips == None:
+                    gen_status = False
+                    break
                 # print('new strips: ',new_strips)
                 key = str(i)
                 converted_strips = []
@@ -363,40 +373,44 @@ class Policy2210xxx(Policy):
             #     print('converted: ',pattern)
 
             # Calculate reduce cost
-            solveMilp = True
-            reduce_costs = []
-            for pattern in new_patterns_generation:
-                bin_class = next(bc for bc in self.list_stocks if bc['id'] == pattern['stock_type'])
-                new_column_A = np.zeros(int(len(self.list_products)/2))
-                for strip in pattern['strips']:
-                    for item in strip['items']:
-                        if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
-                        else: item_idx = item['item_class_id']
-                        item_idx = int(item_idx)
-                        new_column_A[item_idx] += item['quantity']
-                reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + self.get_stock_price(dual_stocks,pattern['stock_type']))
-                # print(reduce_cost)
-                if reduce_cost < 0 and pattern['key'] not in self.keys:
-                    patterns_converted.append(pattern)
-                    self.keys.append(pattern['key'])
-                    solveMilp = False
-                    c = np.append(c,bin_class['width'] * bin_class['length'])
-                    A = np.column_stack((A, new_column_A))
-                    new_column_B = np.zeros(int(len(self.list_stocks)))
-                    new_column_B[pattern["stock_type"]] = 1
-                    B = np.column_stack((B, new_column_B))
-            # print("Reduce costs: ",reduce_costs)
+            if gen_status:
+                solveMilp = True
+                reduce_costs = []
+                for pattern in new_patterns_generation:
+                    bin_class = next(bc for bc in self.list_stocks if bc['id'] == pattern['stock_type'])
+                    new_column_A = np.zeros(int(len(self.list_products)/2))
+                    for strip in pattern['strips']:
+                        for item in strip['items']:
+                            if '-rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('-rotated','')
+                            else: item_idx = item['item_class_id']
+                            item_idx = int(item_idx)
+                            new_column_A[item_idx] += item['quantity']
+                    reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + self.get_stock_price(dual_stocks,pattern['stock_type']))
+                    # print(reduce_cost)
+                    if reduce_cost < 0 and pattern['key'] not in self.keys:
+                        patterns_converted.append(pattern)
+                        self.keys.append(pattern['key'])
+                        solveMilp = False
+                        c = np.append(c,bin_class['width'] * bin_class['length'])
+                        A = np.column_stack((A, new_column_A))
+                        new_column_B = np.zeros(int(len(self.list_stocks)))
+                        new_column_B[pattern["stock_type"]] = 1
+                        B = np.column_stack((B, new_column_B))
+                # print("Reduce costs: ",reduce_costs)
 
-            # print('D after gen: ',D)
-            # print('S after gen: ',S)
-            # print('c after gen: ',c)
-            # print(A)
-            # print('B after gen: ',B)
-            if solveMilp:
-                self.solveMilp(D,S,c,A,B,patterns_converted)
+                # print('D after gen: ',D)
+                # print('S after gen: ',S)
+                # print('c after gen: ',c)
+                # print(A)
+                # print('B after gen: ',B)
+                if solveMilp:
+                    self.solveMilp(D,S,c,A,B,patterns_converted,prod_num)
+                else:
+                    self.solveLp(D,S,c,A,B,patterns_converted,prod_num)
             else:
-                self.solveLp(D,S,c,A,B,patterns_converted,result_simplex.fun)
-            # self.optimal_patterns = patterns_converted 
+                print('kill_switch_gen_pattern')
+                self.optimal_patterns = self.sub_optimal_patterns
+            # self.optimal_patterns = self.sub_optimal_patterns 
         else:
             print('kill_switch_initial')
             self.optimal_patterns = self.sub_optimal_patterns
@@ -557,7 +571,8 @@ class Policy2210xxx(Policy):
 
     #########################################################################
 
-    def solveLp(self,D,S,c,A,B,patterns_converted,result):
+    def solveLp(self,D,S,c,A,B,patterns_converted,prod_num):
+        print('LP')
         x_bounds = [(0,None) for _ in range(len(patterns_converted))]
         result_simplex = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs')
         if(result_simplex.status == 0):
@@ -575,6 +590,7 @@ class Policy2210xxx(Policy):
             # print("Product: ", self.list_products)
             list_prod_sort_by_id = sorted(self.list_products, key=lambda x:x['id'])
             # print('new strips: ', self.generate_pattern(dual_prods, 0))
+            gen_status = True
             for i in range(len(self.list_stocks)):
                 # print("Finish stock ", i)
                 # print("dual_prods: ",dual_prods)
@@ -586,11 +602,14 @@ class Policy2210xxx(Policy):
                 # clone_dual_prods_idx = deepcopy(dual_prods)
                 # j = 0
                 # for prod in self.list_products:
-                #     if '_rotated' in prod['id']: continue
+                #     if '-rotated' in prod['id']: continue
                 #     clone_dual_prods_idx[j]= int(prod['id'])
                 #     j+=1
                 # clone_dual_prods_idx = [int(x) for x in clone_dual_prods_idx]
                 new_strips = self.generate_pattern(dual_prods, i)
+                if new_strips == None:
+                    gen_status = False
+                    break
                 # print('new strips: ',new_strips)
                 key = str(i)
                 converted_strips = []
@@ -609,65 +628,79 @@ class Policy2210xxx(Policy):
             #     print('converted: ',pattern)
 
             # Calculate reduce cost
-            solveMilp = True
-            reduce_costs = []
-            for pattern in new_patterns_generation:
-                bin_class = next(bc for bc in self.list_stocks if bc['id'] == pattern['stock_type'])
-                new_column_A = np.zeros(int(len(self.list_products)/2))
-                for strip in pattern['strips']:
-                    for item in strip['items']:
-                        if '_rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('_rotated','')
-                        else: item_idx = item['item_class_id']
-                        item_idx = int(item_idx)
-                        new_column_A[item_idx] += item['quantity']
-                reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + self.get_stock_price(dual_stocks,pattern['stock_type']))
-                # print(reduce_cost)
-                if reduce_cost < 0 and pattern['key'] not in self.keys:
-                    patterns_converted.append(pattern)
-                    self.keys.append(pattern['key'])
-                    solveMilp = False
-                    c = np.append(c,bin_class['width'] * bin_class['length'])
-                    A = np.column_stack((A, new_column_A))
-                    new_column_B = np.zeros(int(len(self.list_stocks)))
-                    new_column_B[pattern["stock_type"]] = 1
-                    B = np.column_stack((B, new_column_B))
-            # print("Reduce costs: ",reduce_costs)
+            if gen_status:
+                solveMilp = True
+                reduce_costs = []
+                for pattern in new_patterns_generation:
+                    bin_class = next(bc for bc in self.list_stocks if bc['id'] == pattern['stock_type'])
+                    new_column_A = np.zeros(int(len(self.list_products)/2))
+                    for strip in pattern['strips']:
+                        for item in strip['items']:
+                            if '-rotated' in item['item_class_id']: item_idx = item['item_class_id'].replace('-rotated','')
+                            else: item_idx = item['item_class_id']
+                            item_idx = int(item_idx)
+                            new_column_A[item_idx] += item['quantity']
+                    reduce_cost = bin_class['width'] * bin_class['length'] - (np.dot(new_column_A,dual_prods.transpose())  + self.get_stock_price(dual_stocks,pattern['stock_type']))
+                    # print(reduce_cost)
+                    if reduce_cost < 0 and pattern['key'] not in self.keys:
+                        patterns_converted.append(pattern)
+                        self.keys.append(pattern['key'])
+                        solveMilp = False
+                        c = np.append(c,bin_class['width'] * bin_class['length'])
+                        A = np.column_stack((A, new_column_A))
+                        new_column_B = np.zeros(int(len(self.list_stocks)))
+                        new_column_B[pattern["stock_type"]] = 1
+                        B = np.column_stack((B, new_column_B))
+                # print("Reduce costs: ",reduce_costs)
 
-            # print('D after gen: ',D)
-            # print('S after gen: ',S)
-            # print('c after gen: ',c)
-            # print(A)
-            # print('B after gen: ',B)
-            if solveMilp:
-                self.solveMilp(D,S,c,A,B,patterns_converted)
+                # print('D after gen: ',D)
+                # print('S after gen: ',S)
+                # print('c after gen: ',c)
+                # print(A)
+                # print('B after gen: ',B)
+                if solveMilp:
+                    self.solveMilp(D,S,c,A,B,patterns_converted,prod_num)
+                else:
+                    self.solveLp(D,S,c,A,B,patterns_converted,prod_num)
             else:
-                self.solveLp(D,S,c,A,B,patterns_converted,result_simplex.fun)
+                self.optimal_patterns = self.sub_optimal_patterns
         else:
             print('kill_switch_lp')
             self.optimal_patterns = self.sub_optimal_patterns
             # for pattern in self.optimal_patterns:
             #     print(pattern)
 
-    def solveMilp(self,D,S,c,A,B,patterns_converted):
+    def solveMilp(self,D,S,c,A,B,patterns_converted,prod_num):
         # print('D Milp: ',D)
         # print('S Milp: ',S)
         # print('c Milp: ',c)
         # print('A Milp: ',A)
         # print('B Milp: ',B)
+        print('MILP')
         x_bounds = [(0,None) for _ in range(len(c))]
         optimal_result = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1)
         # print("Optimal Result")
-        # print(optimal_result)
+        print(optimal_result)
         if optimal_result.status == 0:
             patterns_quantity = np.int_(optimal_result.x)
+            # print(patterns_quantity)
             total_area = 0
             for pattern_idx,pattern in enumerate(patterns_converted):
                 pattern['quantity'] = patterns_quantity[pattern_idx]
-                if pattern['quantity'] != 0: total_area += self.list_stocks[pattern['stock_type']]['length'] * self.list_stocks[pattern['stock_type']]['width'] * pattern['quantity']
-            # for pattern in patterns_converted:
-            #     print(pattern)
-            # print('Total area', total_area)
-            self.optimal_patterns = patterns_converted
+                # if pattern['quantity'] != 0: print(pattern)
+                # if pattern['quantity'] != 0: total_area += self.list_stocks[pattern['stock_type']]['length'] * self.list_stocks[pattern['stock_type']]['width'] * pattern['quantity']
+            prod_sum = 0
+            for pattern in patterns_converted:
+                if pattern['quantity'] == 0: continue
+                prod_sum += pattern['key'].count('_') * pattern['quantity']
+            # print('prod_sum: ',prod_sum)
+            # print('prod_num: ',prod_num)
+            # print(self.sub_optimal_patterns)
+            if prod_sum != prod_num:
+                print('kill_switch_quantity')
+                self.optimal_patterns = self.sub_optimal_patterns
+            else: 
+                self.optimal_patterns = patterns_converted
         else:
             print('kill_switch_milp')
             self.optimal_patterns = self.sub_optimal_patterns
@@ -699,6 +732,8 @@ class Policy2210xxx(Policy):
 
     def drawing_strips(self):
         # print("Final patterns")
+        # for i in self.optimal_patterns:
+        #     print(i)
         for data in self.optimal_patterns:
             if data['quantity'] == 0: continue
             # print(data)                
@@ -777,8 +812,8 @@ class Policy2210xxx(Policy):
         clone_products = deepcopy(self.list_products)
         clone_products.sort(key=lambda x:x['id'])
         for prod in clone_products:
-            if '_rotated' in prod['id']:
-                prod['id'] = int(prod['id'].replace('_rotated', '')) * 2 + 1
+            if '-rotated' in prod['id']:
+                prod['id'] = int(prod['id'].replace('-rotated', '')) * 2 + 1
             else:
                 prod['id'] = int(prod['id']) * 2
 
@@ -809,14 +844,14 @@ class Policy2210xxx(Policy):
                 itemCount[j] = min(clone_products[j]['quantity'],stock_w / product_widths[j])
             result.append({"strip": int(product_heights[i]), "profit": int(profit[stock_w]), "itemCount": itemCount.astype(int)})
         result = np.array(result)
-        print(result)
+        # print(result)
 
         small_result = []
 
         prod_clone = deepcopy(self.list_products)
         for prod in prod_clone:
-            if '_rotated' in prod['id']:
-                prod['id'] = int(prod['id'].replace('_rotated', '')) * 2 + 1
+            if '-rotated' in prod['id']:
+                prod['id'] = int(prod['id'].replace('-rotated', '')) * 2 + 1
             else:
                 prod['id'] = int(prod['id']) * 2
         prod_clone.sort(key=lambda x: x['id'], reverse=False)
@@ -859,11 +894,21 @@ class Policy2210xxx(Policy):
                 
                 clone_array_cal = deepcopy(array_cal)
                 prod_clone_clone = deepcopy(prod_clone)
+                prod_clone_clone.sort(key=lambda x: dual_prods[int(x['id'] / 2)], reverse=False)
                 for k in range(array_cal[i]-1, 0, -1):
+                    greedy_profit = small_profit - dual_prods[int(prod_clone[i]['id'] / 2)] * (array_cal[i] - k)
                     clone_array_cal[i] = k
+                    can_fit_w = stock_w - (clone_array_cal[i] * prod_clone[i]['width'])
+                    for prod in prod_clone_clone:
+                        if int(prod['id']) == i: continue
+                        can_fit = can_fit_w // prod['width']
+                        if (can_fit > 0) and prod['height'] <= strips['strip'] and prod['width'] <= stock_w:
+                            clone_array_cal[int(prod['id'])] = can_fit
+                            can_fit_w -= (can_fit * prod['width'])
+                            greedy_profit += can_fit * dual_prods[int(prod['id'] / 2)]
                     small_result.append({
                         "strip": int(strips["strip"]),
-                        "profit": int(small_profit - dual_prods[int(prod_clone[i]['id'] / 2)] * (array_cal[i] - k)),
+                        "profit": int(greedy_profit),
                         "itemCount": clone_array_cal.copy()
                     })
                     # print('new ele in small_result: ', {
@@ -908,7 +953,7 @@ class Policy2210xxx(Policy):
                 prod_clone = deepcopy(prod_clone_clone)
 
         # for strip in small_result:
-        #     print(strip)
+        #     print('strip in small_result: ',strip)
 
         valid_patterns = []
         for strip in small_result:
@@ -923,8 +968,8 @@ class Policy2210xxx(Policy):
         valid_patterns.sort(key=lambda x: (x["strip"], -x["profit"]))
 
         # if(stock_type == 2):
-        #     for strip in valid_patterns:
-        #         print(strip)
+        # for strip in valid_patterns:
+        #     print('valid: ',strip)
 
         h_strips = np.zeros((top * len(product_heights), 1), dtype = int)
         h_stock = np.zeros((top * len(product_heights), 1), dtype = int)
@@ -938,13 +983,14 @@ class Policy2210xxx(Policy):
         # print('min_array: ', min_array)
 
         strip_list = []
-        # strip_idx = [strip['strip'] for strip in valid_patterns]
+
+        strip_idx = [strip['strip'] for strip in valid_patterns]
         for i in range(len(prod_heights)):
             current_strips = [s for s in valid_patterns if s['strip'] == prod_heights[i]]
-            if current_strips == []:
-                for _ in range(top):
-                    strip_list.append({"strip": 0, "profit": 0, "itemCount": np.zeros(len(product_heights),dtype=int)})
-                continue
+            # if current_strips == []:
+            #     for _ in range(top):
+            #         strip_list.append({"strip": 0, "profit": 0, "itemCount": np.zeros(len(product_heights),dtype=int)})
+            #     continue
             seen_patterns = set()
             unique_strips = []
             for strip in current_strips:
@@ -971,11 +1017,13 @@ class Policy2210xxx(Policy):
             # else:
             # print(current_strips)
             count = 0
-            for k in range(len(h_stock)):
-                h_stock[k][0] = stock_h
-            for k in range(len(product_heights)):
-                h_strips[k*top:(k+1)*top] = prod_heights[k]                
+            # for k in range(len(h_stock)):
+            #     h_stock[k][0] = stock_h
+            # for k in range(len(product_heights)):
+            #     h_strips[k*top:(k+1)*top] = prod_heights[k] 
+            # print("top curr: ", current_strips[:top])               
             for strip in current_strips[:top]:
+                # print('a', strip)
                 min_for_array = 1000000
                 min2 = 1000000
                 for j in range(len(strip['itemCount'])):
@@ -984,25 +1032,37 @@ class Policy2210xxx(Policy):
                     min2 = min(d_i, min2, strip['itemCount'][j])
                 min_for_array = min(min2, stock_h // strip['strip'])
                 min_array[i*top+count][0] = min_for_array
+                # if(strip['strip'] == 0): min_array[i*top+count][0] = 0
+                # else: min_array[i*top+count][0] = stock_h // strip['strip']
                 # if strip['profit'] == 0:
                 #     top_strips[i*top+count][0] = 0
                 # else:
+                h_stock[i*top+count][0] = stock_h
                 top_strips[i*top+count][0] = strip['profit']
                 h_strips[i*top+count][0] = strip['strip']
                 strip_list.append(strip)
                 count += 1
-            if (len(current_strips) < top):
-                for _ in range (top - len(current_strips)):
-                    strip_list.append({"strip": 0, "profit": 0, "itemCount": np.zeros(len(product_heights),dtype=int)})
+            # if (len(current_strips) < top):
+            #     for _ in range (top - len(current_strips)):
+            #         strip_list.append({"strip": 0, "profit": 0, "itemCount": np.zeros(len(product_heights),dtype=int)})
         # for i in range(len(strip_list)):
-        #     print('strip_list[i]: ',strip_list[i])
+        #     print('strip_list ', i, ': ',strip_list[i])
         # print(len(top_strips))
         # for i in top_strips.transpose():
         #     print(i)
-        print('top_strips: ', top_strips.transpose())
-        print('h_strips: ', h_strips.transpose())
-        print('h_stock: ', h_stock.transpose())
-        print('min_array: ', min_array.transpose())
+        top_strips_unique = np.zeros(len(strip_list))
+        h_strips_unique = np.zeros(len(strip_list))
+        h_stock_unique = np.zeros(len(strip_list))
+        min_array_unique = np.zeros(len(strip_list))
+        for i in range(len(strip_list)):
+            top_strips_unique[i] = strip_list[i]['profit']
+            h_strips_unique[i] = strip_list[i]['strip']
+            h_stock_unique[i] = stock_h
+            min_array_unique[i] = stock_h // strip_list[i]['strip']
+        # print('top_strips: ', top_strips_unique.transpose().reshape(-1))
+        # print('h_strips: ', h_strips_unique.transpose().reshape(-1))
+        # print('h_stock: ', h_stock_unique.transpose().reshape(-1))
+        # print('min_array: ', min_array_unique.transpose().reshape(-1))
 
         ############################################################################################################
         prod_demand_constraints = np.array([])
@@ -1015,271 +1075,26 @@ class Policy2210xxx(Policy):
         prod_quantity_in_strip = np.zeros((int(len(clone_products)/2),len(strip_list)))
         # print(prod_quantity_in_strip.shape)
         for i in range(int(len(clone_products)/2)):
-            for j in range(len(top_strips)):
+            for j in range(len(strip_list)):
                 prod_quantity_in_strip[i][j] = strip_list[j]['itemCount'][i * 2] + strip_list[j]['itemCount'][i * 2 + 1]
         # print('prod_quantity_in_strip: ',prod_quantity_in_strip)
 
-        A = np.array([h_strips.transpose()]).reshape(-1, h_strips.shape[0])
-        for i in range(0,len(min_array)):
-            constraint_binary = np.zeros(len(min_array))
+        A = np.array([h_strips_unique.transpose()]).reshape(-1, h_strips_unique.shape[0])
+        for i in range(0,len(min_array_unique)):
+            constraint_binary = np.zeros(len(min_array_unique))
             constraint_binary[i] = 1
             A = np.vstack((A,constraint_binary))
         for quantity_strip in prod_quantity_in_strip:
             A = np.vstack((A,quantity_strip))
 
-        A_check = [[15,  15,  15,  15,  15,  15,  20,  20,  20,  20,  20,  20,  20,  20,  20,  20,  20,  20, 
-        25,  25,  25,  25,  25,  25,  35,  35,  35,  35,  35,  35,  40,  40,  40,  40,  40,  40, 
-        45,  45,  45,  45,  45,  45,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50,  50, 
-        60,  60,  60,  60,  60,  60,  65,  65,  65,  65,  65,  65,  85,  85,  85,  85,  85,  85],
-        [1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
-        [2,  1,  0,  0,  0,  0,  2,  1,  3,  3,  2,  1,  2,  1,  3,  3,  2,  1,  2,  1,  3,  3,  2,  1, 
-        0,  1,  2,  1,  3,  3,  0,  1,  0,  1,  2,  1,  0,  0,  1,  0,  1,  2,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        1,  1,  0,  0,  0,  0,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]]
-        
-        b_u_check = [60.0, 3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 3.0, 2.0, 1.0, 3.0, 3.0, 2.0, 3.0, 2.0, 1.0, 3.0, 3.0, 2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 8.0, 22.0, 4.0, 3.0, 4.0]
-        
-        c_check=[-0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -2100.0, -2100.0, -0.0, -0.0, -0.0, -0.0, -4200.0, -2100.0, -2100.0, -2100.0, -0.0, -0.0, -4200.0, -3562.0, -3562.0, -2100.0, -2100.0, -2100.0, -4200.0, -4200.0, -3562.0, -3562.0, -3562.0, -3562.0, -4200.0, -4200.0, -3562.0, -3562.0, -3562.0, -3562.0, -4200.0, -4200.0, -4200.0, -4200.0, -3562.0, -3562.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0]
-
         # for a in A:
         #     print(a)
 
-
         b_u = np.array([stock_h])
-        for min_array_element in min_array.transpose():
+        for min_array_element in min_array_unique.transpose():
             b_u = np.append(b_u,min_array_element)
         for demand_constraint in prod_demand_constraints:
             b_u = np.append(b_u,demand_constraint)
-
         # print(b_u.shape)
         # for b in b_u:
         #     print(b, end=' ')
@@ -1299,24 +1114,21 @@ class Policy2210xxx(Policy):
         #     print(strip)
         # for i in -top_strips.transpose().reshape(-1):
         #     print(i, end=', ')
-        c = -top_strips.transpose().reshape(-1)
-        if np.array_equal(A,A_check): print('check A')
-        if np.array_equal(b_u,b_u_check): print('check B')
-        if np.array_equal(c,c_check): print('check C')
-        res = milp(c=c, constraints=constraints, integrality=integrality)
-        print('MILP gen pattern result: ',res)
+        c = -top_strips_unique.transpose().reshape(-1)
+        # if np.array_equal(A,A_check): print('check A')
+        # if np.array_equal(b_u,b_u_check): print('check B')
+        # if np.array_equal(c,c_check): print('check C')
+        res = linprog(c=c,A_ub=A,b_ub=b_u,bounds=(0,None),method='highs',integrality=1,options={'presolve': False})
+        # res = milp(c=c, constraints=constraints, integrality=integrality)
+        # print('MILP gen pattern result: ',res)
         if(res.status != 0):
-            for a in A:
-                print(a)
-            for b in b_u:
-                print(b, end=', ')
-            print('c')
-            for i in c:
-                print(i, end=', ')
-        return_res = []
-        for i in range(len(res.x)):
-            if res.x[i] > 0:
-                for j in range(int(res.x[i])):
-                    return_res.append(strip_list[i])
-        # print('Return res: ',return_res)
-        return return_res
+            print('Fail gen')
+            return None
+        else:
+            return_res = []
+            for i in range(len(res.x)):
+                if res.x[i] > 0:
+                    for j in range(int(res.x[i])):
+                        return_res.append(strip_list[i])
+            # print('Return res: ',return_res)
+            return return_res
