@@ -39,9 +39,7 @@ class Policy2210xxx(Policy):
         else:
             self.drawing_counter += 1
             if(self.drawing_counter == len(self.drawing_data)):
-                # self.isComputing = True
                 self.drawing_counter = 0
-                # self.optimal_patterns = []
                 self.optimal_patterns.clear()
                 self.drawing_data.clear()
                 self.list_products.clear()
@@ -51,7 +49,6 @@ class Policy2210xxx(Policy):
                     self.sub_optimal_patterns.clear()
                 else:
                     self.stock_buckets.clear()
-                    # self.bucket_size = 10
                     self.indices_prods.clear()
                     self.sorted_prods.clear()
                 self.implement_policy(observation,info)
@@ -68,10 +65,6 @@ class Policy2210xxx(Policy):
                 }
 
     def implement_policy(self,observation,info):
-        # initial_prods = [{'size': np.array([]), 'quantity': None} for _ in range(len(observation['stocks']))]
-        # for prod_idx,prod in enumerate(observation["products"]):
-        #     initial_prods[i]['size'] = observation["products"][i]['size']
-        #     initial_prods[i]['quantity'] = observation["products"][i]['quantity']
         initial_stocks = deepcopy(observation["stocks"])
         initial_prods = deepcopy(observation["products"])
 
@@ -84,7 +77,6 @@ class Policy2210xxx(Policy):
 
     def furini_heuristic(self, initial_stocks, initial_prods):
         # Student code here
-
         print('Products: ', initial_prods)
         stocks = []
         for stock in initial_stocks:
@@ -678,7 +670,7 @@ class Policy2210xxx(Policy):
         # print('B Milp: ',B)
         print('MILP')
         x_bounds = [(0,None) for _ in range(len(c))]
-        optimal_result = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1)
+        optimal_result = linprog(c,A_ub=B,b_ub=S,A_eq=A,b_eq=D,bounds=x_bounds,method='highs',integrality=1,options={'presolve': False})
         # print("Optimal Result")
         print(optimal_result)
         if optimal_result.status == 0:
@@ -687,7 +679,7 @@ class Policy2210xxx(Policy):
             total_area = 0
             for pattern_idx,pattern in enumerate(patterns_converted):
                 pattern['quantity'] = patterns_quantity[pattern_idx]
-                # if pattern['quantity'] != 0: print(pattern)
+                if pattern['quantity'] != 0: print(pattern)
                 # if pattern['quantity'] != 0: total_area += self.list_stocks[pattern['stock_type']]['length'] * self.list_stocks[pattern['stock_type']]['width'] * pattern['quantity']
             prod_sum = 0
             for pattern in patterns_converted:
