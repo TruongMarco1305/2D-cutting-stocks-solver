@@ -1,29 +1,27 @@
-Date: October 24, 2024
-Time: 9:00 PM - 10:30 PM
-Location: Online Meeting
-Attendees: Full attendance
+Nguyễn Hữu Phúc(20%) - Trương Gia Kỳ Nam(20%) - Châu Anh Nhật(20%) - Trần Bảo Phúc Long(20%) - Nguyễn Thanh Hiếu(20%)
 
-Agenda Overview
+Contribution:
+Nguyễn Hữu Phúc - 2352938 - Modeling, Column generation theory
+Trương Gia Kỳ Nam - 2352787 - Implement Modeling, Column generation
+Trần Bảo Phúc Long - 2352703 - Implement Lazy Initialization, Pattern generation
+Châu Anh Nhật - 2352856 - Report consolidate, Case study
+Nguyễn Thanh Hiếu - 2352331 - Intro, acknowledge, Pseudo code
+--------------------------------------------
 
-	1.	Introduction to Git and Version Control
-	2.	Setting Up Git
-	3.	Basic Git Commands and Workflow
-	4.	Branching and Merging
-	5.	Collaborative Features in Git (Pull Requests and Conflict Resolution)
-	6.	Q&A Session
------
+29/10/2024, group spent 60 minutes attending a Git tutorial, learned essential commands and conventions, explored how to clone repositories, create branches using the -b flag, and understood the naming conventions for branch types. These included using feat for new features, fix for bug fixes, refactor for code formatting, and chore for commenting or non-code-related updates. Additionally, we practiced pushing changes by transitioning from unstaged changes to staged changes, and finally committing them.
 
-Date: November 10, 2024
-Time: 9:00 PM - 11:00 PM
-Location: Online Meeting
-Attendees: Full attendance
+10/11/2024, group dedicated 90 minutes to analyzing algorithms and deciding on the most suitable one for the solution. The chosen approaches included the lazy stock initialization heuristic, column generation, and pattern generation. During this session, we also finalized the acknowledgment section of the report.
 
-Agenda Overview
+17/11/2024, group spent 120 minutes learning about integer linear programming (ILP) and multi-integer linear programming (MILP) methods. Additionally, we reviewed the code related to the initial heuristics, ensuring that it aligned with our planned solution.
 
-	1.	Overview of 2D Cutting Stock Problem (2DCSP)
-	2.	Introduction to ILP Modeling and Simplex Method
-	3.	Discussion on Column Generation Approach
-	4.	RMP (Restricted Master Problem) and Dual Variable Explanation
-	5.	Subproblem Formulation in 2DCSP
-	6.	Example Run in Python
-	7.	Overview of the Gymnastics Library for Optimization
+27/11/2024, group dedicated another 160 minutes to building test cases and investigating a relevant case study, specifically the 2012 Furini report on two-dimensional cutting stock problems (2D CSP). We also focused on reviewing and fixing the column generation logic in the code, addressing any issues identified during the process.
+
+5/12/2024, we spent 120 minutes running test cases and rebuilding the code to be suitable for the new, updated library. This session involved debugging and ensuring that the new implementation worked effectively with the updated dependencies.
+
+10/12/2024, we worked for 180 minutes running test cases and fixing errors identified during the runs. Additionally, completed the theoretical sections, case study analysis, and algorithm review for inclusion in the report.
+
+11/12/2024, coding team and theory team optimize and debug all possible bugs.
+
+12/12/2024, run test case from the case study part and collecting data
+
+13/12/2024, group spent 90 minutes finishing the code and report, ensuring both were ready for submission.
