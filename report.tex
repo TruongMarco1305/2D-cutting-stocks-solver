@@ -3,11 +3,17 @@
 %\usepackage[english,vietnam]{babel}
 \usepackage[utf8]{inputenc}
 %\usepackage[utf8]{inputenc}
+\usepackage{tocloft}
+\usepackage{titlesec}
 %\usepackage[francais]{babel}
 \usepackage{a4wide,amssymb,epsfig,latexsym,array,hhline,fancyhdr}
 \usepackage[normalem]{ulem}
 %\usepackage{soul}
+\usepackage[noend]{algpseudocode} % Loại bỏ từ khóa 'end' để tiết kiệm không gian
+\usepackage{algpseudocode}
+\usepackage{pgffor}       % Để sử dụng vòng lặp \foreach
 \usepackage{listings}
+\usepackage{algorithm}
 \usepackage{colortbl}
 \usepackage[makeroom]{cancel}
 \usepackage{amsmath}
@@ -26,8 +32,10 @@
 \usepackage{graphicx}							% Standard graphics package
 \usepackage{array}
 \usepackage{tabularx, caption}
+\usepackage{placeins}
 \usepackage{multirow}
 \usepackage{multicol}
+\usepackage{float}
 \usepackage{rotating}
 \usepackage{graphics}
 \usepackage{geometry}
@@ -47,7 +55,7 @@
     citecolor=black,
     colorlinks=true,
     pdfpagemode=FullScreen,
-    pdftitle={The Travelling Salesman Problem},
+    pdftitle={Cutting Stock Problem},
 } 
 %\usepackage{pstcol} 								% PSTricks with the standard color package
 %\usepackage{background}
@@ -87,7 +95,7 @@
 		\tiny \bf 
 	\end{tabular}  }
 \fancyfoot{} % clear all footer fields
-\fancyfoot[L]{\scriptsize \ttfamily Truong Gia Ky Nam - 2352787}
+\fancyfoot[L]{\scriptsize \ttfamily Assignment for Mathematical Modeling - Academic year 2024 - 2025}
 \fancyfoot[R]{\scriptsize \ttfamily Page {\thepage}/\pageref{LastPage}}
 \renewcommand{\headrulewidth}{0.3pt}
 \renewcommand{\footrulewidth}{0.3pt}
@@ -127,80 +135,94 @@
 \setlength{\floatsep}{5pt plus 2pt minus 2pt}
 \setlength{\textfloatsep}{5pt plus 2pt minus 2pt}
 \setlength{\intextsep}{10pt plus 2pt minus 2pt}
-
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\DeclareUnicodeCharacter{2190}{\ensuremath{\leftarrow}} % Định nghĩa cho ←
+\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}    % Định nghĩa cho ≠
+\DeclareUnicodeCharacter{2212}{-}                    % Định nghĩa cho −
+\DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}     % Định nghĩa cho ≥
 \thesislayout
 
 
 
 \begin{document}
 \begin{titlepage}
-\begin{center}
-\textbf{\Large VIETNAM NATIONAL UNIVERSITY HO CHI MINH CITY} \\
+    \begin{center}
+        \textbf{\LARGE Vietnam National University, Ho Chi Minh City}\\
+        \vspace{5pt}
+        \textbf{\LARGE University of Technology}\\
+        \vspace{5pt}
+        \textbf{\LARGE Faculty of Computer Science and Engineering}\\
 
-\vspace{7pt}
-\textbf{\Large HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY} \\
+        \vspace{1cm}
 
-\vspace{7pt}
-\textbf{\Large FACULTY OF COMPUTER SCIENCE AND ENGINEERING}
-\end{center}
+        \includegraphics[width=3cm]{Images/hcmut.png}\\ % Replace with your image path
 
-\vspace{1cm}
-
-\begin{figure}[h!]
-\begin{center}
-\includegraphics[width=3cm]{Images/hcmut.png}
-\end{center}
-\end{figure}
-
-\vspace{1cm}
-
-
-\begin{center}
-\begin{tabular}{ccc}
-	\multicolumn{3}{l}{\textbf{{\Large \textcolor{blue}{MATHEMATICAL MODELING (CO2011)}}}}\\
-	~~\\
-	\arrayrulecolor{blue}\hline
-	\\
-	\multicolumn{3}{l}{\textbf{{\Large \textcolor{blue}{Assignment} }}}\\
-	\\
-	
-	\multicolumn{3}{c}{\textbf{{\Huge \textcolor{blue}{“Cutting Stock Problem”}}}}\\
-	\\
-    
-	\arrayrulecolor{blue}\hline \\ \\
-
-    \multicolumn{1}{r}{\textbf{\Large Instructors:}} & \multicolumn{2}{l}{\Large Nguyen Van Minh Man, \textit{Mahidol University}} \\ \\
-    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Le Hong Trang, \textit{CSE-HCMUT}} \\ \\
-
-    \\ \\
-
-    \multicolumn{1}{r}{\Large \textbf{Students:}} & \multicolumn{2}{l}{\Large Truong Gia Ky Nam - 2352787 (Group CC05 - Team 01)} \\ \\
-
-    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Nguyen Huu Phuc - 2352938 (Group CC05 - Team 01)} \\ \\
-
-    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Tran Bao Phuc Long - 2352703 (Group CC05 - Team 01)} \\ \\
-
-    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Nguyen Thanh Hieu - 2352331 (Group CC05 - Team 01)} \\ \\
-
-    \multicolumn{1}{r}{} & \multicolumn{2}{l}{\Large Chau Anh Nhat - 2352856 (Group CC05 - Team 01)} \\ \\
-
+        \vspace{1cm}
+        {\LARGE \textbf{MATHEMATICAL MODELING (CO2011)}}\\
+        \vspace{1cm}
+        \hrule
+        \vspace{1cm}
+        {\Large \text{Assignment (Semester: 241, Duration: 04 weeks)}} \\
+        \vspace{1cm}
+        {\Huge \textbf{“Cutting Stock Problem”}}\\
+        \vspace{1cm}
+        \hrule
+        \vspace{1cm}
+\begin{center} % Centering the entire table
+\begin{tabular}{@{}p{4cm}p{10cm}p{14cm}@{}}
+    \textbf{Instructor(s):} & Nguyen Van Minh Man, Mahidol University \\
+                            & Nguyen An Khuong, CSE-HCMUT \\
+                            & Le Hong Trang, CSE-HCMUT \\
+                            & Mai Xuan Toan, CSE-HCMUT \\
+                            & Tran Hong Tai, CSE-HCMUT \\
+                            & Nguyen Quang Duc, CSE-HCMUT \\
+    \\
+    \textbf{Student(s):}    & Nguyen Huu Phuc - 2352938 (Group CC05 - Team 03, \textbf{Leader}) \\
+                            & Tran Bao Phuc Long - 2352703 (Group CC05 - Team 03) \\
+                            & Nguyen Thanh Hieu - 2352331 (Group CC05 - Team 03) \\
+                            & Truong Gia Ky Nam - 2352787 (Group CC05 - Team 03) \\
+                            & Chau Anh Nhat - 2352856 (Group CC05 - Team 03)\\
 \end{tabular}
 \end{center}
+\vspace{1cm}
 
-\vspace{2cm}
+        \vfill
 
-\begin{center}
-{\textbf{\Large Ho Chi Minh City, November 2024}}
-\end{center}
+        \textbf{\Large Ho Chi Minh City, December 2024}
+    \end{center}
 \end{titlepage}
 
+
 \thispagestyle{empty}
-\setcounter{page}{-1}
+\setcounter{page}{-2}
 \newpage
 \begin{abstract}
-    \noindent     
-    The Cut Stock Problem (CSP) is a well optimization challenge in Operations Research and Industrial Engineering. It involves determining the most efficient way to cut smaller required lengths (orders) from a standard larger length (stock), with the goal of minimizing waste. This problem is prevalent in industries such as paper, steel, and textiles, where materials are manufactured in standard sizes and must be cut to meet specific customer demands. The complexity of CSP increases with the diversity of order sizes and the need to satisfy all demands exactly. Various approaches, including dynamic programming, column generation, and heuristic methods, have been proposed to address the problem. This report investigates the application of the Branch and Bound algorithm, a combinatorial optimization technique, to solve the CSP. The Branch and Bound method systematically explores the solution space by branching and applying bounding strategies to eliminate suboptimal solutions, thereby reducing the search space. The report also provides a detailed implementation of the algorithm and its performance analysis based on research findings.
+        
+    \noindent The Cuttting Stock Problem (CSP) is a well optimization challenge in Operations Research and Industrial Engineering. It involves minimizing the waste material while cutting raw stock sheets into smaller pieces to satisfy demand, a challenge commonly encountered in manufacturing and logistics industries.
+    
+    \vspace{0.4cm}
+    
+    \noindent  This report aims to present a novel approach for solving the 2D Cutting Stock Problem using lazy stock initialization and column generation techniques. The proposed method begins with an iterative lazy initialization of stock sheets, where stock is dynamically introduced into the solution process only when required, reducing the initial problem size and enhancing computational efficiency. A column generation framework is then employed to iteratively solve a restricted master problem (RMP) and a subproblem. The RMP determines the optimal combination of cutting patterns for the current stock configuration, while the subproblem generates new, cost-effective patterns using a knapsack-based optimization approach.
 \end{abstract}
+\setcounter{page}{-1}
+\newpage
+\subsection*{Member List \& Workload}
+\begin{center} % Dùng để căn giữa toàn bộ phần bảng
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{No.} & \textbf{Fullname} & \textbf{Student ID} & \textbf{Contributions} & \textbf{\% Done} \\ \hline
+1 & Nguyen Huu Phuc & 2352938 & Modeling, Column generation theory & 100\% \\ \hline
+2 & Truong Gia Ky Nam & 2352787 & Implement Modeling, Column generation & 100\% \\ \hline
+3 & Tran Phuc Bao Long & 2352703 & Implement Lazy Initialization, Pattern generation & 100\% \\ \hline
+4 & Chau Anh Nhat & 2352856 & Report consolidate, Case study & 100\% \\ \hline
+5 & Nguyen Thanh Hieu & 2352331 & Introduction, acknowledge, Pseudo code & 100\% \\ \hline
+\end{tabular}
+\end{table}
+\end{center} % Kết thúc căn giữa toàn bộ
 \newpage
 
 \setcounter{page}{0}
@@ -211,315 +233,948 @@
 
 %\thispagestyle{empty}
 \section{Introduction}
-This report aims to provide a comprehensive explaination of The Traveling Salemen Problem along with the Branch and Bound algorithm. By delving into the Branch and Bound algorithm and implement it using the C++ language, this report seek to highlights its effectiveness in solving one of the most challenging problems in optmization. 
-\section{The Traveling Salemen Problem}
-\subsection{Overview}
-The Travelling Salesman Problem, also known as The Travelling Salesperson Problem (TSP), asks the following question: \textit{``Given a list of cities and the distances between each pair of cities, what is the shortest possible route that visits each city exactly once and returns to the origin city?"} or in other words, the problem is: \textit{``Given a complete graph with weight edges, what is the Hamiltonian cycle of minimum cost?}. It is an NP-hard problem in combinatorial optimization, important in theoretical computer science and operations research.
-\subsection{Traveling Saleman Problem implementation}
-Although TSP is a problem in computer science, it has a wide range of applications in various fields:
-\begin{itemize}
-    \item \textbf{Logistics and Supply Chain Managment}: TSP can determine the most efficient routes for delivery transportation, reducing travel time and fuel consumption,which can help the companies to save lots of money.
-    \item \textbf{Manufacturing}: In manaufacturing processes involving CNC machines, TSP helps in determining the optimal path for tools, reducing the time and cost of production.
-    \item \textbf{Transportation}: TSP can help public transport such as buses or trains to minimize travel time and improve service efficiency.
-    \item \textbf{Telecommunications}: TSP is used in the design of efficient telecommunication networks, ensuring that the data transmission routes are optimized to reduce latency and cost.
-\end{itemize}
-By solving the TSP, we can address real-world challenges more effectively, leading to substantial economic, operational, and environmental benefits.
-\subsection{Traveling Saleman Problem solving methods}
-Throught out the history, many methods have been made to find the optimal solution for TSP:
-\begin{itemize}
-    \item \textbf{Brute-Force Search}: This is the straight-forward solution by computing all possible permutations of the cities until the shortest path is found.
-    \item \textbf{Nearest Neighbor Algorithms}: Start from the origin city, repeatedly visit the nearest unvisited city until all cities are visited.
-    \item \textbf{Held-Karp Algorithm}: This approach using dynamic programming to solve TSP. It is more efficient than brute force but still exponential.  
-    \item \textbf{Christofides's Algorithm}: This algorithm involves constructing a minimum spanning tree, finding a minimum matching, and combining these to form a tour. 
-    \item \textbf{Genetic Algorithms}:These use principles of natural selection and genetics to evolve a population of solutions over several generations, aiming to improve the quality of solutions.
-\end{itemize}
-And there are others algorithm and heuristics which can be used to solve TSP. Each method has its advantages and disadvantages, depending on the problem size, required solution quality, and computational resources. In my report, I will focusing on solving TSP using the \textbf{Branch and Bound} algorithm, a well used algorithm for optmization problems.   
-\section{Branch and Bound Algorithm}
-\subsection{Overview}
-Branch and bound is a method used in computer science to solve optimization problems. Branch and bound algorithms involves dividing the problem space into smaller sub-problems and applying constraints or bounds to eliminate certain sub-problems. This process continue until the optimal solution is found.
-\subsection{Applications of Branch and Bound}
-Beside solving TSP, Branch and Bound algorithm has many applications. It includes:
-\begin{itemize}
-    \item \textbf{Solving Knapsack Problem}: Branch and Bound is used to solve the Knapsack Problem, which involves finding the optimized combination of items to pack into a knapsack of limited capacity.
-    \item \textbf{Resource Allocation}: Branch and Bound is used to solve resource allocation problems, like scheduling work on machines or assigning work to workers. 
-    \item \textbf{Network Optimization}: Branch and bound is used to solve network optimization problems, it helps in finding the optimized path or flow through a network.
-    \item \textbf{Game Playing}: Branch and bound is used in some of the game-playing algorithms, like chess or tic-tac or 16 puzzle problem, to explore the various possible moves and find the optimized strategies.
-\end{itemize}
-\subsection{Advantages and Disadvantages}
-There are advantages when using this algorithms:
-\begin{itemize}
-    \item By pruning the search space using bounds, it can avoid exploring irrelevant sub-problems and find the optimal solution more quickly when compare to other algorithms.
-    \item There is a guarantees that the optimal solution will be found, as long as the bounds are computed correctly. This makes it a reliable algorithm for solving optimization problems.
-    \item Branch and bound can be applied to a wide range of optimization problems, including linear programming, integer programming, and combinatorial optimization problems.
-    \item  Branch and bound can be used to solve large-scale optimization problems, as it can be parallelized and distributed across multiple processors.
-\end{itemize}
-However, there are some drawbacks when using Branch and Bound algorithms
-\begin{itemize}
-    \item Branch and bound can be a complex algorithm to implement, as it requires careful design of the bounds and branching strategy.
-    \item The performance of branch and bound is highly dependent on the quality of the bounds used. If the bounds are too loose, the algorithm may explore too many irrelevant sub-problems, leading to poor performance.
-\end{itemize}
-Although there are still some drawbacks of Branch and Bound algorithm, but with carefully designation, these drawbacks can be removed.
-\section{Detailed Explanation of the Algorithm}
-To see the full source code, take a look at these files: \textit{tsm.cpp} and \textit{tsm.h}
-\subsection{Finding two minimum weight edges}
-The \textit{findTwoMin} function is designed to identify the two smallest weights of edges that terminate at every vertex in the graph. These 2 values are crucial for calculating the bound for different vertex in the current consider path.
-\subsubsection{Function Signature}
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Finding two minimum edges function having an end at every vertex 
-void findTwoMin(int G[20][20], int numCities, int firstMin[20], int secondMin[20]);
-\end{minted}
-This function take in parameters:
-\begin{itemize}
-    \item \textbf{int G[20][20]}: The adjacency matrix of the graph.
-    \item \textbf{int numCities}: The number of vertices on the graph. 
-    \item \textbf{int firstMin[20]}: An array to store the minimum edge weight for each vertex. In the array \textit{firstMin[i]} will store the smallest edge weight connected to node `i'. 
-    \item \textbf{int secondMin[20]}: An array to store the second minimum edge weight for each vertex. In the array, \textit{secondMin[i]} will store the second smallest edge weight connected to node `i'.
-\end{itemize}
-\subsubsection{Function Logic}
-First, initialize all of the first and second minimum weight of each vertex to be very large to ensure that all weights are smaller.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-for(int i = 0; i < numCities; i++){
-    firstMin[i] = 100000;
-    secondMin[i] = 100000;
+The Cutting Stock Problem (CSP) is a classic optimization challenge that arises in various industries. Introduced by P.C.Gilmore and R.E.Gomory in the 1960s, CSP has evolved significantly, impacting businesses such as manufacturing, textiles, and packaging, where material efficiency directly influences costs. The core objective of CSP is to determine how to cut larger stock materials into smaller items to meet demand while minimizing waste and maximizing the use of available resources. Due to its combinatorial nature and the exponential growth of potential solutions, the CSP is considered an NP-hard problem, requiring specialized algorithms and methods for practical solutions. 
+\subsection{Historical background and evolution}
+The initial work on the CSP focused on one-dimensional variants, where materials like paper rolls were cut into narrower strips. Gilmore and Gomory developed mathematical programming models and solution methodologies that laid the groundwork for modern research. Their approach utilized linear programming with column generation, which proved to be a significant step toward solving large-scale instances of the problem efficiently.
 
-    /*The other parts */
-}
-\end{minted}
-Next, loop through all possible connected edges ending at vertex `j' and update the `first' with smallest edge weight.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Find the first minimum value
-for(int j = 0; j < numCities; j++){
-    if(i == j) continue;
-    if(firstMin[i] >= G[i][j]) firstMin[i] = G[i][j];
-}
-\end{minted}
-After finding the minimum value, loop through all edges again, update the `second' variable with the smallest edge weight which is greater or equal than the `first' variable.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Find the second minimum value
-for(int j = 0; j < numCities; j++){
-    if(i == j) continue;
-    if(secondMin[i] >= G[i][j] && G[i][j] >= firstMin[i]) secondMin[i] = G[i][j];
-}
-\end{minted}
-\subsection{Exploration function}
-The \textit{branchAndBoundTSP} function implements the Brand and Bound algorithm to solve TSP. This function explores all possible paths from the from the current node, recursively building a search tree to find the optimal path with minimum cost.
-\subsubsection{Function Signature}
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-void branchAndBoundTSP(int G[20][20], int numCities, int (&currentPath)[21], int &currentBound, int currentCost
-, int level, bool (&visited)[20], int &finalCost, int (&finalPath)[21], int firstMin[20], int secondMin[20]);
-\end{minted}
-The function take in parameters:
+\vspace{0.4cm}
+
+\noindent Over time, research expanded to two-dimensional and multi-dimensional variants, which are more applicable to industries dealing with stocks of material rather than simple linear rolls. The Two-Dimensional Cutting Stock Problem (2D CSP) emerged as an important field of study, with methods being adapted to handle complexities related to layout, orientation, and multiple constraints.
+\subsection{Significance in Various Industries}
+The CSP holds great importance in industries that prioritize material efficiency and cost reduction. For instance:
 \begin{itemize}
-    \item \textbf{int G[20][20]}: The adjacency matrix of the graph.
-    \item \textbf{int numCities}: The number of vertices on the graph.
-    \item \textbf{int (\&currentPath[21])}: An array with size 21 representing the current path being explored.
-    \item \textbf{int \&currentBound}: The current lower bound of the cost for the path being explored.
-    \item \textbf{int currentCost}: The current weight of the path being explored.
-    \item \textbf{int level}: The current level in the search tree. 
-    \item \textbf{bool (\&visited)[20]}: A boolean array indicating whether a vertex has been visited or not.
-    \item \textbf{int \&finalCost}: The minimum cost found so far for finding the optimal path
-    \item \textbf{int (\&finalPath)[21]}: An array reprenting the path with the minimum cost found so far.
-    \item \textbf{int firstMin[20]}: An array storing the minimum weight edges for each vertex.
-    \item \textbf{int secondMin[20]}: An array storing the second minimum weight edges for each vertex.
+    \item \textbf{Manufacturing:}  Metalworking, glass cutting, and wood processing plants need to optimize their cutting patterns to minimize scrap and meet production quotas.
+    \item \textbf{Textiles:}  The fashion and upholstery sectors face challenges in cutting fabrics into specific shapes with minimal waste.
+    \item \textbf{Printing and Packaging:}  Paper manufacturers and packaging companies use CSP solutions to optimize the cutting of large stocks into smaller items for printed materials or packaging designs.
+    \item \textbf{Logistics and Construction:}  Industries that deal with materials like plastic or insulation stocks also benefit from optimized cutting stock solutions.
+An effective CSP solutions improve operational efficiency, lower material costs, and support sustainability initiatives by reducing waste.
 \end{itemize}
-\subsubsection{Function Logic}
-First, iterate through all vertices to explore all possible routes.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Iterate for all vertices to build the tree recursively
-for (int i = 0; i < numCities; i++)
-\end{minted}
-At each considered vertex, check if that vertex can be visited or not. Specifically, check if the next vertex `i' is not visited and there is an edge between the last vertex of the current path and the next vertex `i'.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Consider the next vertex 
-//if it is not visited 
-//and it connects to the last vertex within the current path
-if (G[currentPath[level - 1]][i] != 0 && visited[i] == false)
-\end{minted}
-Store the current bound in temporary variable for backtracking to explore other routes.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Using a temporary to store the current bound for backtracking
-int temp = currentBound;
-\end{minted}
-As the connected edge is found, add the weight of that edge to the current path's cost.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Add the weight of the consider edges to the current path's cost
-currentCost += G[currentPath[level - 1]][i];
-\end{minted}
-Also, reduce the current bound based on the two minimum weight edges for the current and next vertices. 
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Different computation for level 1 from others
-if(level == 1){
-    currentBound -= (firstMin[currentPath[level - 1]] + firstMin[i])/2;
-} else {
-    currentBound -= (secondMin[currentPath[level - 1]] + firstMin[i])/2;
-}
-\end{minted}
-There is a different in calculation between level 1 and the others level. At the initial level of the search tree, the current bound subtract the average of the smallest edge costs connected to the starting node and the next node `i'. But in the others level, as the minimum weight has been used in the previous level, now the the current bound have to subtract the average of the second smallest edge of the current node and the smallest edge of the next node. \\ \\
-Now the actual lower bound is the sum of the current bound and the current cost. Check that bound is less than the minimum cost found so far or not.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Check if the actual lower bound smaller than the minimum cost, explore the node further
-if (currentBound + currentCost < finalCost)
-\end{minted}    
-If so, update the current path and mark the vertex as visited, then recursively call the function to explore this node further
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Add the current node to the current path
-currentPath[level] = i;
-visited[i] = true;
+\subsection{Mathematical Models Used in CSP}
+Over the years, various mathematical models have been developed to represent and solve the CSP. These models differ based on the nature of the problem (e.g., one-dimensional or multi-dimensional) and the complexity of constraints involved. Some of the common models include:
+\begin{itemize}
+    \item \textbf{Linear Programming (LP) and Integer Linear Programming (ILP):}  Core methods for exact solutions, employing column generation to optimize cutting patterns by solving sub-problems iteratively.
+    \item \textbf{Knapsack-Based Models:} Represent CSP as an extension of the knapsack problem, focusing on maximizing the use of stock material within capacity limits.
+    \item \textbf{Mixed-Integer Programming (MIP):}  Used for problems with additional constraints, such as minimizing the number of distinct cutting patterns or incorporating production costs.
+    \item \textbf{Greedy Heuristics and Constructive Methods:}  These offer quick, practical solutions, generating an initial arrangement that can be refined using more advanced optimization methods. Common examples include First-Fit Decreasing (FFD) and Best-Fit Decreasing (BFD) heuristics.
+\end{itemize}
 
-//Continue to explore recursively
-branchAndBoundTSP(G, numCities, currentPath, currentBound, currentCost, level + 1, visited, finalCost, finalPath);
+\subsection{Goal}
+The 2-dimensional cutting stock problem (2D CSP)  is a type of optimization problem where the goal is to cut smaller rectangular items from larger rectangular stocks of material in a way that minimizes the area of used stocks if a fixed number of stocks are used. It is commonly encountered in manufacturing and production industries where efficient material usage is essential for cost savings.
+
+\section{Acknowledge}
+\subsection{Categorizing the Problem}
+The 2-dimensional cutting stock problem can be differentiate into many kinds of problem based on these factors:
+
+\begin{itemize}
+    \item \textbf{Types of Cutting Patterns:}
+    \begin{itemize}
+    \item \textbf{Guillotine Cuts:} Each cut must go from one edge of the material to the other, simplifying the cutting process. Guillotine cutting is often preferred because it's easier to automate and more practical in large-scale manufacturing.
+    \item \textbf{Non-Guillotine Cuts:} Cuts don’t have to span the entire length or width, which can lead to more efficient use of material but is usually harder to implement due to increased cutting complexity.
+\end{itemize}
+\item \textbf{Types of Stocks:}
+The problem includes one or multiple types of stocks, each with either a finite limit on the quantity or an infinite limit.
+\item \textbf{Orientation Constraints:}
+The stock items can be freely rotated in any directions or must remain in a specific orientation depends on the stock's properties
+\item \textbf{Shape of Stock:} The stock can be rectangle, which will be easy to solve and cut or it can have arbitrary shapes which requires a more complex approach to solve
+
+\item \textbf{Common problems:} Based on the final goal of the problem, we can create many variation of this problem. We mainly deal with these 4 types:
+\begin{itemize}
+    \item \textbf{2-dimensional strip packing problem:} Given a single stock B with fixed width W and infinite height, this problem's demand is to fit a packing of items that use minimal height.
+    \item \textbf{2-dimensional knapsack problem:} Given a value V to each item in our stock S, each item's value can be different, the goal is to fit the most items of S in a single stock B that have the highest sum of value.
+    \item \textbf{2-dimensional stock stacking problem:} We have an infinite amount of identical stock B that have height H and width W along with a finite amount of item called set I. This problem wants us to divide set I into minimum subsets such that each subset can be put inside a stock B, this can be rewritten as this problem wants us to use the least number of stock B to put all of set I's items inside.
+    \item \textbf{2-dimensional orthogonal packing problem:} This problem simply asks if there is a pattern to pack a given set of items I into a single stock B or a set of stock B. 
+\end{itemize}
+
+\end{itemize}
+
+
+\subsection{Main Problem Definition}
+\begin{itemize}
+    \item \textbf{Input Stock Material:} You start with a set of multi-sized stocks for each stock there is limit for quantity, which serves as the stock from which smaller items are cut. In this report, we consider 2 stages guillotine cut and we allow trimming ( a third stage cut can be used to separate a rectangle from a waste area ) 
+    \item \textbf{Demanded Items:} There’s a set of smaller item, each with specific size and demand (rotation is allowed), that must be cut from the stocks.
+    \item \textbf{Goal: }The objective is to cut the demanded items from the stock in a way that minimizes the area of used stocks if a fixed number of stocks are used.
+\end{itemize}
+
+
+
+\subsection{Types of Constraints}
+Several constraints typically govern the solution:
+    \begin{itemize}
+    
+    \item \textbf{Constraint for the demand of each item type:} Each item demanded must be produced in the required quantity.
+
+    
+    \item \textbf{Constraints for the quantity of each stock type:} Do not use over the limit of the quantity of each stock type 
+\end{itemize}
+
+\subsection{Difficulties in Solving 2D CSP}
+\begin{itemize}
+        \item The items have different dimensions, some long and narrow, others square or almost square. This variety complicates the arrangement, as items cannot easily “tessellate” or fit together like a puzzle without leaving gaps.
+        \item Large items reduce flexibility in the arrangement, limiting the space left for smaller items.
+        \item The items cannot overlap on the stock; each item must occupy a unique position.
+        \item Since the stock is a fixed size, there's a risk of not fitting all items if the layout isn’t planned carefully.
+        \item In some configurations, certain items might not fit, forcing the need to use additional stocks
+\end{itemize}
+
+\subsection{Real-World Difficulties in Solving 2D CSP}
+\begin{itemize}
+    \item \textbf{Computational Complexity:} Finding the optimal layout among all possible arrangements is computationally intensive, especially with larger stocks and a wide variety of parts.
+    \item \textbf{Material Costs:} High-value materials add pressure to reduce waste as much as possible. An inefficient layout could significantly increase material costs.
+    \item \textbf{Production Flexibility:} Factories often handle multiple types of materials and need to switch between layouts quickly. This flexibility is hard to balance with the need for material efficiency.
+    \item \textbf{Cutting Constraints:} Certain materials or machines may have cutting constraints (minimum cut width, grain direction for wood or textiles), which restrict how items can be oriented and add further complexity.
+    \item \textbf{Time constraints:} Low time budget might prevent global optimization methods, so near-optimal or heuristic approaches are often required, risking suboptimal results.
+\end{itemize}
+
+\subsection{General Solutions }
+\begin{itemize}
+    \item \textbf{Exact Finding Methods:} Linear Programming(LP), Mixed-Integer Linear Programming (MILP)
+    \item \textbf{Heuristics and Metaheuristics Methods:} Greedy algorithms, First Fit and Best Fit strategies, Genetics algorithms, simulated annealing and tabu search
+    \item \textbf{Hybrid Approaches:} Combining heuristics and optimization and decomposition techniques
+\end{itemize}
+\section{Algorithm} 
+\subsection{Lazy Initialization}
+The lazy stock initialization heuristic in the 2-dimensional cutting stock problem is a strategy that defers the evaluation of item combinations and strip configurations until they are needed during the optimization process. Instead of precomputing all possible item placements for each strip, the algorithm dynamically evaluates configurations only when required, reducing computational overhead and memory usage. This approach allows the algorithm to focus on the most promising item combinations, initializing and placing items as necessary based on the current iteration. As strips are filled, leftover space is addressed by lazily evaluating potential fits for additional items. While this heuristic helps save resources and provides flexibility, it may lead to increased runtime when a deferred configuration is eventually needed and can complicate implementation due to the need to manage on-the-fly evaluations. Overall, lazy stock initialization improves scalability and adaptability in solving large-scale cutting stock problems.
+
+
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos, breaklines=true]{python}
+Initialization
+    Define bucket_size = 10 // This means each bucket will cover a size range of 10 units of stock_w and stock_h
+    Create empty dictionary stock_buckets = {} // Key in bucket is the bucket ranges
+    Set best_stock_idx = -1, best_position = None, best_prod_size = [0,0]
+    Sort items in descending order of area on the first time running // Sort stock in ascending order of area (optional)
+Group stock into buckets:
+    For each stock:
+        Calculate bucket key = dimensions // bucket_size
+            Assign stock to appropriate bucket
+Iteration
+    For each item:
+        If item quantity > 0:
+            Get size of item
+            Set minimum_waste_percent = inf
+            For each candidate stock: // From the grouped buckets, retrieve stocks that are large enough to potentially fit the item using keys
+                Check if item can be placed in the stock by iterate through position in the stock
+                    If can, calculate the waste percentage as the unused area in the stock
+                    Update the best_stock_idx, position and prod_size if has lower waste_percentage
+Return result
+    If suitable placement is found:
+        Reduce the quantity by 1
+        Return prod_idx, stock_idx and position
+    Else
+        Return stock_idx = -1, size = [0, 0], position = None
 \end{minted}
-If the exploration can not proceed further, reset the current cost and bound and update the visited array to backtrack and explore other possible paths.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Else prune the node by resetting all change to current cost and current bound
-//Or if the exploration success, backtracking to explore other solutions  
-currentCost -= G[currentPath[level - 1]][i];
-currentBound = temp;
 
-//Reset the visited array
-for (int i = 0; i < numCities + 1; i++)
-{
-    visited[i] = false;
-}
+\noindent\textbf{Advantages:} 
+\begin{itemize}
+        \item \textbf{Reduced Initial Overhead:} By not precomputing all product layouts in advance, the algorithm decreases upfront computational time and resource consumption.
+        \item \textbf{Lower Memory Usage:} Since it avoids storing all potential configurations, the approach conserves memory, which is especially beneficial for large-scale problems.
+        \item \textbf{Focus on Promising Configurations:} The method only evaluates configurations when needed, allowing it to concentrate on those most likely to improve the solution.
+        \item \textbf{Flexibility:} As the solution space evolves, the algorithm can adaptively evaluate new item placements without being constrained by predetermined layouts.
+        \item \textbf{Scalability:} By reducing initial computation and memory demands, the method can handle larger problem instances more efficiently.
+    \end{itemize}
 
-for (int j = 0; j <= level - 1; j++)
-{
-    visited[currentPath[j]] = true;
-}
+\vspace{0.35cm}
+
+\noindent\textbf{Disadvantages:}
+\begin{itemize}
+        \item \textbf{Potential Increased Runtime on Demand:} Delaying the evaluation of certain configurations may lead to longer runtimes when these configurations are eventually required.
+        \item \textbf{Implementation Complexity:} Managing on-the-fly evaluation of configurations is more intricate, increasing the complexity of coding and maintenance.
+        \item \textbf{Uncertain Runtime Behavior:} Because configurations are evaluated as needed, predicting the overall runtime is more challenging.
+        \item \textbf{Need for Effective Search Strategies:} To realize the full benefits of lazy evaluation, the search strategy must be well-designed to avoid excessive deferred computations.
+    \end{itemize}
+
+\subsection{Column Generation}
+Column generation is a precise and iterative optimization technique specifically designed to solve the cutting stock problem efficiently, particularly when the master problem is exponentially large. The process begins by establishing a restricted master problem (RMP), which includes only a manageable subset of patterns derived from initial heuristic methods to avoid the complexity of the full exponential master problem. This RMP is then solved as a linear programming problem to obtain a fractional solution. The dual variables from this solution are used to identify new patterns with negative reduced costs by solving a two-dimensional knapsack problem for each stock class, ensuring that only the most promising patterns are considered. In particular, the algorithm takes all patterns with negative reduced costs, ensuring comprehensive inclusion of beneficial configurations. Once these new patterns are generated, they are added to the RMP, and the master problem is re-optimized. This cycle of solving the RMP, generating new patterns using the dual variables, and re-optimizing continues iteratively. The algorithm terminates when no additional patterns with negative reduced costs can be found, indicating that the optimal solution to the cutting stock problem has been reached. By restricting the master problem to a subset of patterns and systematically expanding it with beneficial patterns, column generation effectively manages the exponential complexity, ensuring an exact and optimal solution.
+\vspace{0.25cm}
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos, breaklines=true]{python}
+Input:
+    items, demands, stocks
+
+Output:
+    optimal_patterns, total_stocks_used
+
+Initialization
+    patterns <- generate_initial_patterns(items, stocks)  # Generate feasible initial patterns
+    RMP <- setup_rmp(patterns, demands)  # Set up restricted master problem (RMP)
+    dual_prices <- []  # Initialize dual prices list
+
+Solve RMP using column generation
+    while True:
+        solve_linear_program(RMP)  # Solve linear relaxation of RMP
+        dual_prices <- extract_dual_prices(RMP)  # Get dual prices from solved RMP
+    
+        # Generate new patterns using dual prices
+        new_patterns <- solve_knapsack(items, stocks, dual_prices)  # Solve knapsack problem
+        if reduced_cost(new_patterns, dual_prices) is greater than or equal to 0:  # Check if new pattern improves solution
+            break  # Stop if no new patterns can improve the objective
+        add_patterns_to_rmp(RMP, new_patterns)  # Add new patterns to RMP if improvement is possible
+    
+    Extract Final Solution by solving RMP as an integer linear program
+    final_solution <- solve_integer_linear_program(RMP)
+
+Format Output
+    optimal_patterns <- []  # Initialize list to store optimal patterns
+    total_stocks_used <- 0  # Initialize counter for total stocks used
+    for pattern in final_solution:  # Iterate over final solution patterns
+        if pattern.usage > 0:  # Only include patterns used in the solution
+            optimal_stocks.append(pattern)  # Add pattern to optimal stocks
+            total_stocks_used += pattern.usage  # Accumulate total usage
+
+Return Result
+    print(total_stocks_used)  # Optionally print the result for user reference
+    return optimal_patterns  # Return list of optimal stocks
 \end{minted}
-When all vertices have been visited, the function checks if the current explore path is less than the minimum cost found so far. If so, updates the final path and continue to explore other possible routes.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Base case: When the search tree has reached the level N
-//which mean the algorithm has covered all nodes
-if (level == numCities)
-{
-    //Check if there is a path from last vertex in the current path to the start vertex
-    if (G[currentPath[level - 1]][currentPath[0]] != 0)
-    {
-        //The total weight of the current path
-        int currentResult = currentCost + G[currentPath[level - 1]][currentPath[0]];
+\noindent\textbf{Subproblems in column generation:} 
+\begin{itemize}
+    \item \textbf{Initial heuristics:} This technique provides a straightforward method for generating feasible solutions to the two-dimensional cutting stock problem. One widely used heuristic is the strip packing approach, where items are sorted by dimensions (width and length) and then packed into strips that align with guillotine cutting constraints. In this process:
+\begin{itemize}     
+    \item Items are first sorted in descending order by width, and ties are broken by length.     
+    \item Strips are created to fit as many items as possible without exceeding the dimensions of the stock.      
+    \item A greedy filling approach is used to fill any remaining space in the strips with smaller items. 
+        
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos, breaklines=true]{cpp}
+For each item class in item set
+	Create a rotated version of that class with the same quantity
+	Insert it to the item class set
 
-        //Update the final cost and final path
-        //if the current path is more optimal
-        if (currentResult < finalCost)
-        {
-            //Make the current path is the final path
-            for (int i = 0; i < numCities; i++)
-            {
-                finalPath[i] = currentPath[i];
-            }
-            finalPath[numCities] = currentPath[0];
-            finalCost = currentResult;
-        }
+Sort the new items set by height then by width (descending)
+
+For each item class in item set:
+	While item demand is not meet:
+		Find the smallest stock class that a single stock can fit all or the most of item
+		Insert item to stock by the following predefined order
+		While remaining stock height is available:
+			Initialize a strip with height equal to height of the first inserted item
+			Fill the strip with items that have the class of the first item
+			When no additional item of that class can fit, look for other item class that can fill in the remaining space until no item can be inserted.
+\end{minted}
+\end{itemize}
+
+\item \textbf{Pattern Generation (Knapsack problem): }
+We introduce a heuristic pattern generation, which does not guarantee exact optimality but provide efficiency in solving large problems (increasing by type of stock and item). This algorithm for pattern generation in solving the 2-dimensional cutting stock problem involves several key steps:
+\begin{itemize}
+    \item Determine the possible strip layouts based on the item types, considering both the original and rotated orientations of each item.
+    \item Evaluate how many items of each item type can fit into each strip, ensuring minimal waste.
+    \item After the initial item allocation, optimize the strip’s capacity by:
+    \begin{itemize}
+        \item Checking for leftover space.
+        \item Attempting to fill leftover space with additional items from other item types.
+        \item Exploring all feasible combinations for filling.
+    \end{itemize}
+    \item Store these valid configurations in a ``strip list'' for later evaluation.
+    \item Calculate the total profit for each combination using the profit margins of the items.
+    \item Check if the combination meets the demand for the required number of items.
+    \item Identify and return the most profitable configuration that satisfies the demand and is feasible.
+    
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos, breaklines=true]{cpp}
+Input
+    dual_prods, stock_type
+
+Output
+    max_result
+
+Initialize
+    init_list <- []
+    top = 6
+    stock_w, stock_h <- stock_type.width, stock_type.height
+    item_dims <- extract_dimensions(items)
+
+Generate Strips
+    for height in item_dims.heights:
+        if height > stock_h: continue
+        counts <- [stock_w // w for w in item_dims.widths if w ≤ stock_w and height ≤ height]
+        init_list.append({height, counts})
+
+Sort Items
+    sorted_items <- sort(clone(items), dual_prods, descending=True)
+
+Process Strips
+    strip_list <- []
+    for strip in init_list:
+	for each prod_type in strip:
+	    Divide into n array for n item
+	    prod[i] = itemCount[i], else = 0
+            for item in sorted_items:
+                if can_fit(strip, item):
+                    place_item (strip, item)
+            strip_list.append(strip)
+
+Create matrices for optimization
+    top_strips, h_strips, h_stock, min_array <- [], [], [], []
+    for height in item_dims.heights:
+    	current_strips <- strips height == height
+	sort current_strips by profit
+	for strip in top 6 current_strips by profit:
+	    top_strips.append(top 6 of current strips) 
+	    h_strips = strip height
+	    h_stock = stock_height
+	    min_array = max number of strip can use
+MILP
+    Pass top_strips, h_strips, h_stock and min_array for milp solving
+    Return pattern of strips
+    Combine into stock
+    return pattern.
+
+Return
+    print(max_profit)
+    return max_result
+\end{minted}
+\end{itemize}
+\end{itemize}
+
+\vspace{0.25cm}
+
+\subsubsection*{Advantages:}
+\begin{itemize}
+    \item \textbf{Reduced Computational Complexity:} Heuristic column generation focuses on generating patterns through approximate methods rather than solving the exact knapsack problem for each stock class. This significantly reduces computational time and resources, making it suitable for large-scale problems.
+    \item \textbf{Scalability:} By simplifying the subproblem and focusing on heuristic techniques, the approach can handle problems with large numbers of variables or stock classes that would be computationally expensive to solve exactly.
+    \item \textbf{Faster Convergence:} Heuristics often produce good patterns quickly, allowing the algorithm to progress without spending excessive time finding the mathematically optimal pattern at every iteration.
+    \item \textbf{Flexibility in Implementation:} Heuristic methods can be tailored to specific problem structures, leveraging domain knowledge to generate patterns efficiently.
+    \item \textbf{Practical Solutions:} Heuristic column generation often provides near-optimal solutions that are satisfactory for practical applications, especially when slight deviations from optimality are acceptable.
+\end{itemize}
+
+\subsubsection*{Disadvantages:}
+\begin{itemize}
+    \item \textbf{Suboptimal Solutions:} Since heuristics do not guarantee optimality, the final solution may not be the true optimal solution to the cutting stock problem.
+    \item \textbf{Dependence on Heuristic Quality:} The effectiveness of the approach depends heavily on the quality of the heuristics used for generating patterns. Poorly designed heuristics can lead to slow convergence or exclude beneficial patterns.
+    \item \textbf{Potential for Missed Patterns:} Heuristics may fail to identify certain promising patterns with negative reduced costs, leading to a less comprehensive exploration of the solution space.
+    \item \textbf{Less General Applicability:} Heuristic column generation techniques may need significant adaptation for different problem instances or constraints, limiting their generalizability.
+    \item \textbf{Difficulty in Assessing Optimality:} Since heuristic methods do not guarantee finding all patterns with negative reduced costs, it may be challenging to determine when the solution is close enough to the true optimal solution.
+\end{itemize}
+
+\section{Modeling}
+The two-dimensional Cutting Stock Problem involves cutting a specified quantity of various stock materials into desired items in a manner that satisfies all demand requirements while minimizing the total area of stocks utilized. This optimization ensures efficient use of resources and reduces material waste in the manufacturing process.
+
+\vspace{0.4cm}
+
+\noindent Formally, we are given \( m \) classes of rectangular items, each item class \( i \) (\( i = 1, \dots, m \)) having a demand \( D_i \), and \( n \) classes of rectangular stocks, each stock class \( j \) (\( j = 1, \dots, n \)) having an limited number of copies. Each item of class \( i \) (\( i = 1, \dots, m \)) has dimensions \( (l_i, w_i) \), where \( l_i \) and \( w_i \) are, respectively, the length and the width of the item (orthogonal rotation is allowed). In this context, we consider "=" because of the exact demand the problem requiring (instead of "\(\geq\)", which is appropriate in real-life as the item may exceed the demand leading to minimizing trim loss and raising profit). Each stock of class \( j \) (\( j = 1, \dots, n \)) has dimensions \( (L_j, W_j) \), where \( L_j \) and \( W_j \) are, respectively, the length and the width of the stock. All the input data are assumed to have positive integer values. We define the cutting patterns (simply denoted as patterns in the following) to obtain all the requested items in the specified demand by minimizing the total area of the used stocks.
+
+\vspace{0.1cm}
+
+\noindent We model the problem as a linear programming formulation as follows:
+
+\begin{align}
+\text{Min} \quad & \sum_{j=1}^{n} \sum_{p_j \in P_j} c_{p_j} \cdot x_{p_j}\\
+\text{Subject to} \quad & \sum_{j=1}^{m} \sum_{p_j \in P_j} C_{p_j}^i \cdot x_{p_j} = D_i \quad ( i = 1, 2, ..., m) \\ 
+& \sum_{p_j \in P_j} x_{p_j} \le S_j \quad ( j = 1, 2, ..., n) \\ 
+& x_{p_j} \in \mathbb{Z}^+ \quad ( j = 1, 2, ..., n, p_j \in P_j )
+\end{align}
+
+
+\textbf{List of Symbols:}
+\begin{center}
+\begin{tabularx}{0.85\textwidth}{@{} l X @{}}
+    \textbf{$x_{p_j}$} & Number of pattern \(p_j\) used \\
+    \addlinespace[0.2em]
+    \textbf{$c_j$} & Cost of each pattern \(p_j\) (known as the area of the stock that pattern \(p_j\) uses) \\
+    \addlinespace[0.2em]
+    \textbf{$P_j$} & Set of possible patterns (set of \(p_j\)) of stock \(j\) \\
+    \addlinespace[0.2em]
+    \textbf{$C_{p_j}^i$} & Number of item class \(i\) in pattern \(p_j\) \\
+    \addlinespace[0.2em]
+    \textbf{$S_j$} & Number of available stocks of stock type \(j\) \\ 
+    \addlinespace[0.5em]
+    \textbf{(1) Objective function:} & Minimize the area of stock used \\
+    \addlinespace[0.2em]
+    \textbf{(2) Demand constraint:} & Ensure that the required quantities for each class item are fully met \\
+    \addlinespace[0.2em]
+    \textbf{(3) Stock availability constraint:} & Ensure the use of stocks does not exceed its type stock limit \\
+    \addlinespace[0.2em]
+    \textbf{(4) Integrality constraint}: & All values of \(x_{p_j}\) must be positive integers \\
+\end{tabularx}
+\end{center}
+
+\FloatBarrier
+
+\noindent By dropping the integrality requirement for the variables, imposed by constraints (4), we obtain the Linear Programming (LP) Relaxation of model (1)–(4) defined by (1), (2), (3) and:
+\begin{align}
+    x_{p_j} \ge 0 \quad ( j = 1, 2, ..., n, p_j \in P_j )
+\end{align}
+ Model (1), (2), (3) and (5), called \textbf{Master Problem (MP)}(or the primal problem), needs column generation techniques to be efficiently managed. It has exponentially many variables, which cannot be explicitly generated for large-size instances. Instead of the original Master Problem, a \textbf{Restricted Master Problem (RMP)} is considered which is initialized and solved with a subset of the exponentially many variables \(x_{p_j}\) ; \(p_j\) \( \in \) \(P_j\); j = 1;...;n. In particular, RMP is initialized with the variables (columns) corresponding to a feasible solution computed through the initial heuristic algorithm. Given a solution to RMP, new variables, needed to optimally solve MP, are obtained by separating the following dual constraints from the dual problem below:
+\begin{align}
+\text{Max} \quad & \sum_{i=1}^{m} D_i \alpha_i + \sum_{j=1}^{n} S_j \beta_j \\
+\text{Subject to} \quad & \sum_{i=1}^{m} C_{p_j}^i \alpha_i + \beta_j \le c_{p_j} \quad \text{for each pattern } p_j \\
+& \alpha_i, \beta_j \ge 0
+\end{align}
+
+\textbf{List of Symbols:}
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Điều chỉnh khoảng cách dòng
+    \setlength{\tabcolsep}{66pt} % Tăng khoảng cách giữa các cột từ 6pt lên 12pt
+    \begin{tabularx}{1.2\textwidth}{l X} % Loại bỏ @{} để có khoảng cách mặc định bên trái và bên phải
+        \textbf{$\alpha_i$} & Dual variable for demand constraint \\
+        \textbf{$\beta_j$} & Dual variable for stock availability constraint \\
+    \end{tabularx}
+    \label{tab:list_of_symbols}
+\end{table}
+
+
+\textbf{Reduced cost for each pattern \(p_j\) : }
+\begin{align}
+& r_p = c_{p_j} - \left( \sum_{i=1}^{m} C_{p_j}^i \alpha_i + \beta_j \right)
+\end{align}
+In order to generate new pattern (column) for optimizing the problem or to check optimality, we need to solve a Knapsack problem ( pricing problem ) to determine new pattern, which reduced cost < 0, to put in RMP. If there is no negative reduced cost then the problem has reached optimality and need to solve for integrality solution. Below is the formulation for the Knapsack problem:
+
+\begin{align}
+\text{Max} \quad & \sum_{i=1}^{m} C_{p_j}^i \alpha_i \\
+\text{Subject to} \quad & \sum_{i=1}^{m} c_i C_{p_j}^i \le c_{p_j} \\
+& C_{p_j}^i \le D_i  \quad (i = 1, 2, 3, ..., m) \\
+& C_{p_j}^i \in \mathbb{Z}^+
+\end{align}
+\textbf{List of Symbols:}
+\begin{center}
+\begin{tabularx}{0.85\textwidth}{l X}
+    \textbf{$c_i$} & Cost of each class \(i\) item (known as the area of item class \(i\)) \\
+    \addlinespace[0.2em]
+    \textbf{(10) Objective function:} & Maximize the profit of the pattern for a specific type of stock \\
+    \addlinespace[0.2em]
+    \textbf{(11) Size constraint:} & The area of items in stock must not exceed the stock size \\
+    \addlinespace[0.2em]
+    \textbf{(12) Demand constraint:} & The number of items for each class in stock must not exceed their demand \\
+    \addlinespace[0.2em]
+    \textbf{(13) Integrality constraint}: & All values of \(C_{p_j}^i\) must be positive integers \\
+\end{tabularx}
+\end{center}
+
+\subsection*{Summary for Modeling}
+To solve to optimality MP given by model (1), (2), (3) and (5), a classical column generation scheme is applied. In detail, RMP is initialized with the columns corresponding to a heuristic solution. Then the current RMP is solved to optimality, thus obtaining a vector of dual variables \(\alpha^*\) . A Knapsack problem SP is defined for every stock class j (j = 1, . . . , n). Then the Knapsack problem are solved with pattern generation scheme and new columns with negative reduced cost are added to current RMP. If no column with negative reduced cost is found, the current solution ( possibly fractional ) of RMP is optimal for MP. Finally, we solve the MILP model to obtain integer solution
+\section{Analyze Result}
+To evaluate our model, the initial cutting plans were carried out using the standalone software \href{https://www.opticutter.com/}{optiCutter} and \href{https://www.cutlistoptimizer.com/}{CutList Optimizer}. Notably, optiCutter is limited to a maximum of 5 stock types. Additionally, in the comparison section below, we include a comparison with initial patterns used in column generation to demonstrate the optimization achieved by our approach. These same cutting plans were then implemented using our model to compare its level of effectiveness.
+\subsection{General Assessment}
+This report will be evaluate by these indexes : 
+\begin{itemize}
+    \item \textbf{Stock Area Used: } is the cumulative area of raw material stocks employed to fulfill the cutting requirements in the 2D Cutting Stock Problem
+    \item \textbf{Area Filled Ratio:}  is the ratio of the Stock Area Used to the Total Stock Area, indicating how much of the available material is successfully employed in the cutting process.
+     \[
+    \textit{Area Filled Ratio} = \frac{\textit{Stock Area Used}}{\textit{Total Stock Area}}
+    \]
+    \item \textbf{Filled Ratio:} is the ratio of the number of stocks used to the total number of stocks, indicating the proportion of available stocks that are successfully utilized in the process.
+    \[
+    \textit{Filled Ratio} = \frac{\textit{Number of Stocks Used}}{\textit{Total Number of Stocks}}
+    \]
+    \item \textbf{Trim Loss:} is the average ratio of the unused area to the total area of each stock after cutting the required items. It indicates how much material is wasted during the cutting process, with a lower trim loss representing higher material efficiency.
+    \[
+    \textit{Trim Loss} = \frac{1}{n} \sum_{i=1}^{n} \frac{\textit{Stock Area}_i - \textit{Items Area on Stock}_i}{\textit{Stock Area}_i}
+    \]
+    \begin{flushright}
+        \centering
+        \footnotesize{Note: \( n \) is the number of used stocks.}
+    \end{flushright}
+\item \textbf{Time:} is the average computational duration needed to solve the 2D Cutting Stock Problem across all problem instances. It provides an indicator of the algorithm’s performance, where a lower time signifies a more efficient and faster-solving method. Time represents only the time required for computation and does not include the time taken to render the image.
+\end{itemize}
+Below, we present the average evaluation results based on 100 runs of randomized test cases with seed run from 0 to 99
+
+ \begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \textbf{} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
+            \textbf{Area Filled Ratio} & 0.205 & 0.132 & 0.187 \\ \hline
+            \textbf{Filled Ratio} & 0.203 & 0.127 & 0.182 \\ \hline
+            \textbf{Trim Loss}  & 0.309 & 0.109 & 0.213 \\ \hline
+            \textbf{Time} & 17.563 & 32.020 & 9.248 \\ \hline
+        \end{tabular}
+\end{table}
+\FloatBarrier
+\subsection{Case Study}
+
+\subsubsection{Case Study 1}
+
+\subsubsection*{Scenario}
+Factory \textbf{X} manufactures a wide array of plastic components and employs five different stock types to cater to various product dimensions.
+
+\subsubsection*{Available Stock}
+\begin{table}[H]
+    \centering
+    \caption{Available Stock for Factory X}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Stock Type} & \textbf{Quantity} & \textbf{Width (cm)} & \textbf{Length (cm)} \\ \hline
+        1 & 20 & 53 & 56  \\ \hline
+        2 & 20 & 52 & 59  \\ \hline
+        3 & 20 & 55 & 81  \\ \hline
+        4 & 20 & 68 & 78  \\ \hline
+        5 & 20 & 73 & 62  \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsubsection*{Product Requirements}
+\begin{table}[H]
+    \centering
+    \caption{Product Requirements for Factory X}
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Product Size (cm)} & \textbf{Quantity Required} \\ \hline
+        11 × 14 & 50 \\ \hline
+        18 × 2 & 51 \\ \hline
+        39 × 14 & 52 \\ \hline
+    \end{tabular}
+\end{table}
+\subsubsection*{Evaluation}
+\begin{figure}[H]
+    \centering
+     \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước 
+    \includegraphics[width=0.6\textwidth]{casestudy1.png}
+    \vspace{0.4cm}
+    \caption*{Our Column Generation Output}
+     \label{fig:1}
+\end{figure}
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  
+  % Hàng 1
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{nho/1.png}
+    \caption{Figure 1 (optiCutter)}
+    \label{fig:1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{nho/2.png}
+    \caption{Figure 2 (optiCutter)}
+    \label{fig:2}
+  \end{subfigure}
+  
+  \vspace{0.3cm} % Giảm khoảng cách giữa các hàng
+  
+  % Hàng 2
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{nho/3.png}
+    \caption{Figure 3 (optiCutter)}
+    \label{fig:3}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{nho/4.png}
+    \caption{Figure 4 (optiCutter)}
+    \label{fig:4}
+  \end{subfigure}
+  
+  \vspace{0.3cm} % Giảm khoảng cách giữa các hàng
+  
+  % Hàng 3
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{nho/5.png}
+    \caption{Figure 5 (optiCutter)}
+    \label{fig:5}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{nho/6.png}
+    \caption{Figure 6 (optiCutter)}
+    \label{fig:6}
+  \end{subfigure}
+                                                           
+  \label{fig:all_images}
+\end{figure}
+\begin{table}[h!]
+    \centering
+    \caption{Evaluation Using Our Code}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{|c|c|c|c|c|c|c|}
+            \hline
+            \textbf{} & \textbf{optiCutter} & \textbf{CutList Optimizer} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization} \\ \hline
+             \textbf{Stock Area Used} & 39030 & 37928 & 50456 & 38661 & 41552  \\ \hline
+             \textbf{Area Filled Ratio} & 0.096 & 0.093 & 0.124 & 0.095 & 0.102  \\ \hline
+            \textbf{Filled Ratio} & 0.090 & 0.090 & 0.170 & 0.120 & 0.140  \\ \hline
+            \textbf{Trim Loss} & 0.028 & 0.029 & 0.248 & 0.015 & 0.087  \\ \hline
+            \textbf{Time} & - & - & 6.510  & 0.109 & 18.337  \\ \hline
+        \end{tabular}
     }
-}
-\end{minted}
-\subsection{Traveling function}
-The \textit{Traveling} function is designed to call the \textit{branchAndBoundTSP} function to return the optimal solution for the TSP. 
-\subsubsection{Function Signature}
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-string Traveling(int G[20][20], int numCities, char startVertex);
-\end{minted}
-This function take in parameters:
-\begin{itemize}
-    \item \textbf{int G[20][20]}: The adjacency matrix of the graph.
-    \item \textbf{int numCities}: The number of vertices on the graph.
-    \item \textbf{char startVertex}: The character representing the starting city
-\end{itemize}
-\subsubsection{Function Logic}
-At first, check if the input graph only have 1 vertex or not. If so, the optimal path only have that vertex.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Check for special case
-if (numCities == 1){
-    string ans;
-    ans += startVertex;
-    return ans;
-}
-\end{minted}
-First, initialize necessary variables and array
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Initialization
-int currentPath[21] = {-1};
-bool visited[20] = {false};
-int finalPath[21] = {-1};
-int finalCost = 100000;
-int currentBound = 0;
-string ans;
-\end{minted}
-Where:
-\begin{itemize}
-    \item The \textbf{`currentPath'} array stores the current path being explored. At first initialize it with all -1.
-    \item The \textbf{`visited'} array keeps track which cities have been visited. At first, none of the cities are visited so initialize it with false value.
-    \item The \textbf{`finalPath'} array stores the optimal path. At first initialize it with all -1.
-    \item The \textbf{`finalCost'} to store the cost of the optimal path, at the beginning let it be infinity
-    \item The \textbf{`currentBound'} to store the lower bound of the cost for the current node. At first initialize it with 0.
-    \item The string \textbf{`ans'} to return the optimal path in string format.
-\end{itemize}
-Next, find the minimum weight edges and second minimum weight edges of each vertex using the \textit{findTwoMin} function.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Fill in the minimum and second minimum weight edge for each vertex
-int firstMin[20] = {-1};
-int secondMin[20] = {-1};
-findTwoMin(G,numCities,firstMin,secondMin);
-\end{minted}
-Next, calculate the lower bound for any possible tour in the graph
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Calculate the bound for any tour by formula:
-//1/2 * (sum of first minimum and second minimum of all vertices)
-for (int i = 0; i < numCities; i++)
-{
-    currentBound += (firstMin[i] + secondMin[i]);
-}
+    \end{table}
+\FloatBarrier
+\subsubsection{Case Study 2}
 
-//Rounding off the bound
-if (currentBound % 2 == 0)
-{
-    currentBound = currentBound / 2;
-}
-else
-{
-    currentBound = currentBound / 2 + 1;
-}
-\end{minted}
-At the beginning, marked the starting vertex as visited and included it to the current path array
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Store the starting vertex to the beginning of the current path
-visited[int(startVertex - 'A')] = true;
-currentPath[0] = int(startVertex - 'A');
-\end{minted}
-After initialize all of the necessary elements, call to the \textit{branchAndBoundTSP} with the current weight of the current path is 0 and start to explore the search space tree from root node.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//Call to branchAndBound with current path cost is 0 and explore the tree from level 1. 
-branchAndBoundTSP(G, numCities, currentPath, currentBound, 0, 1, visited, finalCost, finalPath);
-\end{minted}
-After the algorithm has explore all paths and construct the optimal final path , return the final path in string type.
-\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2,fontsize=\footnotesize, linenos]{cpp}
-//After the optimal solution is found
-//Return it in the string form
-for (int i = 0; i <= numCities; i++)
-{
-    ans += char(finalPath[i] + 'A');
-    if (i == numCities) break;
-    ans += " ";
-}
-return ans;
-\end{minted}
+\subsubsection*{Scenario}
+Factory \textbf{Y} manufactures a wide array of plastic components and employs five different stock types to cater to various product dimensions.
 
+\subsubsection*{Available Stock}
+\begin{table}[H]
+    \centering
+    \caption{Available Stock for Factory Y}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Stock Type} & \textbf{Quantity} & \textbf{Width (cm)} & \textbf{Length (cm)} \\ \hline
+        1 & 20 & 40 & 50 \\ \hline
+        2 & 20 & 55 & 45 \\ \hline
+        3 & 20 & 70 & 60 \\ \hline
+        4 & 20 & 80 & 65 \\ \hline
+        5 & 20 & 95 & 75 \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsubsection*{Product Requirements}
+\begin{table}[H]
+    \centering
+    \caption{Product Requirements for Factory Y}
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Product Size (cm)} & \textbf{Quantity Required} \\ \hline
+        20 × 15 & 10 \\ \hline
+        25 × 20 & 8 \\ \hline
+        40 × 35 & 22 \\ \hline
+        50 × 45 & 4 \\ \hline
+        60 × 50 & 3 \\ \hline
+        85 × 65 & 4 \\ \hline
+    \end{tabular}
+\end{table}
+\subsubsection*{Evaluation}
+\begin{figure}[H]
+    \centering
+     \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước 
+    \includegraphics[width=0.6\textwidth]{casestudy2.png}
+    \vspace{0.4cm}
+    \caption*{Our Column Generation Output}
+     \label{fig:1}
+\end{figure}
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước chữ chú thích
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+   \includegraphics[width=0.9\textwidth]{5type/5_1.png}
+    \caption{Figure 1 (optiCutter)}
+    \label{fig:1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_2.png}
+    \caption{Figure 2 (optiCutter)}
+    \label{fig:2}
+  \end{subfigure}
+
+  \vspace{0.1cm} % Khoảng cách giữa các hàng
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_3.png}
+    \caption{Figure 3 (optiCutter) }
+    \label{fig:3}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_4.png}
+    \caption{Figure 4 (optiCutter) }
+    \label{fig:4}
+  \end{subfigure}
+
+  \label{fig:all_images_part1}
+\end{figure}
+
+% ====== Figure 2: Hình 6 đến Hình 10 ======
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước chữ chú thích
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_5.png}
+    \caption{Figure 5 (optiCutter) }
+    \label{fig:5}
+    \hfill
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_6.png}
+    \caption{Figure 6 (optiCutter) }
+    \label{fig:6}
+  \end{subfigure}
+  
+  \vspace{0.1cm}
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_7.png}
+    \caption{Figure 7 (optiCutter) }
+    \label{fig:7}
+    \end{subfigure}
+    \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_8.png}
+    \caption{Figure 8 (optiCutter) }
+    \label{fig:8}
+  \end{subfigure}
+
+
+ 
+  \label{fig:all_images_part2}
+\end{figure}
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và 
+
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_9.png}
+    \caption{Figure 9 (optiCutter) }
+    \label{fig:9}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{5type/5_10.png}
+    \caption{Figure 10 (optiCutter) }
+    \label{fig:10}
+  \end{subfigure}
+  \label{fig:all_images_part2}
+\end{figure}
+\begin{table}[h!]
+        \centering
+        \caption{Evaluation Using Our Code}
+        \resizebox{\textwidth}{!}{ % Điều chỉnh kích thước bảng
+        \begin{tabular}{|c|c|c|c|c|c|c|}
+            \hline
+            \textbf{} & \textbf{optiCutter} & \textbf{CutList Optimizer} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization}  \\ \hline
+             \textbf{Stock Used Area} & 91975 & 	
+95950 & 110800 & 94975 & 100900  \\ \hline
+             \textbf{Area Filled Ratio} & 0.219 & 0.228 & 0.264 & 0.226 & 0.240 \\ \hline
+            \textbf{Filled Ratio} & 0.210 & 0.330 & 0.390 & 0.160 & 0.350  \\ \hline
+            \textbf{Trim Loss} & 0.155 & 0.188 & 0.315 & 0.189 & 0.224  \\ \hline
+            \textbf{Time} & - & - & 0.325 &  0.088 & 1.307  \\ \hline
+        \end{tabular}
+    }
+    \end{table}
+    
+\FloatBarrier
+ \subsubsection{Case Study 3}
+\subsubsection*{Scenario}
+Factory \textbf{Z} produces a range of metal parts and utilizes three distinct types of stocks to accommodate different product sizes.
+
+\subsubsection*{Available Stock}
+\begin{table}[H]
+    \centering
+    \caption{Available Stock for Factory Z}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Stock Type} & \textbf{Quantity} & \textbf{Width (cm)} & \textbf{Length (cm)} \\ \hline
+        1 & 10 & 40 & 50 \\ \hline
+        2 & 14 & 55 & 45 \\ \hline
+        3 & 4 & 70 & 60 \\ \hline
+        4 & 17 & 80 & 65 \\ \hline
+        5 & 11 & 95 & 75 \\ \hline
+        6 & 7 & 60 & 30 \\ \hline
+        7 & 12 & 78 & 48 \\ \hline
+        8 & 11 & 50 & 90 \\ \hline
+        9 & 8 & 70 & 70 \\ \hline
+        10 & 6 & 90 & 90 \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsubsection*{Product Requirements}
+\begin{table}[H]
+    \centering
+    \caption{Product Requirements for Z}
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Product Size (cm)} & \textbf{Quantity Required} \\ \hline
+        23 × 18 & 16 \\ \hline
+        28 × 23 & 12 \\ \hline
+        43 × 38 & 12 \\ \hline
+        33 × 28 & 14 \\ \hline
+        63 × 53 & 11 \\ \hline
+        14 × 34 & 15 \\ \hline
+        20 × 22 & 5 \\ \hline
+        32 × 59 & 10 \\ \hline
+    \end{tabular}
+\end{table}
+\subsubsection*{Evaluation}
+% ====== Figure 1: Hình 1 đến Hình 5 ======
+\begin{figure}[H]
+    \centering
+     \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước 
+    \includegraphics[width=0.6\textwidth]{casestudy3.png}
+    \vspace{0.4cm}
+    \caption*{Our Column Generation Output}
+     \label{fig:1}
+\end{figure}
+
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước chữ chú thích
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+   \includegraphics[width=0.9\textwidth]{3type/3_1.png}
+    \caption{Figure 1 (CutList Optimizer)}
+    \label{fig:1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_2.png}
+    \caption{Figure 2 (CutList Optimizer)}
+    \label{fig:2}
+  \end{subfigure}
+
+  \vspace{0.1cm} % Khoảng cách giữa các hàng
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_3.png}
+    \caption{Figure 3 (CutList Optimizer) }
+    \label{fig:3}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_4.png}
+    \caption{Figure 4 (CutList Optimizer) }
+    \label{fig:4}
+  \end{subfigure}
+
+  \label{fig:all_images_part1}
+\end{figure}
+
+% ====== Figure 2: Hình 6 đến Hình 10 ======
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và kích thước chữ chú thích
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_5.png}
+    \caption{Figure 5 (CutList Optimizer) }
+    \label{fig:5}
+    \hfill
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_6.png}
+    \caption{Figure 6 (CutList Optimizer) }
+    \label{fig:6}
+  \end{subfigure}
+  
+  \vspace{0.1cm}
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_7.png}
+    \caption{Figure 7 (CutList Optimizer) }
+    \label{fig:7}
+    \end{subfigure}
+    \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_8.png}
+    \caption{Figure 8 (CutList Optimizer) }
+    \label{fig:8}
+  \end{subfigure}
+
+
+ 
+  \label{fig:all_images_part2}
+\end{figure}
+\begin{figure}[H] % Sử dụng [H] để cố định vị trí
+  \centering
+  \captionsetup{justification=centering, font=small} % Tùy chỉnh căn chỉnh và 
+
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_9.png}
+    \caption{Figure 9 (CutList Optimizer) }
+    \label{fig:9}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{3type/3_10.png}
+    \caption{Figure 10 (CutList Optimizer) }
+    \label{fig:10}
+  \end{subfigure}
+  \label{fig:all_images_part2}
+\end{figure}
+ \begin{table}[H]
+        \centering
+        \caption{Evaluation Using Our Code}
+        \resizebox{\textwidth}{!}{ % Điều chỉnh kích thước bảng       
+        \begin{tabular}{|c|c|c|c|c|c|}
+            \hline
+            \textbf{} & \textbf{CutList Optimizer} & \textbf{Greedy} & \textbf{Column Generation} & \textbf{Lazy Initialization}  \\ \hline
+            \textbf{Stock Area Used} & 132175 & 188350 & 133589 & 154650  \\ \hline
+            \textbf{Area Filled Ratio}  & 0.305 & 0.435 & 0.308 & 0.357 \\ \hline
+            \textbf{Filled Ratio}  & 0.180 & 0.490 & 0.290 & 0.440  \\ \hline
+            \textbf{Trim Loss} & 0.155 & 0.399 & 0.164 & 0.289  \\ \hline
+            \textbf{Time} & - & 5.402 & 1.187 & 18.787  \\ \hline
+        \end{tabular}
+        }
+\end{table}
+\FloatBarrier
+\subsection*{Summary for Analyze Result}
+
+The evaluation results across the three case studies clearly demonstrate that our \textbf{Column Generation} algorithm outperforms the \textbf{Lazy Initialization} heuristic, achieving superior material utilization and operational efficiency. In each case study, Column Generation consistently delivered better performance compared to Lazy Initialization and Greedy Algorithm, highlighting its effectiveness in optimizing the 2D Cutting Stock Problem. However, in some cases where the amount of stock and item types are large, the column generation needs a significant time to calculate for strip and pattern generation, while lazy initialization doesn't depend on number of types. Furthermore, the performance of Column Generation closely approaches that of established external software solutions such as \textbf{optiCutter} and \textbf{CutList Optimizer}, underscoring its practical viability and competitiveness in real-world industrial applications. This positions our algorithm as a robust and efficient solution for enhancing operational workflows and reducing material costs in manufacturing environments.
+
+\vspace{0.4cm}
+
+\noindent The evaluation results demonstrate that our model effectively optimizes the 2D Cutting Stock Problem, achieving high material utilization and low waste. A key advantage of our algorithm is its implementation of guillotine cuts, which aligns with the practical requirements of businesses and factories. Guillotine cuts simplify the cutting process and are easily automatable in industrial settings, ensuring that our solutions are not only optimal but also feasible for real-world applications. This compatibility with existing manufacturing processes makes our algorithm a valuable tool for enhancing operational efficiency and reducing material costs in various industrial environments.
 \section{Conclusion}
-This report has explore the Branch and Bound algorithm to solve The Traveling Saleman Problem. Although this is not the most efficient algorithm to solve the problem as in some worst-case scenario, Branch and Bound algorithm time complexity will be the same as Brute Force technique. However, in most cases, the algorithm will perform better than Brute Force technique.
 
-\begin{thebibliography}{80}
+The two-dimensional Cutting Stock Problem (2D CSP) remains a critical challenge in industries aiming to optimize material usage and reduce costs. This report has examined the complexities of 2D CSP and evaluated effective algorithmic approaches, notably the \textbf{Lazy Stock Initialization Heuristic} and \textbf{Column Generation}.
 
-\bibitem{TSP}
-Introduction to TSP
-``\textbf{link: https://en.wikipedia.org/wiki/Travelling\_salesman\_problem}'',
-\textit{Travelling salesman problem}.
+\vspace{0.4cm}
 
-\bibitem{B&B}
-Branch and Bound introduction
-``\textbf{link: https://www.geeksforgeeks.org/branch-and-bound-algorithm/}'', \textit{Branch and Bound Algorithm}
+\noindent The Lazy Stock Initialization Heuristic proved advantageous by minimizing initial computational and memory demands through deferred evaluation of cutting patterns. This approach enhances scalability and flexibility, making it suitable for large-scale problems. Meanwhile, Column Generation efficiently manages the exponential number of potential cutting patterns by iteratively incorporating only the most promising ones, thereby improving solution quality and computational efficiency.
 
+\vspace{0.4cm}
+
+\noindent Our case studies demonstrated that the proposed models perform competitively against established cutting software, highlighting their practical applicability in real-world scenarios. Despite the benefits, these methods introduce implementation complexities and may incur increased runtime under certain conditions.
+
+\vspace{0.4cm}
+
+\noindent Future research could explore hybridizing these techniques with other optimization methods, such as genetic algorithms, to further enhance performance. Additionally, integrating predictive models to identify promising cutting patterns could streamline the optimization process.
+
+\vspace{0.4cm}
+
+\noindent In summary, the strategies discussed in this report offer valuable tools for addressing the 2D Cutting Stock Problem, enabling industries to achieve greater material efficiency and cost savings. Continued advancements in optimization algorithms will further bolster the effectiveness and applicability of these solutions in diverse industrial applications.
+\subsection{Future Research and Extensibility}
+
+\begin{itemize}
+
+    \item \textbf{Hybrid Optimization Methods} Combine heuristic algorithms like Genetic Algorithms with exact techniques such as Column Generation to enhance solution quality and reduce computation time.
+    
+    \item \textbf{Machine Learning Integration} Utilize machine learning models to predict and prioritize promising cutting patterns, thereby streamlining the optimization process.
+    
+    \item \textbf{Real-Time and Dynamic Optimization} Develop algorithms capable of adapting to real-time changes in demand, material availability, and production schedules to improve operational flexibility.
+    
+    \item \textbf{Enhanced Constraint Handling} Incorporate additional real-world constraints such as multiple material types, specific orientation requirements, and cutting sequence limitations to increase model robustness.
+    \item \textbf{Scalability Improvements} Optimize algorithms for better scalability by implementing parallel processing, advanced memory management, and leveraging high-performance computing resources.
+
+    
+    \item \textbf{Empirical Validation} Conduct extensive empirical studies and benchmark against state-of-the-art methods to validate performance, identify limitations, and guide further improvements through industry collaborations.
+
+\end{itemize}
+\newpage
+\section{References}
+\renewcommand{\refname}{} % Suppress thebibliography's heading
+\begin{thebibliography}{60}
+\setlength{\itemsep}{0pt}    % Space between items
+\setlength{\parsep}{0pt}     % Space between list paragraphs
+
+\bibitem{report:furini}
+Fabio Furini, Enrico Malaguti, Rosa Medina Durán, Alfredo Persiani, Paolo Toth (2011) \emph{A column generation heuristic for the two-dimensional two-staged guillotine cutting stock problem with multiple stock size}, Operations research
+
+\bibitem{wiki:lazy_init}
+\textit{Lazy Initialization}. Wikipedia. Available at: \url{https://en.wikipedia.org/wiki/Lazy_initialization}.
+
+\bibitem{gilmore:cutting-stock}
+P. C. Gilmore and R. E. Gomory (1961) \emph{A linear programming approach to the cutting-stock problem}, Operations research, vol. 9, no. 6, pp. 849–859.
+
+\bibitem{wiki:first_fit}
+\textit{First-fit bin packing}. Wikipedia. Available at: \url{https://en.wikipedia.org/wiki/First-fit_bin_packing}.
+
+\bibitem{haessler:cutting-stock}
+R. W. Haessler and P. E. Sweeney (1991) \emph{Cutting stock problems and solution procedures,}, European Journal of Operational Research, vol. 54, no. 2, pp. 141–150.
+
+\bibitem{iori:exact-solution}
+M. Iori, V. L. De Lima, S. Martello, F. K. Miyazawa, and M. Monaci (2021) \emph{Exact solution techniques for two-dimensional cutting and packing,}, European Journal of Operational Research, vol. 289,
+no. 2, pp. 399–415.
 
 \end{thebibliography}
 \end{document}
-
