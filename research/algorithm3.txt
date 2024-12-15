@@ -1,1 +1,56 @@
-Author: Truong Gia Ky Nam - 2352787 & Chau Anh Nhat - 2352856
+Author: Nguyen Huu Phuc - 2352938
+
+A GLOBAL METHOD FOR A TWO-DIMENSIONAL CUTTING STOCK PROBLEM IN THE MANUFACTURING INDUSTRY
+
+This algorithm presents a solution to the two-dimensional cutting stock problem (2DCSP), a challenge commonly faced in manufacturing 
+industries like glass, wood, and paper. The goal of 2DCSP is to efficiently cut multiple rectangular items from larger sheets, minimizing 
+both material waste and operational costs. Traditional methods often involve complex mathematical models with numerous binary variables, 
+leading to significant computational demands. To address this, the proposed algorithm introduces a global deterministic approach that 
+significantly reduces the number of binary variables, streamlining computations and accelerating the path to an optimal solution. This 
+makes it especially valuable in large-scale manufacturing settings where material efficiency and cost savings are paramount.
+
+Algorithm Overview
+1. Model Reformulation: The algorithm modifies traditional 2DCSP models by redefining constraints, using binary variables solely for 
+essential non-overlapping conditions to simplify item representation on the material grid.
+2. Logarithmic Encoding: Through logarithmic reformulation, the algorithm reduces variable count by encoding possible item placements 
+with fewer binary variables, enhancing computational feasibility.
+3. Non-Overlapping Constraints: Strict non-overlapping constraints ensure each item fits within the material, dynamically adjusting 
+based on item size and orientation.
+4. Optimization and Solution Search: Using a mixed-integer programming solver, the algorithm iteratively refines binary and continuous 
+variables to find the optimal, least wasteful configuration efficiently.
+
+Advantages
+1. Computational Efficiency: By reducing binary variables logarithmically, the method lowers computational load, which is especially 
+beneficial for large problem instances.
+2. Optimal Solutions: Unlike heuristic methods, this deterministic approach guarantees an optimal solution, which is critical in 
+minimizing material use.
+3. Flexibility: It can accommodate multiple material types and varying dimensions, making it adaptable to diverse manufacturing 
+requirements.
+
+Disadvantages
+1. Increased Complexity for Small-Scale Problems: For smaller instances, the benefits of reduced computation may not outweigh the added 
+model complexity.
+2. High Initial Computation Load: While efficient overall, the initial setup and reformulation process can be complex, potentially 
+limiting its usability in real-time applications.
+
+Optimal application contexts
+1. Large-Scale 2DCSP Scenarios: The algorithm excels in settings with high item counts and complex layouts, optimizing cutting plans 
+for numerous parts.
+2. Multiple Material Types: When various materials with different properties or sizes are involved, the algorithm can efficiently 
+handle mixed inputs and maximize utilization for each material type.
+3. High Precision Requirements: In applications where exact cuts and minimal waste are essential, the algorithm’s precision in layout 
+optimization is particularly advantageous.
+4. Manufacturing Environments with Preprocessing Capacity: Situations where preprocessing time is available allow the algorithm to set 
+up and fine-tune the optimal layout effectively.
+5. Waste Minimization Focus: Industries prioritizing material cost savings and sustainability will benefit from the algorithm’s ability 
+to minimize off-cuts and reduce waste.
+
+Conclusion
+The study presents a robust solution for 2DCSP, significantly advancing existing methods by lowering computational requirements and 
+maintaining optimality. This model is particularly advantageous in large-scale industrial applications, where reducing material costs 
+is essential. Future research could explore hybrid approaches or integrate this model with heuristic methods for real-time solutions, 
+combining speed with guaranteed optimality.
+
+Reference
+Y.-H. Huang, H.-C. Lu, Y.-C. Wang, Y.-F. Chang, and C.-K. Gao, “A global method for a two-dimensional cutting stock problem in the 
+manufacturing industry,” Application of Decision Science in Business and Management, p. 167, 2020.
